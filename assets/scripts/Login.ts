@@ -5,7 +5,8 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Component, Node } from 'cc';
+import { _decorator, Component, Node ,log} from 'cc';
+import { ProtocolManager } from './ProtocolManager/ProtocolManager';
 const { ccclass, property } = _decorator;
 
 //var pomelo = window.pomelo;
@@ -21,20 +22,9 @@ export class Login extends Component {
 
     start () {
         // Your initialization goes here.
-        /*
-        pomelo.init({
-                host : '116.62.57.248',
-                port : '3014'
-            }, function () {
-                var route = 'gate.gateHandler.queryEntry';
-                console.log('请求链接');
-                pomelo.request(route, {
-                }, function (data : any) {
-                    console.log('请求登陆');
-                    console.log(data);
-            })
-        });
-        */
+
+        //原则上，需要的资源加载完成再启动链接服务器
+        ProtocolManager.getInstance().start(false,this.onConnectError,this.onDisconnect,this.onConnectSuccess);
     }
 
     // update (deltaTime: number) {
@@ -51,5 +41,17 @@ export class Login extends Component {
 
     onClickQQBtn(){
         console.log('qq登陆');
+    }
+
+    //-----------------网络消息处理-----------------
+    private onConnectSuccess(msg : any) : void{
+        log("链接成功："+msg);
+    }
+
+    private onConnectError(msg : any) : void{
+        log("链接失败"+msg);
+    }
+    private onDisconnect(msg : any) : void{
+        log("断开链接："+msg);
     }
 }

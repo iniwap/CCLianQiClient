@@ -1617,9 +1617,8 @@ cc.Pomelo = function() {
     return pomelo;
     // module.exports = pomelo;
   };
-
   //
-  window.pomelo = cc.Pomelo;
+  window.pomelo = new cc.Pomelo();
 
 
 

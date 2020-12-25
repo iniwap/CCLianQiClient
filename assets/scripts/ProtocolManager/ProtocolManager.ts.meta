@@ -2,7 +2,7 @@
   "ver": "4.0.9",
   "importer": "typescript",
   "imported": true,
-  "uuid": "329ca114-b70f-4598-8f3c-7815a667005d",
+  "uuid": "87912383-9760-42be-8752-356f402db135",
   "files": [
     ".js",
     "editor.js",
@@ -11,7 +11,7 @@
   "subMetas": {},
   "userData": {
     "importAsPlugin": false,
-    "moduleId": "project:///assets/script/NetWorkManager/ProtocolManager.js",
+    "moduleId": "project:///assets/scripts/ProtocolManager/ProtocolManager.js",
     "importerSettings": 7
   }
 }

@@ -2,7 +2,7 @@
   "ver": "4.0.9",
   "importer": "typescript",
   "imported": true,
-  "uuid": "e21b3a68-b40f-4e32-8904-186b45849c17",
+  "uuid": "60ae4d4f-e4ae-4b74-8bed-b133ae64b780",
   "files": [
     ".js",
     "editor.js",
@@ -11,7 +11,7 @@
   "subMetas": {},
   "userData": {
     "importAsPlugin": false,
-    "moduleId": "project:///assets/script/Login.js",
+    "moduleId": "project:///assets/scripts/ProtocolManager/ProtocolDefine.js",
     "importerSettings": 7
   }
 }

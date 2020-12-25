@@ -2,7 +2,7 @@
   "ver": "4.0.9",
   "importer": "typescript",
   "imported": true,
-  "uuid": "eebfa55d-4368-4e0b-afc3-facc2107c3a7",
+  "uuid": "e21b3a68-b40f-4e32-8904-186b45849c17",
   "files": [
     ".js",
     "editor.js",
@@ -11,7 +11,7 @@
   "subMetas": {},
   "userData": {
     "importAsPlugin": false,
-    "moduleId": "project:///assets/script/NetWorkManager/NetWorkManager.js",
+    "moduleId": "project:///assets/scripts/Login.js",
     "importerSettings": 7
   }
 }

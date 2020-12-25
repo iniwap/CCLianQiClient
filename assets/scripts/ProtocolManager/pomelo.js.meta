@@ -1,0 +1,17 @@
+{
+  "ver": "4.0.9",
+  "importer": "javascript",
+  "imported": true,
+  "uuid": "68fc906c-f491-47c7-8bfd-773efea328e7",
+  "files": [
+    ".js",
+    "editor.js",
+    ".trans"
+  ],
+  "subMetas": {},
+  "userData": {
+    "importAsPlugin": false,
+    "moduleId": "project:///assets/scripts/ProtocolManager/pomelo.js",
+    "importerSettings": 7
+  }
+}
