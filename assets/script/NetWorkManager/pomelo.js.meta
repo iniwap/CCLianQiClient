@@ -1,0 +1,21 @@
+{
+  "ver": "4.0.9",
+  "importer": "javascript",
+  "imported": true,
+  "uuid": "223448be-a8f7-4ce5-afab-5ddde4cf33d1",
+  "files": [
+    ".js"
+  ],
+  "subMetas": {},
+  "userData": {
+    "importAsPlugin": true,
+    "moduleId": "project:///assets/scripts/NetManager/pomelo.js",
+    "importerSettings": 7,
+    "isPlugin": true,
+    "loadPluginInWeb": true,
+    "loadPluginInNative": true,
+    "loadPluginInEditor": false,
+    "dependencies": [],
+    "simulateGlobals": false
+  }
+}
