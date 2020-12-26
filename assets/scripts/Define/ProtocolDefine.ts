@@ -165,7 +165,91 @@ export namespace ProtocolDefine{
 		//更多待定..
 
 		P_GAME_LIANQI_END = 39999,//游戏协议起止号，这里只有联棋
-    };
+	};
+	
+	export namespace MsgLogin{
+		export enum eLoginType
+		{
+			LOGIN_TYPE_NONE = 0,
+			LOGIN_TYPE_YK = 1,
+			LOGIN_TYPE_QQ = 2,
+			LOGIN_TYPE_WX = 3,
+		};
+
+		export enum eClientType
+		{
+			CLIENT_TYPE_IPHONE = 1,
+			CLIENT_TYPE_IPAD = 2,
+			CLIENT_TYPE_ANDROID = 3,
+			CLIENT_TYPE_PC = 4,
+			//..MORE
+		};
+
+		export enum eNetWorkType
+		{
+			NETWORK_TYPE_WIFI = 1,
+			NETWORK_TYPE_4G = 2,
+			// MORE
+		};
+		export interface msgLogin
+		{
+			userID : number;  //游客第一次登陆请填0//如果有值则认为是后续登陆
+			loginType : eLoginType;
+			area : number;//区服id
+			password : string;
+			deviceID : string;//设备码
+			osVersion: number;//操作系统版本号
+			ipAddr: number;
+			channelID: number; //渠道号
+			appVersion: number;
+			netWorkType: number;
+	
+			//三方登陆数据
+			openID : string;
+			token : string;
+			nickName : string;
+			head : string;
+			sex: number;
+			expireTime: number;
+		};
+	};
+
+	export namespace MsgUserData{
+		export enum eLoginResultFlag
+		{
+			LOGIN_SUCCESS = 0,
+			LOGIN_FAIL_INCORRECT_PWD = 1,//密码错误
+			LOGIN_FAIL_NOT_EXIST_ACCOUT = 2,//账号不存在
+			LOGIN_FAIL_NOT_SUPPORT_TYPE = 3,
+			LOGIN_FAIL_OPENID_ERROR = 4,
+			LOGIN_SUCCESS_HAS_LOGIN = 5,
+		};
+		export interface msgUserData
+		{
+			flag : eLoginResultFlag;
+			user_id : number; 
+			area : number; 
+			name : string;
+			sex: number; 
+			head : string;
+			ip: number; 
+			gold: number; 
+			win: number; //赢
+			lose: number; //输
+			draw: number; //平－和
+			escape: number; //逃跑
+			talent: number; //天赋槽数，已打开的天赋槽
+			gameTime: number; //总游戏时长
+			exp: number; //经验
+			room_id: number; //是否在房间中,0不在
+			adult : boolean;//是否成年
+			charm: number; //魅力
+			lastlogin_time: number; //最后登陆时间
+			score: number; //得分-对应段位，是总星数，每个段位分多少星
+			diamond: number; //钻石
+			energy: number; //能量
+		};
+	}
 }
   
   

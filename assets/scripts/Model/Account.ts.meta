@@ -2,7 +2,7 @@
   "ver": "4.0.9",
   "importer": "typescript",
   "imported": true,
-  "uuid": "e21b3a68-b40f-4e32-8904-186b45849c17",
+  "uuid": "1a3e7a9c-9d68-4181-8a0b-b84e52480ad6",
   "files": [
     ".js",
     "editor.js",
@@ -11,7 +11,7 @@
   "subMetas": {},
   "userData": {
     "importAsPlugin": false,
-    "moduleId": "project:///assets/scripts/Login.js",
+    "moduleId": "project:///assets/scripts/Model/Account.js",
     "importerSettings": 7
   }
 }

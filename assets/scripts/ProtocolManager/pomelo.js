@@ -1392,7 +1392,7 @@ cc.Pomelo = function() {
     if(!route) {
       return;
     }
-
+    
     reqId++;
     sendMessage(reqId, route, msg);
 
@@ -1617,6 +1617,7 @@ cc.Pomelo = function() {
     return pomelo;
     // module.exports = pomelo;
   };
+
   //
   window.pomelo = new cc.Pomelo();
 
