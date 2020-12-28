@@ -1,4 +1,6 @@
-import { sys } from "cc";
+import { sys,find as CCFind } from "cc";
+import { ProtocolDefine } from "../Define/ProtocolDefine";
+import { GlobalController } from "./GlobalController";
 
 //
 export namespace Utils{
@@ -23,5 +25,59 @@ export namespace Utils{
     }
     export const setPlayerPrefs = function(key : any,v : any) : void{
         sys.localStorage.setItem(key,v);
+    }
+    export const encodeMsg = function(msg : any) : JSON{
+        let json : string = JSON.stringify(msg);
+        return  JSON.parse(json);
+    }
+
+    export interface DictType {
+        [key : string]: any;
+        //key1: string;
+    //...
+    };
+
+    export const getGlobalController = function() : any {
+		let gc : any = CCFind("GlobalController")?.getComponent("GlobalController");
+        if(gc === null) {
+            console.log("getGlobalController找不到节点，不可能出现");
+            return null;
+        }else{
+            return (gc as GlobalController);
+		}
+    }
+
+    export const getModeStr = function(type : ProtocolDefine.nRoom.eCreateRoomType,
+        playerNum : number,gridLevel : number) : string{
+        let mode : string = "";
+        if (type != ProtocolDefine.nRoom.eCreateRoomType.ROOM_CLASSIC_PLAZA) {
+            if (playerNum == 2) {
+                mode = mode + "双人";
+            } else if (playerNum == 3) {
+                mode = mode + "三人";
+            } else if (playerNum == 4) {
+                mode = mode + "四人";
+            }
+            if (gridLevel == 4) {
+                mode = mode + "四阶";
+            } else if (gridLevel == 6) {
+                mode = mode + "六阶";
+            } else if (gridLevel == 8) {
+                mode = mode + "八阶";
+            }
+        } else {
+
+            if (playerNum == 2 && gridLevel == 4) {
+                mode = "楚汉逐鹿";
+            } else if (playerNum == 2 && gridLevel == 6) {
+                mode = "一决雌雄";
+            } else if (playerNum == 4 && gridLevel == 6) {
+                mode = "四国混战";
+            } else if (playerNum == 3 && gridLevel == 6) {
+                mode = "三足鼎立";
+            }
+        }
+
+        return mode;
     }
 }

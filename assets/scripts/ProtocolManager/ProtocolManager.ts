@@ -51,8 +51,8 @@ export class ProtocolManager  {
             this.createConnect(false);
     }
 
-    public Restart() : void{
-        this.SelectServer(this._ip,this._port);
+    public Restart(force : boolean) : void{
+        this.SelectServer(this._ip,this._port,force);
     }
 
     //初始化pomelo
@@ -62,13 +62,14 @@ export class ProtocolManager  {
             //log("onTick: ", msg);
         });
 
-        this._connection.on('disconnect', (msg : any) => {
-            //log("disconnect: ", msg);
-            if(typeof this._disconnectCallback !== 'function') {
-                return;
-            }
-            this._disconnectCallback(msg);
-        });
+        //因为有一次主动断开，可以登陆时再检测网络断开
+        // this._connection.on('disconnect', (msg : any) => {
+        //     //log("disconnect: ", msg);
+        //     if(typeof this._disconnectCallback !== 'function') {
+        //         return;
+        //     }
+        //     this._disconnectCallback(msg);
+        // });
 
         this._connection.on('io-error', (msg : any) => {
             //log("pomelo.on(io-error): ", msg);
@@ -88,6 +89,14 @@ export class ProtocolManager  {
                     return;
                 }
                 //
+                this._connection.on('disconnect', (msg : any) => {
+                    //log("disconnect: ", msg);
+                    if(typeof this._disconnectCallback !== 'function') {
+                        return;
+                    }
+                    this._disconnectCallback(msg);
+                });
+
                 this._connectCallback(this._isSelectServerMode,this._serverList);
                 
             }else{
@@ -108,13 +117,17 @@ export class ProtocolManager  {
         });
     }
     //选择服务器
-    private SelectServer(ip : string,port : number) : void{
+    private SelectServer(ip : string,port : number , force : boolean = false) : void{
         this._ip = ip;
         this._port = port;
         //首先断开之前的列表服务器
-        this._connection.disconnect(()=>{
+        if(force){
             this.createConnect(true);
-        });
+        }else{
+            this._connection.disconnect(()=>{
+                this.createConnect(true);
+            });
+        }
     }
 
     // private getRouteConfig(arg: string) : string {
@@ -133,5 +146,18 @@ export class ProtocolManager  {
          }else{
             this._connection.notify(route, msg);
          }
+    }
+
+    //注册消息
+    public on(event : string,cb : any) : void{
+        var onCb = cb;
+        this._connection.on(event, (msg : any) => {
+            if(onCb) onCb(msg);
+        });
+    }
+    public off(event : string) : void{
+        this._connection.off(event, (msg : any) => {
+            //取消监听
+        });
     }
 }

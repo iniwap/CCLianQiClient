@@ -13,6 +13,7 @@ export namespace AccountEvent{
 		LOGIN_SUCCESS,//登陆成功，用于通知其他
 		NETWORK_ERROR,
 		NETWORK_DISCONNECT,
+		RELOGIN,//重新登陆
 	};
 
 	export interface ThirdPartyLoginResult{
