@@ -9,6 +9,8 @@ import { _decorator, Component, Node, instantiate, Prefab } from 'cc';
 import { Dialog, eDialogBtnType, eDialogEventType, IDialog } from '../Common/Dialog';
 import { Loading } from '../Common/Loading';
 import { AccountEvent } from '../Event/AccountEvent';
+import { CommonEvent } from '../Event/CommonEvent';
+import { LobbyEvent } from '../Event/LobbyEvent';
 import { Utils } from './Utils';
 const { ccclass, property } = _decorator;
 
@@ -47,6 +49,9 @@ export class NetwokState extends Component {
 
         let es : string = AccountEvent.EVENT[AccountEvent.EVENT.LOGIN_SUCCESS];
         Utils.getGlobalController()?.On(es,this.onLoginSuccess.bind(this));
+
+        let eloading : string = AccountEvent.EVENT[CommonEvent.EVENT.SHOW_LOADING];
+        Utils.getGlobalController()?.On(es,this.showLoading.bind(this));
     }
     public onDisable(){
         //这些事件每个scene都要监听
@@ -61,6 +66,9 @@ export class NetwokState extends Component {
 
         let es : string = AccountEvent.EVENT[AccountEvent.EVENT.LOGIN_SUCCESS];
         Utils.getGlobalController()?.Off(es,this.onLoginSuccess.bind(this));
+
+        let eloading : string = AccountEvent.EVENT[CommonEvent.EVENT.SHOW_LOADING];
+        Utils.getGlobalController()?.Off(es,this.showLoading.bind(this));
     }
 
     public onConnect(selectSeverMode : boolean,msg : any) : void{
@@ -140,5 +148,27 @@ export class NetwokState extends Component {
 		//show loading
 		let loading : Loading = node.getComponent("Loading") as Loading;
         loading.ShowLoading(show);
+    }
+
+	public showDialog(title : string,content : string ,
+		okText : string = "确定",cancelText : string = "取消",closeText : string = "取消") : void{
+
+		let node : Node = instantiate(this.DialogPrefab);
+        node.parent = this.node.parent;
+        node.setPosition(0, 0);
+        //show dialog
+        let dlg : Dialog = node.getComponent("Dialog") as Dialog;
+        let iDlg : IDialog = {
+            type : eDialogEventType.SIMPLE,
+            tip : content,
+			hasOk : false,
+			okText : okText,
+			hasCancel : false,
+			cancelText : cancelText,
+			hasClose : true,
+			closeText : closeText,
+            callBack : ()=> {},
+        };
+        dlg.ShowDialog(true,iDlg);
 	}
 }

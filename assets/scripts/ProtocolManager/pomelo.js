@@ -1329,12 +1329,12 @@ cc.Pomelo = function() {
     };
     var onerror = function(event) {
       pomelo.emit('io-error', event);
-      console.error('socket error: ', event);
+      //console.error('socket error: ', event);
     };
     var onclose = function(event) {
       pomelo.emit('close',event);
       pomelo.emit('disconnect', event);
-      console.error('socket close: ', event);
+      //console.error('socket close: ', event);
       if(!!params.reconnect && reconnectAttempts < maxReconnectAttempts) {
         reconnect = true;
         reconnectAttempts++;
@@ -1459,7 +1459,7 @@ cc.Pomelo = function() {
     if(gap > gapThreshold) {
       heartbeatTimeoutId = setTimeout(heartbeatTimeoutCb, gap);
     } else {
-      console.error('server heartbeat timeout');
+      //console.error('server heartbeat timeout');
       pomelo.emit('heartbeat timeout');
       pomelo.disconnect();
     }

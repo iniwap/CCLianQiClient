@@ -7,10 +7,13 @@
 
 import { _decorator, Component, Node } from 'cc';
 import { ProtocolDefine } from '../Define/ProtocolDefine';
+import { LobbyEvent } from '../Event/LobbyEvent';
+import { NetwokState } from '../Utils/NetwokState';
+import { Utils } from '../Utils/Utils';
 const { ccclass, property } = _decorator;
 
 @ccclass('FeedbackView')
-export class FeedbackView extends Component {
+export class FeedbackView extends NetwokState {
     /* class member could be defined like this */
     // dummy = '';
 
@@ -23,9 +26,25 @@ export class FeedbackView extends Component {
         // Your initialization goes here.
     }
 
+	onEnable(){
+		let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.RESP_FEEDBACK];
+        Utils.getGlobalController()?.On(e,this.OnRespFeedback.bind(this));
+	}
+	onDisable(){
+		let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.RESP_FEEDBACK];
+        Utils.getGlobalController()?.Off(e,this.OnRespFeedback.bind(this));
+	}
     // update (deltaTime: number) {
     //     // Your update function goes here.
     // }
+
+	public OnRespFeedback(type : ProtocolDefine.nLobby.nFeedback.eFeedbackType,content : string){
+		if (type == ProtocolDefine.nLobby.nFeedback.eFeedbackType.DANMU) {
+			//显示弹幕
+		}else{
+			this.showDialog ("温馨提示",content);
+		}
+	}
 
     public OnClickSubmitBtn() : void{
 		// if(_inputText.text.Length != 0 && _inputText.text.Length <= 200){

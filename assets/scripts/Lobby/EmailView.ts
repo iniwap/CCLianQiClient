@@ -48,6 +48,7 @@ export class EmailView extends Component {
 	// }
 
     public OnUpdateEmail(arg0 : any = undefined,arg1 : any = undefined) : void{
+		//直接使用model数据
 		//Lobby.Lobby.privateMsgList
 	}
     public OnShowUpdateEmailResult(awardEmailId : number,

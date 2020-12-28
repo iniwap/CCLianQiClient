@@ -16,6 +16,7 @@ export namespace LobbyEvent{
 		SHOW_STORE,
 		UPDATE_PACKAGE,//
 		SHOW_PACKAGE,
+		SHOW_HAS_NEW_EMAIL_MARK,//显示有个人邮件红点
 		UPDATE_PRIVATEMSG,//个人邮件
 		SHOW_PRIVATE_MSG,
 		SHOW_SYSMSG,//显示某条系统公告－跑马灯
@@ -40,6 +41,7 @@ export namespace LobbyEvent{
 		SHOW_HAS_EMAIL,//有未读邮件标志
 
 		REQ_FEEDBACK,
+		RESP_FEEDBACK,
 		REQ_OPEN_TALENTSLOT,
 		RESP_OPEN_TALENTSLOT,
 		UPDATE_USER_TALENT,//更新用户天赋列表

@@ -7,12 +7,14 @@
 
 import { _decorator, Component, Node } from 'cc';
 import { CommonDefine } from '../Define/CommonDefine';
+import { ProtocolDefine } from '../Define/ProtocolDefine';
 import { LobbyEvent } from '../Event/LobbyEvent';
+import { NetwokState } from '../Utils/NetwokState';
 import { Utils } from '../Utils/Utils';
 const { ccclass, property } = _decorator;
 
 @ccclass('TalentView')
-export class TalentView extends Component {
+export class TalentView extends NetwokState {
     /* class member could be defined like this */
     // dummy = '';
 
@@ -63,7 +65,21 @@ export class TalentView extends Component {
 	}
 
 
-    public OnOpenTalentSlot(data : any = undefined,arg1 = undefined) : void{
+    public OnOpenTalentSlot(ret : any = undefined,arg1 = undefined) : void{
+
+		if (ret == ProtocolDefine.nLobby.nTalent.eOpenTalentslotResultType.OPEN_SUCCESS) {
+			//开槽成功
+			//refresh ui
+			//CommonUtil.Util.showDialog ("温馨提示","开槽成功，当前槽数为："+resp.currentOpenedCnt);
+
+		}else if(ret== ProtocolDefine.nLobby.nTalent.eOpenTalentslotResultType.OPEN_FAIL_LESS_DIAMOND){
+			this.showDialog ("温馨提示","开槽失败，您的晶核不足，请充值");
+		}else if(ret== ProtocolDefine.nLobby.nTalent.eOpenTalentslotResultType.OPEN_FAIL_LESS_GOLG){
+			this.showDialog ("温馨提示","开槽失败，您的金币不足，请充值");
+		}else if(ret== ProtocolDefine.nLobby.nTalent.eOpenTalentslotResultType.OPEN_FAIL_MAX_SLOT){
+			this.showDialog ("温馨提示","您的天赋槽已全部打开！");
+		}
+
 
         // utfos.gold = resp.currentGold;
         // utfos.diamond = resp.currentDiamond;
