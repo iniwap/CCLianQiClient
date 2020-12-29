@@ -5,7 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Component, Node, Sprite, Label, sp } from 'cc';
+import { _decorator, Component, Node, Sprite, Label} from 'cc';
 import { CommonDefine } from '../Define/CommonDefine';
 import { LobbyEvent } from '../Event/LobbyEvent';
 import { Utils } from '../Utils/Utils';
@@ -21,30 +21,30 @@ export class SettingView extends Component {
     // serializableDummy = 0;
     
     @property(Sprite)
-    BgSndSelectedBg : Sprite = null;
+    BgSndSelectedBg! : Sprite;
     @property(Sprite)
-	EffSndSelectedBg : Sprite = null;
+	EffSndSelectedBg! : Sprite;
 
     @property(Node)
-    BgSndOn : Node = null;
+    BgSndOn! : Node;
     @property(Node)
-    BgSndOff : Node = null;
+    BgSndOff! : Node;
     @property(Node)
-    EffSndOn : Node = null;
+    EffSndOn! : Node;
     @property(Node)
-	EffSndOff : Node = null;
+	EffSndOff! : Node;
 
     @property(Label)
-    BgSndOnText : Label = null;
+    BgSndOnText! : Label;
     @property(Label)
-    BgSndOffText : Label = null;
+    BgSndOffText! : Label;
     @property(Label)
-    EffSndOnText : Label = null;
+    EffSndOnText! : Label;
     @property(Label)
-    EffSndOffText : Label = null;
+    EffSndOffText! : Label;
     
     @property(Label)
-    VersionInfo : Label = null;
+    VersionInfo! : Label;
 
     start () {
         // Your initialization goes here.
@@ -63,16 +63,18 @@ export class SettingView extends Component {
 
 	public OnClickBgSndBtn(event : any,on : string) : void{
         this.setBgSnd(on == "1");
-        Utils.setPlayerPrefs(LobbyEvent.EVENT.OPEN_CLOSE_BG_SND,on);
+        Utils.setPlayerPrefs(CommonDefine.SETTING_BG_SND,on);
+        console.log("OnClickBgSndBtn====>" + on);
 	}
 
 	public OnClickEffSndBtn(event : any,on : string) : void{
         this.setEff(on == "1");
-        Utils.setPlayerPrefs(LobbyEvent.EVENT.OPEN_CLOSE_EFFECT_SND,on);
+        Utils.setPlayerPrefs(CommonDefine.SETTING_EFF_SNF,on);
 	}
 	private initSndSetting() : void{
-        this.setEff(Utils.getPlayerPrefs(CommonDefine.SETTING_EFF_SNF,"1"));
-        this.setBgSnd(Utils.getPlayerPrefs(CommonDefine.SETTING_BG_SND,"1"));
+        console.log("初始化："+Utils.getPlayerPrefs(CommonDefine.SETTING_EFF_SNF,"1"));
+        this.setEff(Utils.getPlayerPrefs(CommonDefine.SETTING_EFF_SNF,"1") == "1");
+        this.setBgSnd(Utils.getPlayerPrefs(CommonDefine.SETTING_BG_SND,"1" == "1"));
     }
     private setBgSnd(on : boolean) : void{
 		if (on) {

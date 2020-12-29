@@ -29,7 +29,7 @@ export class Loading extends Component {
         this.node.active = show;
         if(!show){
             //destory
-            this.destroy();
+            this.node.destroy();
         }
     }
 }

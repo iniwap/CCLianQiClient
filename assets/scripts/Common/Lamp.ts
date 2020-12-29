@@ -18,7 +18,7 @@ export class Lamp extends Component {
     // @property
     // serializableDummy = 0;
     @property(RichText)
-	public LampText : RichText = null;
+	public LampText! : RichText;
 
 	_speed : number = 2;
 	_currentLamp : number = 0;

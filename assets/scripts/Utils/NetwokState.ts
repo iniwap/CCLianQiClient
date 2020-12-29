@@ -10,7 +10,6 @@ import { Dialog, eDialogBtnType, eDialogEventType, IDialog } from '../Common/Dia
 import { Loading } from '../Common/Loading';
 import { AccountEvent } from '../Event/AccountEvent';
 import { CommonEvent } from '../Event/CommonEvent';
-import { LobbyEvent } from '../Event/LobbyEvent';
 import { Utils } from './Utils';
 const { ccclass, property } = _decorator;
 
@@ -23,10 +22,10 @@ export class NetwokState extends Component {
     // @property
     // serializableDummy = 0;
     @property(Prefab)
-    public DialogPrefab : Prefab = null;
+    public DialogPrefab! : Prefab;
 
     @property(Prefab)
-    public LoadingPrefab : Prefab = null;
+    public LoadingPrefab! : Prefab;
     
     public start () {
         // Your initialization goes here.
@@ -52,6 +51,9 @@ export class NetwokState extends Component {
 
         Utils.getGlobalController()?.On(CommonEvent.EVENT[CommonEvent.EVENT.SHOW_LOADING],
             this.showLoading.bind(this));
+
+        Utils.getGlobalController()?.On(CommonEvent.EVENT[CommonEvent.EVENT.SHOW_DIALOG],
+            this.OnShowDialog.bind(this));
     }
     public onDisable(){
         //这些事件每个scene都要监听
@@ -69,6 +71,9 @@ export class NetwokState extends Component {
 
         Utils.getGlobalController()?.Off(CommonEvent.EVENT[CommonEvent.EVENT.SHOW_LOADING],
             this.showLoading.bind(this));
+
+        Utils.getGlobalController()?.Off(CommonEvent.EVENT[CommonEvent.EVENT.SHOW_DIALOG],
+            this.OnShowDialog.bind(this));
     }
 
     public onConnect(selectSeverMode : boolean,msg : any) : void{
@@ -141,16 +146,27 @@ export class NetwokState extends Component {
     
     //显示登陆loading
 	public showLoading(show : boolean) : void{
-        let node : Node = instantiate(this.LoadingPrefab);
-        node.parent = this.node.parent;
-        node.setPosition(0, 0);
-		//show loading
-		let loading : Loading = node.getComponent("Loading") as Loading;
-        loading.ShowLoading(show);
+        let ld = this.node.parent?.getComponentInChildren(Loading);
+        if(ld == null){
+            let node : Node = instantiate(this.LoadingPrefab);
+            node.parent = this.node.parent;
+            node.setPosition(0, 0);
+            //show loading
+            let loading : Loading = node.getComponent(Loading)!;
+            loading.ShowLoading(show);
+        }else{
+            let loading : Loading = ld.getComponent(Loading)!;
+            loading.ShowLoading(show);
+        }
+    }
+
+    public OnShowDialog(dlg : IDialog){
+        this.showDialog(dlg.tip,dlg.tip,dlg.okText,dlg.cancelText,dlg.closeText,dlg.hasOk,dlg.hasCancel,dlg.hasClose);
     }
 
 	public showDialog(title : string,content : string ,
-		okText : string = "确定",cancelText : string = "取消",closeText : string = "取消") : void{
+        okText : string = "确定",cancelText : string = "取消",closeText : string = "取消",
+        hasOk : boolean = false,hasCancel : boolean = false,hasClose : boolean = true) : void{
 
 		let node : Node = instantiate(this.DialogPrefab);
         node.parent = this.node.parent;
@@ -160,11 +176,11 @@ export class NetwokState extends Component {
         let iDlg : IDialog = {
             type : eDialogEventType.SIMPLE,
             tip : content,
-			hasOk : false,
+			hasOk : hasOk,
 			okText : okText,
-			hasCancel : false,
+			hasCancel : hasCancel,
 			cancelText : cancelText,
-			hasClose : true,
+			hasClose : hasClose,
 			closeText : closeText,
             callBack : ()=> {},
         };

@@ -11,7 +11,7 @@
   "subMetas": {},
   "userData": {
     "importAsPlugin": false,
-    "moduleId": "project:///assets/scripts/Lobby/EmailView.js",
+    "moduleId": "project:///assets/scripts/Lobby/Email/EmailView.js",
     "importerSettings": 7
   }
 }

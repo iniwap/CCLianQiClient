@@ -46,6 +46,7 @@ export class GlobalController extends Component {
     onDisable(){
         this.removeAllUIEvent();
 		this.removeAllProtocolEvent();
+		this.removeAllEvent();
     }
 
     onLoad(){
@@ -58,10 +59,6 @@ export class GlobalController extends Component {
 		
 		//排行榜打开游戏不会请求，需要打开界面的时候请求
 		this.On(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_RANK],this.onEventShowRank.bind(this));
-
-		//push消息
-		ProtocolManager.getInstance().On(ProtocolDefine.LobbyProtocol[ProtocolDefine.LobbyProtocol.P_LOBBY_AWARD_EMAIL],
-			this.OnAwardEmail.bind(this));
 
 		//领取邮件奖励，更新列表
 		this.On(LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_UPDATE_EMAIL],
@@ -81,10 +78,6 @@ export class GlobalController extends Component {
 		//排行榜打开游戏不会请求，需要打开界面的时候请求
 		this.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_RANK],this.onEventShowRank.bind(this));
 
-		//push消息
-		ProtocolManager.getInstance().Off(ProtocolDefine.LobbyProtocol[ProtocolDefine.LobbyProtocol.P_LOBBY_AWARD_EMAIL],
-			this.OnAwardEmail.bind(this));
-
 		//领取邮件奖励，更新列表
 		this.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_UPDATE_EMAIL],
 			this.OnEventReqUpdateEmail.bind(this));
@@ -97,11 +90,20 @@ export class GlobalController extends Component {
     }
 
     private addAllProtocolEvent() : void{
-
+		//push消息
+		ProtocolManager.getInstance().On(ProtocolDefine.LobbyProtocol[ProtocolDefine.LobbyProtocol.P_LOBBY_AWARD_EMAIL],
+			this.OnAwardEmail.bind(this));
     }
     private removeAllProtocolEvent() : void{
-
-    }
+		//push消息
+		ProtocolManager.getInstance().Off(ProtocolDefine.LobbyProtocol[ProtocolDefine.LobbyProtocol.P_LOBBY_AWARD_EMAIL],
+			this.OnAwardEmail.bind(this));
+	}
+	
+	//切换场景过程中，全局常驻节点会有个disable过程，此时需要清空之前所有事件监听，否则会导致前场景的监听未取消，产生崩溃
+	private removeAllEvent() : void{
+		this._handles = {};
+	}
     //#endregion
 
     // update (deltaTime: number) {
@@ -200,13 +202,12 @@ export class GlobalController extends Component {
     private loginServer(userId : number,openId : string,pwd : string,
         loginType : ProtocolDefine.MsgLogin.eLoginType,
         area : number) : void{
-
 		let msg : ProtocolDefine.MsgLogin.msgLogin = {
             userID : userId,
             area : area,//用户所选服务器
             appVersion : 20001,
             channelID : 101010,
-            deviceID : "deviceID1",
+            deviceID : "test1819",
             ipAddr : 1111,
             loginType : loginType as ProtocolDefine.MsgLogin.eLoginType,
             netWorkType : 1,
@@ -704,7 +705,7 @@ export class GlobalController extends Component {
 		this.onEventShowRank (rankList.scope,rankList.type);//此为默认显示的榜单
     }
     
-    public OnEventReqUpdateEmail(type : ProtocolDefine.nLobby.nSysOrPrivateMsg.eUpdateEmailType,id : number){
+    public OnEventReqUpdateEmail(id : number,type : ProtocolDefine.nLobby.nSysOrPrivateMsg.eUpdateEmailType){
 		
 		let msg : ProtocolDefine.nLobby.nSysOrPrivateMsg.msgReqUpdateEmail = {
 			type : type,

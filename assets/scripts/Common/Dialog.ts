@@ -43,27 +43,26 @@ export class Dialog extends Component {
     // serializableDummy = 0;
 
     @property(Button)
-    public OkBtn : Button = null;//确定按钮，即同意
+    public OkBtn! : Button;//确定按钮，即同意
     @property(Label)
-    public OkLabel : Label = null;//确定按钮，即同意
+    public OkLabel! : Label;//确定按钮，即同意
 
     @property(Button)
-    public CloseBtn : Button = null;//中间关闭按钮，即忽略关闭
+    public CloseBtn! : Button;//中间关闭按钮，即忽略关闭
     @property(Label)
-    public CloseLabel : Label = null;//确定按钮，即同意
+    public CloseLabel! : Label;//确定按钮，即同意
 
     @property(Button)
-    public CancelBtn : Button = null;//即拒绝按钮
+    public CancelBtn! : Button;//即拒绝按钮
     @property(Label)
-    public CancelLabel : Label = null;//确定按钮，即同意
+    public CancelLabel! : Label ;//确定按钮，即同意
 
     @property(Label)
-    public Tip : Label = null;//显示的内容
+    public Tip! : Label;//显示的内容
     
     _eventType : eDialogEventType = eDialogEventType.SIMPLE;
     
-    _callBack : (btnType : eDialogBtnType,eventType : eDialogEventType) => void = null;
-
+    _callBack : (btnType : eDialogBtnType,eventType : eDialogEventType) => void = (btnType : eDialogBtnType,eventType : eDialogEventType)=>{};
 
 
     start () {
@@ -116,7 +115,7 @@ export class Dialog extends Component {
         this.node.active = show;
         if(!show){
             //destory
-            this.destroy();
+            this.node.destroy();
         }
     }
 }

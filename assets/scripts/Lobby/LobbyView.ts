@@ -7,7 +7,7 @@
 
 import { _decorator, Sprite, Label, Button, resources  as Res, SpriteFrame, assetManager} from 'cc';
 import { Account,SelfData} from '../Model/Account';
-import { EmailView } from './EmailView';
+import { EmailView } from './Email/EmailView';
 import { FeedbackView } from './FeedbackView';
 import { RankView } from './RankView';
 import { SettingView } from './SettingView';
@@ -44,63 +44,63 @@ export class LobbyView extends NetwokState {
 
 	//#region --ui元素定义，折叠
     @property(Sprite)
-    public UserHead : Sprite = null;
+    public UserHead! : Sprite;
 
     @property(Label)
-    public UserName : Label = null;
+    public UserName! : Label;
 
     @property(Label)
-    public UserGold : Label = null;
+    public UserGold! : Label;
 
     @property(Label)
-    public UserDiamond : Label = null;
+    public UserDiamond! : Label;
 
     //
     @property(Label)
-    public CurrentMode : Label = null;
+    public CurrentMode! : Label;
     @property(Label)
-    public UpMode : Label = null;
+    public UpMode! : Label;
     @property(Label)
-    public DownMode : Label = null;
+    public DownMode! : Label;
 
     @property(Sprite)
-    public HasMsg : Sprite = null;
+    public HasMsg! : Sprite;
     @property(Sprite)
-    public HasFeedback : Sprite = null;
+    public HasFeedback! : Sprite;
 
     //all popup 
     @property(EmailView)
-    public Email : EmailView = null;
+    public Email! : EmailView;
     
     @property(FeedbackView)
-    public Feedback : FeedbackView = null;
+    public Feedback! : FeedbackView;
     
     @property(RankView)
-    public Rank : RankView = null;
+    public Rank! : RankView;
     
     @property(SettingView)
-	public Setting : SettingView = null;
+	public Setting! : SettingView;
 	
 	@property(StoreView)
-	public Store : StoreView = null;
+	public Store! : StoreView;
 	
 	@property(FriendView)
-	public Friend : FriendView = null;
+	public Friend! : FriendView;
 
 	@property(PackageView)
-	public Package : PackageView = null;
+	public Package! : PackageView;
 	
 	@property(PlazaRoomView)
-	public PlazaRoom : PlazaRoomView = null;
+	public PlazaRoom! : PlazaRoomView;
 
 	@property(TalentView)
-	public Talent : TalentView = null;
+	public Talent! : TalentView;
 
     @property(Button)
-    public UpBtn : Button = null;
+    public UpBtn! : Button;
     
     @property(Button)
-    public DownBtn : Button = null;
+    public DownBtn! : Button;
 	//#endregion
 	
 	private _currentType : eRoomClassicType = eRoomClassicType.MODE_2_4; 
@@ -223,7 +223,7 @@ export class LobbyView extends NetwokState {
 	}
 
 	@property(Lamp)
-	public SysLamp : Lamp = null;
+	public SysLamp! : Lamp;
 	public OnUpdateSysMsg(sysMsgList : Array<Lobby.SysMsg>) : void{		
 		if (sysMsgList.length == 0) {
 			this.SysLamp.node.active = false;
@@ -338,5 +338,8 @@ export class LobbyView extends NetwokState {
 
 	public OnSettinBtnClick() : void{
 		this.Setting.node.active = true;
+	}
+	public OnEmailBtnClick() : void{
+		this.Email.node.active = true;
 	}
 }
