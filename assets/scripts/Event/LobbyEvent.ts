@@ -30,6 +30,8 @@ export namespace LobbyEvent{
 		UPDATE_RANK,
 		SHOW_RANK,//需要传榜单类型
 
+		RECEIVE_ALL_LOBBY_DATA,//收到所有大厅数据消息
+
 		SHOW_POPUP,//弹窗界面之间的跳转
 
 		SHOW_SIGNIN_RESULT,//显示签到结果，主要是是播放对应的动画

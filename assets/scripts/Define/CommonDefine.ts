@@ -87,4 +87,8 @@ export namespace CommonDefine{
 
     export const TALENT_SLOT_STATE : string = "TALENT_SLOT_STATE";
     export const MAX_TALENT_CFG_NUM : number = 4;
+
+    export const SETTING_BG_SND : string = "SETTING_BG_SND";
+    export const SETTING_EFF_SNF : string = "SETTING_EFF_SNF";
+
 }

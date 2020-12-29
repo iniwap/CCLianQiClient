@@ -50,7 +50,7 @@ export class NetwokState extends Component {
         Utils.getGlobalController()?.On(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN_SUCCESS],
             this.onLoginSuccess.bind(this));
 
-        Utils.getGlobalController()?.On(AccountEvent.EVENT[CommonEvent.EVENT.SHOW_LOADING],
+        Utils.getGlobalController()?.On(CommonEvent.EVENT[CommonEvent.EVENT.SHOW_LOADING],
             this.showLoading.bind(this));
     }
     public onDisable(){
@@ -67,7 +67,7 @@ export class NetwokState extends Component {
         Utils.getGlobalController()?.Off(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN_SUCCESS],
             this.onLoginSuccess.bind(this));
 
-        Utils.getGlobalController()?.Off(AccountEvent.EVENT[CommonEvent.EVENT.SHOW_LOADING],
+        Utils.getGlobalController()?.Off(CommonEvent.EVENT[CommonEvent.EVENT.SHOW_LOADING],
             this.showLoading.bind(this));
     }
 
@@ -135,7 +135,7 @@ export class NetwokState extends Component {
 		}
 	}
     
-	public onLoginSuccess(success : boolean,arg1 = undefined) : void{
+	public onLoginSuccess(success : boolean,cb = null) : void{
 
     }
     

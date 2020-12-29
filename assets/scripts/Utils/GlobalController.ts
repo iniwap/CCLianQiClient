@@ -36,19 +36,16 @@ export class GlobalController extends Component {
                 this.OnConnectError.bind(this),
                 this.OnDisconnect.bind(this),
                 this.OnConnect.bind(this));
-
-        this.On(AccountEvent.EVENT[AccountEvent.EVENT.RELOGIN],this.OnReLogin.bind(this));
-        this.On(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN],this.OnLogin.bind(this));
     }
 
     onEnable(){
         this.addAllUIEvent();
-        this.addAllProtocolEvent();
+		this.addAllProtocolEvent();
     }
-    //全局常驻节点，原则上不会ondisable
+    //全局常驻节点
     onDisable(){
         this.removeAllUIEvent();
-        this.removeAllProtocolEvent();
+		this.removeAllProtocolEvent();
     }
 
     onLoad(){
@@ -56,6 +53,9 @@ export class GlobalController extends Component {
     }
 //#region 添加删除监听事件
     private addAllUIEvent() : void{
+		this.On(AccountEvent.EVENT[AccountEvent.EVENT.RELOGIN],this.OnReLogin.bind(this));
+		this.On(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN],this.OnLogin.bind(this));
+		
 		//排行榜打开游戏不会请求，需要打开界面的时候请求
 		this.On(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_RANK],this.onEventShowRank.bind(this));
 
@@ -72,8 +72,12 @@ export class GlobalController extends Component {
 
 		this.On(LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_OPEN_TALENTSLOT],
 			this.onEventReqOpenTalentslot.bind(this));
+			
     }
     private removeAllUIEvent() : void{
+		this.Off(AccountEvent.EVENT[AccountEvent.EVENT.RELOGIN],this.OnReLogin.bind(this));
+		this.Off(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN],this.OnLogin.bind(this));
+		
 		//排行榜打开游戏不会请求，需要打开界面的时候请求
 		this.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_RANK],this.onEventShowRank.bind(this));
 
@@ -276,21 +280,22 @@ export class GlobalController extends Component {
 			//设置用户数据
 			Account.onLoginSuccess(selfData,this._loginType);
 			Account.inRoomId = userData.room_id;
-            
-            //请求大厅数据 -- 这里需要判断是否是重连，重连可以不请求？
-            this.reqLobyyData();
 
 			//切换界面并通知 登陆成功
-            this.Emit(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN_SUCCESS],true);
+			this.Emit(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN_SUCCESS],true,
+				this.reqLobbyDataAfterLoadedLobby.bind(this));
 
 		} else {
             this.Emit(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN_SUCCESS],false);
 		}
     }
-
+	public reqLobbyDataAfterLoadedLobby() : void{
+            //请求大厅数据 -- 这里需要判断是否是重连，重连可以不请求？
+            this.reqLobbyData();
+	}
     //--------------------------大厅相关数据----------------------
     //#region 
-    private reqLobyyData() : void{
+    private reqLobbyData() : void{
         let self : SelfData = Account.getSelfData();
 		//为了节省服务器压力，以下数据后续需要实现md5方式请求，如果数据未发生变动，则不需要请求。to do
 		//请求大厅数据
@@ -529,23 +534,7 @@ export class GlobalController extends Component {
 
         this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_LUCKDRAW]);
 
-		if (Account.inRoomId == 0) {
-			//这里假设这是最后一条收到，可以隐藏loading
-			this.showLoading(false);
-		} else {
-			//自动请求进入房间
-			let data : RoomEvent.JoinRoom= {
-				playerNum : 0,
-				gridLevel : 0,
-				plazaID : 0,
-				pwd : "",
-				roomId : Account.inRoomId,
-				tagId : -1,
-				plazaName : ""
-			}
-
-			this.Emit(RoomEvent.EVENT[RoomEvent.EVENT.JOIN_ROOM],data);
-		}
+		this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.RECEIVE_ALL_LOBBY_DATA]);// 如果没有请求所有数据，需要在登陆成功后就调用
 	}
 	private OnRespSignIn(msg : any) : void{
 		let resp : ProtocolDefine.nLobby.nSignInDraw.msgRespSignIn = msg;
@@ -808,9 +797,11 @@ export class GlobalController extends Component {
 		}
         
         this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_HAS_NEW_EMAIL_MARK],show);
-    }
+	}
+	
+	//最好修改为请求处显示，收到请求处隐藏
     private showLoading(show : boolean) : void{
-        this.Emit(AccountEvent.EVENT[CommonEvent.EVENT.SHOW_LOADING],show);
+        this.Emit(CommonEvent.EVENT[CommonEvent.EVENT.SHOW_LOADING],show);
     }
     //-------------------------一些封装--------------------------
 	private getProp(propID : number) : [boolean,Lobby.Prop]{
@@ -851,7 +842,6 @@ export class GlobalController extends Component {
     //发射监听
     public Emit(eventName : string, arg0 : any = undefined, arg1 : any = undefined) : void
     {
-		console.log("-------->"+eventName);
         for (var findEvenName in this._handles)
         {
             if (findEvenName == eventName)

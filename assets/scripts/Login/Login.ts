@@ -55,14 +55,16 @@ export class Login extends NetwokState {
         }
     }
     
-	public onLoginSuccess(success : boolean,arg1 = undefined) : void{
+	public onLoginSuccess(success : boolean,cb : any = null) : void{
 		if (success) {
             //切换界面
-            director.loadScene("Lobby");
+            director.loadScene('Lobby',(err, scene)=>{
+                if(cb) cb.call();
+            });
 
 		} else {
             //登陆失败，给予提示
-            log("登陆失败，给予提示");
+            this.showDialog("系统提示","登陆失败，请重试","重试","取消");
 		}
 	}
 }

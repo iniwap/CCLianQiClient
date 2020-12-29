@@ -113,7 +113,7 @@ export class LobbyView extends NetwokState {
 	onEnable(){
 		super.onEnable();
 		this.addAllEvent();
-		this.OnUpdateUserInfo();
+		this.OnUpdateUserInfo();		
 	}
 	onDisable(){
 		super.onDisable();
@@ -132,6 +132,9 @@ export class LobbyView extends NetwokState {
 
 		Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_HAS_NEW_EMAIL_MARK],
 			this.OnShowHasUnReadEmailMark.bind(this));
+
+		Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.RECEIVE_ALL_LOBBY_DATA],
+			this.OnReceiveAllLobbyData.bind(this));
 	}
 	private removeAllEvent() : void{
 		Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_SYSMSG],
@@ -145,6 +148,9 @@ export class LobbyView extends NetwokState {
 
 		Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_HAS_NEW_EMAIL_MARK],
 			this.OnShowHasUnReadEmailMark.bind(this));
+
+			Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.RECEIVE_ALL_LOBBY_DATA],
+				this.OnReceiveAllLobbyData.bind(this));
 	}
 	//#endregion
 
@@ -153,6 +159,9 @@ export class LobbyView extends NetwokState {
     // }
 	
 	//-------------------------UI操作-------------------------------------
+	public UpdateUI(){
+		//刷新ui，主要用于
+	}
 	public OnUpdateUserInfo() : void{
 		let self : SelfData = Account.getSelfData();
 		// 刷新所有用户相关的信息
@@ -191,6 +200,26 @@ export class LobbyView extends NetwokState {
 		this.UserName.string = self.name;
 		this.UserGold.string = self.gold.toString();
 		this.UserDiamond.string = self.diamond.toString();
+	}
+
+	public OnReceiveAllLobbyData() : void{
+		if (Account.inRoomId == 0) {
+			//这里假设这是最后一条收到，可以隐藏loading
+			this.showLoading(false);
+		} else {
+			//自动请求进入房间
+			let data : RoomEvent.JoinRoom= {
+				playerNum : 0,
+				gridLevel : 0,
+				plazaID : 0,
+				pwd : "",
+				roomId : Account.inRoomId,
+				tagId : -1,
+				plazaName : ""
+			}
+
+			Utils.getGlobalController()?.Emit(RoomEvent.EVENT[RoomEvent.EVENT.JOIN_ROOM],data);
+		}
 	}
 
 	@property(Lamp)
@@ -305,5 +334,9 @@ export class LobbyView extends NetwokState {
 		//切换到plaza room 界面
 		this.node.active = false;
 		this.PlazaRoom.node.active = true;
+	}
+
+	public OnSettinBtnClick() : void{
+		this.Setting.node.active = true;
 	}
 }
