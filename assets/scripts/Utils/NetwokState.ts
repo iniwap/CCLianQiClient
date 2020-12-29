@@ -38,37 +38,37 @@ export class NetwokState extends Component {
 
     public onEnable(){
         //这些事件每个scene都要监听
-        let ec : string = AccountEvent.EVENT[AccountEvent.EVENT.CONNECT_SERVER];
-        Utils.getGlobalController()?.On(ec,this.onConnect.bind(this));
+        Utils.getGlobalController()?.On(AccountEvent.EVENT[AccountEvent.EVENT.CONNECT_SERVER],
+            this.onConnect.bind(this));
 
-        let ee : string = AccountEvent.EVENT[AccountEvent.EVENT.NETWORK_ERROR];
-        Utils.getGlobalController()?.On(ee,this.onConnectError.bind(this));
+        Utils.getGlobalController()?.On(AccountEvent.EVENT[AccountEvent.EVENT.NETWORK_ERROR],
+            this.onConnectError.bind(this));
 
-        let ed : string = AccountEvent.EVENT[AccountEvent.EVENT.NETWORK_DISCONNECT];
-        Utils.getGlobalController()?.On(ed,this.onDisconnect.bind(this));
+        Utils.getGlobalController()?.On(AccountEvent.EVENT[AccountEvent.EVENT.NETWORK_DISCONNECT],
+            this.onDisconnect.bind(this));
 
-        let es : string = AccountEvent.EVENT[AccountEvent.EVENT.LOGIN_SUCCESS];
-        Utils.getGlobalController()?.On(es,this.onLoginSuccess.bind(this));
+        Utils.getGlobalController()?.On(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN_SUCCESS],
+            this.onLoginSuccess.bind(this));
 
-        let eloading : string = AccountEvent.EVENT[CommonEvent.EVENT.SHOW_LOADING];
-        Utils.getGlobalController()?.On(es,this.showLoading.bind(this));
+        Utils.getGlobalController()?.On(AccountEvent.EVENT[CommonEvent.EVENT.SHOW_LOADING],
+            this.showLoading.bind(this));
     }
     public onDisable(){
         //这些事件每个scene都要监听
-        let ec : string = AccountEvent.EVENT[AccountEvent.EVENT.CONNECT_SERVER];
-        Utils.getGlobalController()?.Off(ec,this.onConnect.bind(this));
+        Utils.getGlobalController()?.Off(AccountEvent.EVENT[AccountEvent.EVENT.CONNECT_SERVER],
+            this.onConnect.bind(this));
 
-        let ee : string = AccountEvent.EVENT[AccountEvent.EVENT.NETWORK_ERROR];
-        Utils.getGlobalController()?.Off(ee,this.onConnectError.bind(this));
+        Utils.getGlobalController()?.Off(AccountEvent.EVENT[AccountEvent.EVENT.NETWORK_ERROR],
+            this.onConnectError.bind(this));
 
-        let ed : string = AccountEvent.EVENT[AccountEvent.EVENT.NETWORK_DISCONNECT];
-        Utils.getGlobalController()?.Off(ed,this.onDisconnect.bind(this));
+        Utils.getGlobalController()?.Off(AccountEvent.EVENT[AccountEvent.EVENT.NETWORK_DISCONNECT],
+            this.onDisconnect.bind(this));
 
-        let es : string = AccountEvent.EVENT[AccountEvent.EVENT.LOGIN_SUCCESS];
-        Utils.getGlobalController()?.Off(es,this.onLoginSuccess.bind(this));
+        Utils.getGlobalController()?.Off(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN_SUCCESS],
+            this.onLoginSuccess.bind(this));
 
-        let eloading : string = AccountEvent.EVENT[CommonEvent.EVENT.SHOW_LOADING];
-        Utils.getGlobalController()?.Off(es,this.showLoading.bind(this));
+        Utils.getGlobalController()?.Off(AccountEvent.EVENT[CommonEvent.EVENT.SHOW_LOADING],
+            this.showLoading.bind(this));
     }
 
     public onConnect(selectSeverMode : boolean,msg : any) : void{
@@ -118,18 +118,17 @@ export class NetwokState extends Component {
     }
 
     public onClickDialogBtn(btn:eDialogBtnType, type:eDialogEventType) : void{
-        let e : string = AccountEvent.EVENT[AccountEvent.EVENT.RELOGIN];
 		if (type == eDialogEventType.NETWORK_DISCONNECT) {
 			if (btn == eDialogBtnType.DIALOG_BTN_OK) {
 				//重连
-				Utils.getGlobalController()?.Emit(e,true);
+				Utils.getGlobalController()?.Emit(AccountEvent.EVENT[AccountEvent.EVENT.RELOGIN],true);
 			}else{
 				//不操作
 			}
 		}else if (type == eDialogEventType.NETWORK_ERROR) {
 			if (btn == eDialogBtnType.DIALOG_BTN_OK) {
                 // 重试
-				Utils.getGlobalController()?.Emit(e,true);
+				Utils.getGlobalController()?.Emit(AccountEvent.EVENT[AccountEvent.EVENT.RELOGIN],true);
 			}else{
                 //可以去网络设置 打开网络设置面板
 			}

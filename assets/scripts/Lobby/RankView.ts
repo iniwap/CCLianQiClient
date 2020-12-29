@@ -30,17 +30,17 @@ export class RankView extends Component {
     // }
 
     onEnable(){
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_RANK];
-        Utils.getGlobalController()?.On(e,this.OnUpdateRank.bind(this));
+        Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_RANK],
+            this.OnUpdateRank.bind(this));
         //this.OnUpdateRank();// 打开界面时，主动显示
         //需要打开时请求数据
-        let e2 : string = LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_RANK];        
-        Utils.getGlobalController()?.Emit(e2,ProtocolDefine.nLobby.nRank.eRankScopeType.RANK_AREA,ProtocolDefine.nLobby.nRank.eRankType.RANK_GOLD);
+        Utils.getGlobalController()?.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_RANK],
+            ProtocolDefine.nLobby.nRank.eRankScopeType.RANK_AREA,ProtocolDefine.nLobby.nRank.eRankType.RANK_GOLD);
     }
 
     onDisable(){
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_RANK];
-        Utils.getGlobalController()?.Off(e,this.OnUpdateRank.bind(this));
+        Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_RANK],
+            this.OnUpdateRank.bind(this));
     }
     // update (deltaTime: number) {
     //     // Your update function goes here.

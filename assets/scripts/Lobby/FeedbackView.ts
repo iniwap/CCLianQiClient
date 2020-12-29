@@ -27,12 +27,12 @@ export class FeedbackView extends NetwokState {
     }
 
 	onEnable(){
-		let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.RESP_FEEDBACK];
-        Utils.getGlobalController()?.On(e,this.OnRespFeedback.bind(this));
+		Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.RESP_FEEDBACK],
+			this.OnRespFeedback.bind(this));
 	}
 	onDisable(){
-		let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.RESP_FEEDBACK];
-        Utils.getGlobalController()?.Off(e,this.OnRespFeedback.bind(this));
+		Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.RESP_FEEDBACK],
+			this.OnRespFeedback.bind(this));
 	}
     // update (deltaTime: number) {
     //     // Your update function goes here.

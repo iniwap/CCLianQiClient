@@ -27,14 +27,14 @@ export class PackageView extends Component {
     //     // Your update function goes here.
     // }
     onEnable(){
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PACKAGE];
-        Utils.getGlobalController()?.On(e,this.OnUpdatePackage.bind(this));
+        Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PACKAGE],
+            this.OnUpdatePackage.bind(this));
         this.OnUpdatePackage();// 打开界面时，主动显示
     }
 
     onDisable(){
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PACKAGE];
-        Utils.getGlobalController()?.Off(e,this.OnUpdatePackage.bind(this));
+        Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PACKAGE],
+            this.OnUpdatePackage.bind(this));
     }
     public OnUpdatePackage(arg0 = undefined,arg1 = undefined) : void{
         console.log("PackageView:OnUpdatePackage");

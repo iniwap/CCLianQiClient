@@ -149,13 +149,13 @@ export class ProtocolManager  {
     }
 
     //注册消息
-    public on(event : string,cb : any) : void{
+    public On(event : string,cb : any) : void{
         var onCb = cb;
         this._connection.on(event, (msg : any) => {
             if(onCb) onCb(msg);
         });
     }
-    public off(event : string) : void{
+    public Off(event : string,cb : any = null) : void{
         this._connection.off(event, (msg : any) => {
             //取消监听
         });

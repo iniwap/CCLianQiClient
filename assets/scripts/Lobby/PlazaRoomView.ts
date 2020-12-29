@@ -26,14 +26,14 @@ export class PlazaRoomView extends Component {
     }
 
     onEnable(){
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PLAZA];
-        Utils.getGlobalController()?.On(e,this.OnUpdatePlaza.bind(this));
+        Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PLAZA],
+            this.OnUpdatePlaza.bind(this));
         this.OnUpdatePlaza();// 打开界面时，主动显示
     }
 
     onDisable(){
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PLAZA];
-        Utils.getGlobalController()?.Off(e,this.OnUpdatePlaza.bind(this));
+        Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PLAZA],
+            this.OnUpdatePlaza.bind(this));
     }
     // update (deltaTime: number) {
     //     // Your update function goes here.

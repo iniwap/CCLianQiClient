@@ -24,14 +24,14 @@ export class StoreView extends Component {
     }
 
     onEnable(){
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_STORE];
-        Utils.getGlobalController()?.On(e,this.OnUpdateStore.bind(this));
+        Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_STORE],
+            this.OnUpdateStore.bind(this));
         this.OnUpdateStore();// 打开界面时，主动显示
     }
 
     onDisable(){
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_STORE];
-        Utils.getGlobalController()?.Off(e,this.OnUpdateStore.bind(this));
+        Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_STORE],
+            this.OnUpdateStore.bind(this));
     }
     // update (deltaTime: number) {
     //     // Your update function goes here.

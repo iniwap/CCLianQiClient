@@ -121,30 +121,30 @@ export class LobbyView extends NetwokState {
 	}
 	//#region ---事件监听
 	private addAllEvent() : void{
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_SYSMSG];
-		Utils.getGlobalController()?.On(e,this.OnUpdateSysMsg.bind(this));
+		Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_SYSMSG],
+			this.OnUpdateSysMsg.bind(this));
 		
-		let e2 : string = LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_SYSMSG];
-		Utils.getGlobalController()?.On(e2,this.OnShowSysMsg.bind(this));//插入显示一条系统广播消息
+		Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_SYSMSG],
+			this.OnShowSysMsg.bind(this));//插入显示一条系统广播消息
 		
-		let e3 : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_USER_INFO];
-		Utils.getGlobalController()?.On(e3,this.OnUpdateUserInfo.bind(this));
+		Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_USER_INFO],
+			this.OnUpdateUserInfo.bind(this));
 
-		let e4 : string = LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_HAS_NEW_EMAIL_MARK];
-		Utils.getGlobalController()?.On(e4,this.OnShowHasUnReadEmailMark.bind(this));
+		Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_HAS_NEW_EMAIL_MARK],
+			this.OnShowHasUnReadEmailMark.bind(this));
 	}
 	private removeAllEvent() : void{
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_SYSMSG];
-		Utils.getGlobalController()?.Off(e,this.OnUpdateSysMsg.bind(this));
+		Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_SYSMSG],
+			this.OnUpdateSysMsg.bind(this));
 		
-		let e2 : string = LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_SYSMSG];
-		Utils.getGlobalController()?.Off(e2,this.OnShowSysMsg.bind(this));
+		Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_SYSMSG],
+			this.OnShowSysMsg.bind(this));
 		
-		let e3 : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_USER_INFO];
-		Utils.getGlobalController()?.Off(e3,this.OnUpdateUserInfo.bind(this));
+		Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_USER_INFO],
+			this.OnUpdateUserInfo.bind(this));
 
-		let e4 : string = LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_HAS_NEW_EMAIL_MARK];
-		Utils.getGlobalController()?.Off(e4,this.OnShowHasUnReadEmailMark.bind(this));
+		Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_HAS_NEW_EMAIL_MARK],
+			this.OnShowHasUnReadEmailMark.bind(this));
 	}
 	//#endregion
 
@@ -295,8 +295,7 @@ export class LobbyView extends NetwokState {
 			tagId : 0
 		}
 
-		let e : string = RoomEvent.EVENT[RoomEvent.EVENT.JOIN_ROOM];
-		Utils.getGlobalController()?.Emit(e,data);
+		Utils.getGlobalController()?.Emit(RoomEvent.EVENT[RoomEvent.EVENT.JOIN_ROOM],data);
 	}
 
 	public OnClickOfflineModeBtn() : void{

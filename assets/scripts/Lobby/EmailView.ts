@@ -26,21 +26,21 @@ export class EmailView extends Component {
 	
 	onEnable(){
 		
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_UPDATE_EMAIL_RESULT];
-		Utils.getGlobalController()?.On(e,this.OnShowUpdateEmailResult.bind(this));
+		Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_UPDATE_EMAIL_RESULT],
+			this.OnShowUpdateEmailResult.bind(this));
 		
-		let e2 : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PRIVATEMSG];
-		Utils.getGlobalController()?.On(e2,this.OnUpdateEmail.bind(this));
+		Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PRIVATEMSG],
+			this.OnUpdateEmail.bind(this));
 		
 		this.OnUpdateEmail();
     }
 
     onDisable(){
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_UPDATE_EMAIL_RESULT];
-		Utils.getGlobalController()?.Off(e,this.OnShowUpdateEmailResult.bind(this));
+		Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_UPDATE_EMAIL_RESULT],
+			this.OnShowUpdateEmailResult.bind(this));
 		
-		let e2 : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PRIVATEMSG];
-        Utils.getGlobalController()?.Off(e2,this.OnUpdateEmail.bind(this));
+		Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PRIVATEMSG],
+			this.OnUpdateEmail.bind(this));
     }
 
     // update (deltaTime: number) {

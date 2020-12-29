@@ -27,20 +27,20 @@ export class TalentView extends NetwokState {
     }
 
     onEnable(){
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.RESP_OPEN_TALENTSLOT];
-        Utils.getGlobalController()?.On(e,this.OnOpenTalentSlot.bind(this));
+		Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.RESP_OPEN_TALENTSLOT],
+			this.OnOpenTalentSlot.bind(this));
         this.OnOpenTalentSlot();// 打开界面时，主动显示
 
-        let e2 : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_USER_INFO];
-        Utils.getGlobalController()?.On(e2,this.onUpdateUserInfo.bind(this));
+		Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_USER_INFO],
+			this.onUpdateUserInfo.bind(this));
     }
 
     onDisable(){
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.RESP_OPEN_TALENTSLOT];
-        Utils.getGlobalController()?.Off(e,this.OnOpenTalentSlot.bind(this));
+		Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.RESP_OPEN_TALENTSLOT],
+			this.OnOpenTalentSlot.bind(this));
 
-        let e2 : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_USER_INFO];
-        Utils.getGlobalController()?.Off(e2,this.onUpdateUserInfo.bind(this));
+		Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_USER_INFO],
+			this.onUpdateUserInfo.bind(this));
     }
 
     // update (deltaTime: number) {

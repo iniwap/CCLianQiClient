@@ -37,10 +37,8 @@ export class GlobalController extends Component {
                 this.OnDisconnect.bind(this),
                 this.OnConnect.bind(this));
 
-        let er : string = AccountEvent.EVENT[AccountEvent.EVENT.RELOGIN];
-        this.On(er,this.OnReLogin.bind(this));
-        let el : string = AccountEvent.EVENT[AccountEvent.EVENT.LOGIN];
-        this.On(el,this.OnLogin.bind(this));
+        this.On(AccountEvent.EVENT[AccountEvent.EVENT.RELOGIN],this.OnReLogin.bind(this));
+        this.On(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN],this.OnLogin.bind(this));
     }
 
     onEnable(){
@@ -58,37 +56,40 @@ export class GlobalController extends Component {
     }
 //#region 添加删除监听事件
     private addAllUIEvent() : void{
-		let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_RANK];//排行榜打开游戏不会请求，需要打开界面的时候请求
-		this.On(e,this.onEventShowRank.bind(this));
+		//排行榜打开游戏不会请求，需要打开界面的时候请求
+		this.On(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_RANK],this.onEventShowRank.bind(this));
 
 		//push消息
-		let e2 : string = ProtocolDefine.LobbyProtocol[ProtocolDefine.LobbyProtocol.P_LOBBY_AWARD_EMAIL];
-		ProtocolManager.getInstance().on(e2,this.OnAwardEmail.bind(this));
+		ProtocolManager.getInstance().On(ProtocolDefine.LobbyProtocol[ProtocolDefine.LobbyProtocol.P_LOBBY_AWARD_EMAIL],
+			this.OnAwardEmail.bind(this));
 
-		let e3 : string = LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_UPDATE_EMAIL];//领取邮件奖励，更新列表
-		this.On(e3,this.OnEventReqUpdateEmail.bind(this));
+		//领取邮件奖励，更新列表
+		this.On(LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_UPDATE_EMAIL],
+			this.OnEventReqUpdateEmail.bind(this));
 
-		let e4 : string = LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_FEEDBACK];//请求反馈
-		this.On(e4,this.OnRespFeedback.bind(this));
+		//请求反馈
+		this.On(LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_FEEDBACK],this.OnRespFeedback.bind(this));
 
-		let e5 : string = LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_OPEN_TALENTSLOT];//请求反馈
-		this.On(e5,this.onEventReqOpenTalentslot.bind(this));
+		this.On(LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_OPEN_TALENTSLOT],
+			this.onEventReqOpenTalentslot.bind(this));
     }
     private removeAllUIEvent() : void{
-		let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_RANK];
-		this.Off(e,this.onEventShowRank.bind(this));
+		//排行榜打开游戏不会请求，需要打开界面的时候请求
+		this.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_RANK],this.onEventShowRank.bind(this));
 
-		let e2 : string = ProtocolDefine.LobbyProtocol[ProtocolDefine.LobbyProtocol.P_LOBBY_AWARD_EMAIL];
-		ProtocolManager.getInstance().off(e2);
+		//push消息
+		ProtocolManager.getInstance().Off(ProtocolDefine.LobbyProtocol[ProtocolDefine.LobbyProtocol.P_LOBBY_AWARD_EMAIL],
+			this.OnAwardEmail.bind(this));
 
-		let e3 : string = LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_UPDATE_EMAIL];//领取邮件奖励，更新列表
-		this.Off(e3,this.OnEventReqUpdateEmail.bind(this));
+		//领取邮件奖励，更新列表
+		this.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_UPDATE_EMAIL],
+			this.OnEventReqUpdateEmail.bind(this));
 
-		let e4 : string = LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_FEEDBACK];//请求反馈
-		this.Off(e4,this.OnRespFeedback.bind(this));
+		//请求反馈
+		this.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_FEEDBACK],this.OnRespFeedback.bind(this));
 
-		let e5 : string = LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_OPEN_TALENTSLOT];//请求反馈
-		this.Off(e5,this.onEventReqOpenTalentslot.bind(this));
+		this.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_OPEN_TALENTSLOT],
+			this.onEventReqOpenTalentslot.bind(this));
     }
 
     private addAllProtocolEvent() : void{
@@ -105,9 +106,8 @@ export class GlobalController extends Component {
 
     //-----------------网络消息处理-----------------
     private OnConnect(selectSeverMode : boolean,msg : any) : void{
-        let e : string = AccountEvent.EVENT[AccountEvent.EVENT.CONNECT_SERVER];
         if(selectSeverMode){
-            this.Emit(e,selectSeverMode,msg);
+            this.Emit(AccountEvent.EVENT[AccountEvent.EVENT.CONNECT_SERVER],selectSeverMode,msg);
             //后续用户选择某个登陆
             //ProtocolManager.getInstance().SelectServer(host,port);
         }else{
@@ -121,18 +121,17 @@ export class GlobalController extends Component {
 				this.loginServer (nc.userID, nc.openid, nc.pwd, nc.lastLoginType, nc.area);
 
 			} else {
-				this.Emit(e,selectSeverMode,msg);//隐藏loading动画，不是自动登陆，需要点击
+				this.Emit(AccountEvent.EVENT[AccountEvent.EVENT.CONNECT_SERVER]
+					,selectSeverMode,msg);//隐藏loading动画，不是自动登陆，需要点击
 			}
         }
     }
 
     private OnConnectError(msg : any) : void{
-        let e : string = AccountEvent.EVENT[AccountEvent.EVENT.NETWORK_ERROR];
-        this.Emit(e,msg);
+        this.Emit(AccountEvent.EVENT[AccountEvent.EVENT.NETWORK_ERROR],msg);
     }
     private OnDisconnect(msg : any) : void{
-        let e : string = AccountEvent.EVENT[AccountEvent.EVENT.NETWORK_DISCONNECT];
-        this.Emit(e,msg);
+        this.Emit(AccountEvent.EVENT[AccountEvent.EVENT.NETWORK_DISCONNECT],msg);
     }
 
 	public OnLogin(lt : ProtocolDefine.MsgLogin.eLoginType,arg0 : any) : void{
@@ -223,7 +222,6 @@ export class GlobalController extends Component {
     }
 	public OnLoginSuccess(msg : any) : void{
         let userData : ProtocolDefine.MsgUserData.msgUserData =  msg;//JSON.parse(msg); 
-        let es : string = AccountEvent.EVENT[AccountEvent.EVENT.LOGIN_SUCCESS];
 		if (userData.flag == ProtocolDefine.MsgUserData.eLoginResultFlag.LOGIN_SUCCESS) {
 			//登陆成功
 			let selfData : SelfData = {
@@ -283,11 +281,10 @@ export class GlobalController extends Component {
             this.reqLobyyData();
 
 			//切换界面并通知 登陆成功
-            this.Emit(es,true);
-            
+            this.Emit(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN_SUCCESS],true);
 
 		} else {
-            this.Emit(es,false);
+            this.Emit(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN_SUCCESS],false);
 		}
     }
 
@@ -393,8 +390,7 @@ export class GlobalController extends Component {
 			Lobby.LobbyData.plazaList.push(plaza);
 		}
 		//刷新界面
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PLAZA];
-        this.Emit(e);
+        this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PLAZA]);
 	}
 	private OnRespPropList(msg : any) : void{
 		//
@@ -434,8 +430,7 @@ export class GlobalController extends Component {
 			Lobby.LobbyData.packageList.push(pk);
 		}
 
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PACKAGE];// to do
-        this.Emit(e);
+        this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PACKAGE]);
 	}
 	private OnRespSysMsgList(msg : any) : void{
 		//
@@ -449,8 +444,7 @@ export class GlobalController extends Component {
 			sysMsgList.push(sm);
 		}
 
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_SYSMSG];// to do
-        this.Emit(e,sysMsgList);
+        this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_SYSMSG],sysMsgList);
 	}
 	private OnRespPrivateMsgList(msg : any) : void{
 		//
@@ -470,8 +464,7 @@ export class GlobalController extends Component {
 			Lobby.LobbyData.privateMsgList.push(psm);
 		}
 
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PRIVATEMSG];
-        this.Emit(e);
+        this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PRIVATEMSG]);
 
 		this.checkIfHasUnReadEmail();
 	}
@@ -493,8 +486,7 @@ export class GlobalController extends Component {
 			Lobby.LobbyData.storeList.push(store);
 		}
 
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_STORE];
-        this.Emit(e);
+        this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_STORE]);
 	}
 
 	private OnRespSignInLuckDrawList(msg : any) : void{
@@ -517,8 +509,7 @@ export class GlobalController extends Component {
 			signInList : signInList
 		};
 
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_SIGNIN];
-        this.Emit(e);
+        this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_SIGNIN]);
 
 		let luckDrawList : Array<Lobby.LuckDraw> = [];
 		for (var i = 0; i < resp.luckData.length; i++) {
@@ -536,8 +527,7 @@ export class GlobalController extends Component {
 			luckDrawList : luckDrawList
 		};
 
-        let e2 : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_LUCKDRAW];
-        this.Emit(e2);
+        this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_LUCKDRAW]);
 
 		if (Account.inRoomId == 0) {
 			//这里假设这是最后一条收到，可以隐藏loading
@@ -554,8 +544,7 @@ export class GlobalController extends Component {
 				plazaName : ""
 			}
 
-			let e : string = RoomEvent.EVENT[RoomEvent.EVENT.JOIN_ROOM];
-			this.Emit(e,data);
+			this.Emit(RoomEvent.EVENT[RoomEvent.EVENT.JOIN_ROOM],data);
 		}
 	}
 	private OnRespSignIn(msg : any) : void{
@@ -588,8 +577,7 @@ export class GlobalController extends Component {
 			Lobby.LobbyData.friendList.push(fd);
 		}
 
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_FRIEND];// to do
-        this.Emit(e);
+        this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_FRIEND]);
     }
     //#endregion
 
@@ -648,8 +636,7 @@ export class GlobalController extends Component {
                 if (ec.type == Lobby.eAwardType.GOLD) {
                     Account.updateUserGold(ec.awardCnt);
                     //已经可以更新用户相关界面信息
-                    let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_USER_INFO];
-                    this.Emit(e);
+                    this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_USER_INFO]);
                 } else if (ec.type == Lobby.eAwardType.PROP) {
                     //重新请求一遍
                     let pkg : ProtocolDefine.nLobby.nPackage.msgReqPackageList = {game : ProtocolDefine.GameType.GAME_LIANQI}
@@ -661,8 +648,7 @@ export class GlobalController extends Component {
         }
 
         //to do  更新邮件界面 
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_UPDATE_EMAIL_RESULT];
-        this.Emit(e,resp.awardEmailId,resp.type);
+        this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_UPDATE_EMAIL_RESULT],resp.awardEmailId,resp.type);
     }
     private OnAwardEmail(msg : any) : void{
 		let ae : ProtocolDefine.nLobby.nSysOrPrivateMsg.msgAwardEmail = msg;
@@ -684,8 +670,7 @@ export class GlobalController extends Component {
 				}
 				Lobby.LobbyData.privateMsgList.splice(0,0,psm);
 
-                let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PRIVATEMSG];
-                this.Emit(e);
+                this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PRIVATEMSG]);
 
 				this.checkIfHasUnReadEmail();
 
@@ -695,8 +680,7 @@ export class GlobalController extends Component {
 			}
 		}else if(ae.type == ProtocolDefine.nLobby.nSysOrPrivateMsg.eSysOrPrivateMsgType.TYPE_MSG_NOTICE){
 			//系统公告性质的消息，也就是要走跑马灯
-            let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_SYSMSG];//插入显示一条系统消息
-            this.Emit(e,ae.content);
+            this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_SYSMSG],ae.content);//插入显示一条系统消息
 		}
     }
     
@@ -758,8 +742,7 @@ export class GlobalController extends Component {
 	private OnRespFeedback(msg : any) : void{
 		this.showLoading(false);
 		let resp : ProtocolDefine.nLobby.nFeedback.msgReqFeedback = msg;
-		let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.RESP_FEEDBACK];
-		this.Emit(e,resp.type,resp.content); 
+		this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.RESP_FEEDBACK],resp.type,resp.content); 
 	}
 
 	public onEventReqOpenTalentslot(type : ProtocolDefine.nLobby.nTalent.eOpenByType,arg1 : any = undefined){
@@ -779,8 +762,7 @@ export class GlobalController extends Component {
 		let resp : ProtocolDefine.nLobby.nTalent.msgRespOpenTalentslot = msg;
 
 		//更新界面
-		let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.RESP_OPEN_TALENTSLOT];
-		this.Emit(e,resp.result);
+		this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.RESP_OPEN_TALENTSLOT],resp.result);
     }
     private onEventShowRank(sc : ProtocolDefine.nLobby.nRank.eRankScopeType,
 		t : ProtocolDefine.nLobby.nRank.eRankType) : void{
@@ -808,8 +790,7 @@ export class GlobalController extends Component {
 			this.showLoading(true);
 
 		} else {
-			let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_RANK];// to do
-			this.Emit(e,rankList);
+			this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_RANK],rankList);
 		}
 	}
 
@@ -826,12 +807,10 @@ export class GlobalController extends Component {
 			}
 		}
         
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_HAS_NEW_EMAIL_MARK];
-        this.Emit(e,show);
+        this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_HAS_NEW_EMAIL_MARK],show);
     }
     private showLoading(show : boolean) : void{
-        let eloading : string = AccountEvent.EVENT[CommonEvent.EVENT.SHOW_LOADING];
-        this.node.emit(eloading,show);
+        this.Emit(AccountEvent.EVENT[CommonEvent.EVENT.SHOW_LOADING],show);
     }
     //-------------------------一些封装--------------------------
 	private getProp(propID : number) : [boolean,Lobby.Prop]{
@@ -872,6 +851,7 @@ export class GlobalController extends Component {
     //发射监听
     public Emit(eventName : string, arg0 : any = undefined, arg1 : any = undefined) : void
     {
+		console.log("-------->"+eventName);
         for (var findEvenName in this._handles)
         {
             if (findEvenName == eventName)

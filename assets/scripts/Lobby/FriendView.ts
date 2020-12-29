@@ -23,15 +23,15 @@ export class FriendView extends Component {
         // Your initialization goes here.
     }
 	onEnable(){
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_FRIEND];
-		Utils.getGlobalController()?.On(e,this.OnUpdateFriend.bind(this));
+        Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_FRIEND],
+            this.OnUpdateFriend.bind(this));
 		
 		this.OnUpdateFriend();
     }
 
     onDisable(){
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_FRIEND];
-		Utils.getGlobalController()?.Off(e,this.OnUpdateFriend.bind(this));
+        Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_FRIEND],
+            this.OnUpdateFriend.bind(this));
     }
 
     // update (deltaTime: number) {

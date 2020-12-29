@@ -28,21 +28,21 @@ export class SignInLuckDrawView extends Component {
     // }
 
     onEnable(){
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_SIGNIN];
-        Utils.getGlobalController()?.On(e,this.OnUpdateSignIn.bind(this));
+        Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_SIGNIN],
+            this.OnUpdateSignIn.bind(this));
 
-        let e2 : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_LUCKDRAW];
-        Utils.getGlobalController()?.On(e2,this.OnUpdateLuckDraw.bind(this));
+        Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_LUCKDRAW],
+            this.OnUpdateLuckDraw.bind(this));
 
         //this.OnUpdateSignIn();// 打开界面时，主动显示
     }
 
     onDisable(){
-        let e : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_SIGNIN];
-        Utils.getGlobalController()?.Off(e,this.OnUpdateSignIn.bind(this));
+        Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_SIGNIN],
+            this.OnUpdateSignIn.bind(this));
 
-        let e2 : string = LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_LUCKDRAW];
-        Utils.getGlobalController()?.Off(e2,this.OnUpdateLuckDraw.bind(this));
+        Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_LUCKDRAW],
+            this.OnUpdateLuckDraw.bind(this));
     }
     // update (deltaTime: number) {
     //     // Your update function goes here.

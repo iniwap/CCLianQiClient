@@ -30,18 +30,18 @@ export class Login extends NetwokState {
     // }
 
     onClickYKBtn(){
-        let e : string = AccountEvent.EVENT[AccountEvent.EVENT.LOGIN];
-        Utils.getGlobalController()?.Emit(e,ProtocolDefine.MsgLogin.eLoginType.LOGIN_TYPE_YK);
+        Utils.getGlobalController()?.Emit(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN],
+            ProtocolDefine.MsgLogin.eLoginType.LOGIN_TYPE_YK);
     }
 
     onClickWXBtn(){
-        let e : string = AccountEvent.EVENT[AccountEvent.EVENT.LOGIN];
-        Utils.getGlobalController()?.Emit(e,ProtocolDefine.MsgLogin.eLoginType.LOGIN_TYPE_WX);
+        Utils.getGlobalController()?.Emit(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN],
+            ProtocolDefine.MsgLogin.eLoginType.LOGIN_TYPE_WX);
     }
 
     onClickQQBtn(){
-        let e : string = AccountEvent.EVENT[AccountEvent.EVENT.LOGIN];
-        Utils.getGlobalController()?.Emit(e,ProtocolDefine.MsgLogin.eLoginType.LOGIN_TYPE_QQ);
+        Utils.getGlobalController()?.Emit(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN],
+            ProtocolDefine.MsgLogin.eLoginType.LOGIN_TYPE_QQ);
     }
 
     //-----------------网络消息处理-----------------
