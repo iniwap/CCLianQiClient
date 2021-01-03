@@ -38,42 +38,42 @@ export class NetwokState extends Component {
     public onEnable(){
         //这些事件每个scene都要监听
         Utils.getGlobalController()?.On(AccountEvent.EVENT[AccountEvent.EVENT.CONNECT_SERVER],
-            this.onConnect.bind(this));
+            this.onConnect.bind(this),this);
 
         Utils.getGlobalController()?.On(AccountEvent.EVENT[AccountEvent.EVENT.NETWORK_ERROR],
-            this.onConnectError.bind(this));
+            this.onConnectError.bind(this),this);
 
         Utils.getGlobalController()?.On(AccountEvent.EVENT[AccountEvent.EVENT.NETWORK_DISCONNECT],
-            this.onDisconnect.bind(this));
+            this.onDisconnect.bind(this),this);
 
         Utils.getGlobalController()?.On(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN_SUCCESS],
-            this.onLoginSuccess.bind(this));
+            this.onLoginSuccess.bind(this),this);
 
         Utils.getGlobalController()?.On(CommonEvent.EVENT[CommonEvent.EVENT.SHOW_LOADING],
-            this.showLoading.bind(this));
+            this.showLoading.bind(this),this);
 
         Utils.getGlobalController()?.On(CommonEvent.EVENT[CommonEvent.EVENT.SHOW_DIALOG],
-            this.OnShowDialog.bind(this));
+            this.OnShowDialog.bind(this),this);
     }
     public onDisable(){
         //这些事件每个scene都要监听
         Utils.getGlobalController()?.Off(AccountEvent.EVENT[AccountEvent.EVENT.CONNECT_SERVER],
-            this.onConnect.bind(this));
+            this.onConnect.bind(this),this);
 
         Utils.getGlobalController()?.Off(AccountEvent.EVENT[AccountEvent.EVENT.NETWORK_ERROR],
-            this.onConnectError.bind(this));
+            this.onConnectError.bind(this),this);
 
         Utils.getGlobalController()?.Off(AccountEvent.EVENT[AccountEvent.EVENT.NETWORK_DISCONNECT],
-            this.onDisconnect.bind(this));
+            this.onDisconnect.bind(this),this);
 
         Utils.getGlobalController()?.Off(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN_SUCCESS],
-            this.onLoginSuccess.bind(this));
+            this.onLoginSuccess.bind(this),this);
 
         Utils.getGlobalController()?.Off(CommonEvent.EVENT[CommonEvent.EVENT.SHOW_LOADING],
-            this.showLoading.bind(this));
+            this.showLoading.bind(this),this);
 
         Utils.getGlobalController()?.Off(CommonEvent.EVENT[CommonEvent.EVENT.SHOW_DIALOG],
-            this.OnShowDialog.bind(this));
+            this.OnShowDialog.bind(this),this);
     }
 
     public onConnect(selectSeverMode : boolean,msg : any) : void{
@@ -160,30 +160,28 @@ export class NetwokState extends Component {
         }
     }
 
-    public OnShowDialog(dlg : IDialog){
-        this.showDialog(dlg.tip,dlg.tip,dlg.okText,dlg.cancelText,dlg.closeText,dlg.hasOk,dlg.hasCancel,dlg.hasClose);
-    }
-
-	public showDialog(title : string,content : string ,
-        okText : string = "确定",cancelText : string = "取消",closeText : string = "取消",
-        hasOk : boolean = false,hasCancel : boolean = false,hasClose : boolean = true) : void{
-
+    public OnShowDialog(iDlg : IDialog){
 		let node : Node = instantiate(this.DialogPrefab);
         node.parent = this.node.parent;
         node.setPosition(0, 0);
         //show dialog
         let dlg : Dialog = node.getComponent("Dialog") as Dialog;
+        dlg.ShowDialog(true,iDlg);
+    }
+
+    //显示简单提示性弹窗
+	public showDialog(title : string,content : string,okText : string = "确定") : void{
         let iDlg : IDialog = {
             type : eDialogEventType.SIMPLE,
             tip : content,
-			hasOk : hasOk,
-			okText : okText,
-			hasCancel : hasCancel,
-			cancelText : cancelText,
-			hasClose : hasClose,
-			closeText : closeText,
-            callBack : ()=> {},
+			hasOk : false,
+			okText : "",
+			hasCancel : false,
+			cancelText : "",
+			hasClose : true,
+			closeText : okText,
+            callBack : ()=>{},
         };
-        dlg.ShowDialog(true,iDlg);
+        this.OnShowDialog(iDlg);
 	}
 }

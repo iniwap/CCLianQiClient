@@ -137,7 +137,7 @@ export class ProtocolManager  {
     //     return (<IRouteConfig>ProtocolManager.ROUTE_CONFIG)[arg];
     // }
 
-    public SendMsg(pID : number,msg : JSON,cb : (msg : any) => void) : void {
+    public SendMsg(pID : number,msg : JSON,cb : any = null) : void {
         //发送消息
          let pKey : string = "P" + pID;
          let route = this.ROUTE_CONFIG[pKey];
@@ -149,13 +149,17 @@ export class ProtocolManager  {
     }
 
     //注册消息
-    public On(event : string,cb : any) : void{
+    public On(pID : number,cb : any) : void{
+        let pKey : string = "P" + pID;
+        let route = this.ROUTE_CONFIG[pKey];
         var onCb = cb;
-        this._connection.on(event, (msg : any) => {
+        this._connection.on(route, (msg : any) => {
             if(onCb) onCb(msg);
         });
     }
-    public Off(event : string,cb : any = null) : void{
+    public Off(pID : number,cb : any = null) : void{
+        let pKey : string = "P" + pID;
+        let route = this.ROUTE_CONFIG[pKey];
         this._connection.off(event, (msg : any) => {
             //取消监听
         });

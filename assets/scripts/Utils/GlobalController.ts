@@ -5,18 +5,13 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Component ,log, game} from 'cc';
+import { _decorator, Component, game} from 'cc';
 import { Utils } from './Utils';
-import { ProtocolDefine } from '../Define/ProtocolDefine';
-import { CommonDefine } from "../Define/CommonDefine";
-import { Account,NowAccount,SelfData} from '../Model/Account';
-import { ProtocolManager } from '../ProtocolManager/ProtocolManager';
-import { AccountEvent } from '../Event/AccountEvent';
-import { Lobby } from '../Model/Lobby';
-import { RoomEvent } from '../Event/RoomEvent';
-import { LobbyEvent } from '../Event/LobbyEvent';
-import { CommonEvent } from '../Event/CommonEvent';
-const { ccclass, property } = _decorator;
+import { RoomController } from '../Controller/RoomController';
+import { LobbyController } from '../Controller/LobbyController';
+import { GameController } from '../Controller/GameController';
+import { LoginController } from '../Controller/LoginController';
+const { ccclass } = _decorator;
 
 @ccclass('GlobalController')
 export class GlobalController extends Component {
@@ -26,816 +21,66 @@ export class GlobalController extends Component {
     /* use `property` decorator if your want the member to be serializable */
     // @property
     // serializableDummy = 0;
-    _autoLogin : boolean = false;
-    _loginType : ProtocolDefine.MsgLogin.eLoginType = ProtocolDefine.MsgLogin.eLoginType.LOGIN_TYPE_YK;
 
     start () {
-        // Your initialization goes here.
-        //原则上，需要的资源加载完成再启动链接服务器
-        ProtocolManager.getInstance().start(false,
-                this.OnConnectError.bind(this),
-                this.OnDisconnect.bind(this),
-                this.OnConnect.bind(this));
+		// Your initialization goes here.
+		LoginController.getInstance().Start();//开始登陆
     }
 
     onEnable(){
-        this.addAllUIEvent();
-		this.addAllProtocolEvent();
+        this.addAllEvent();
     }
-    //全局常驻节点
+
     onDisable(){
-        this.removeAllUIEvent();
-		this.removeAllProtocolEvent();
-		this.removeAllEvent();
+        this.removeAllEvent();
     }
 
     onLoad(){
+		//全局常驻节点
         game.addPersistRootNode(this.node);
     }
-//#region 添加删除监听事件
-    private addAllUIEvent() : void{
-		this.On(AccountEvent.EVENT[AccountEvent.EVENT.RELOGIN],this.OnReLogin.bind(this));
-		this.On(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN],this.OnLogin.bind(this));
-		
-		//排行榜打开游戏不会请求，需要打开界面的时候请求
-		this.On(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_RANK],this.onEventShowRank.bind(this));
-
-		//领取邮件奖励，更新列表
-		this.On(LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_UPDATE_EMAIL],
-			this.OnEventReqUpdateEmail.bind(this));
-
-		//请求反馈
-		this.On(LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_FEEDBACK],this.OnRespFeedback.bind(this));
-
-		this.On(LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_OPEN_TALENTSLOT],
-			this.onEventReqOpenTalentslot.bind(this));
-			
+	//#region 添加删除监听事件 -- 添加事件本质上可以根据不同的场景进行添加，这里偷懒统一管理了
+    private addAllEvent() : void{
+		//登陆-账户
+		LoginController.getInstance().AddAllEvent();
+		//大厅事件
+		LobbyController.getInstance().AddAllEvent();
+		//房间事件
+		RoomController.getInstance().AddAllEvent();
+		//游戏事件
+        GameController.getInstance().AddAllEvent();        
     }
-    private removeAllUIEvent() : void{
-		this.Off(AccountEvent.EVENT[AccountEvent.EVENT.RELOGIN],this.OnReLogin.bind(this));
-		this.Off(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN],this.OnLogin.bind(this));
-		
-		//排行榜打开游戏不会请求，需要打开界面的时候请求
-		this.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_RANK],this.onEventShowRank.bind(this));
-
-		//领取邮件奖励，更新列表
-		this.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_UPDATE_EMAIL],
-			this.OnEventReqUpdateEmail.bind(this));
-
-		//请求反馈
-		this.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_FEEDBACK],this.OnRespFeedback.bind(this));
-
-		this.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_OPEN_TALENTSLOT],
-			this.onEventReqOpenTalentslot.bind(this));
-    }
-
-    private addAllProtocolEvent() : void{
-		//push消息
-		ProtocolManager.getInstance().On(ProtocolDefine.LobbyProtocol[ProtocolDefine.LobbyProtocol.P_LOBBY_AWARD_EMAIL],
-			this.OnAwardEmail.bind(this));
-    }
-    private removeAllProtocolEvent() : void{
-		//push消息
-		ProtocolManager.getInstance().Off(ProtocolDefine.LobbyProtocol[ProtocolDefine.LobbyProtocol.P_LOBBY_AWARD_EMAIL],
-			this.OnAwardEmail.bind(this));
-	}
-	
-	//切换场景过程中，全局常驻节点会有个disable过程，此时需要清空之前所有事件监听，否则会导致前场景的监听未取消，产生崩溃
-	private removeAllEvent() : void{
+    private removeAllEvent() : void{
+        //以下本质上并不会调用，因为此时找不到节点了，因为是直接清空，也可不调用(多余)
+		LoginController.getInstance().RemoveAllEvent();	
+		LobbyController.getInstance().RemoveAllEvent();
+		RoomController.getInstance().RemoveAllEvent();
+		GameController.getInstance().RemoveAllEvent();
+		//切换场景过程中，全局常驻节点会有个disable过程，此时需要清空之前所有事件监听，否则会导致前场景的监听未取消，产生BUG
 		this._handles = {};
-	}
+    }
+
+    //
+    public OnNotifyStartGame(enterFinish : boolean) : void{
+        GameController.getInstance().onEventStartGame(enterFinish);
+    }
     //#endregion
 
     // update (deltaTime: number) {
     //     // Your update function goes here.
-    // }
-
-    //-----------------网络消息处理-----------------
-    private OnConnect(selectSeverMode : boolean,msg : any) : void{
-        if(selectSeverMode){
-            this.Emit(AccountEvent.EVENT[AccountEvent.EVENT.CONNECT_SERVER],selectSeverMode,msg);
-            //后续用户选择某个登陆
-            //ProtocolManager.getInstance().SelectServer(host,port);
-        }else{
-            //后续 自动登录
-			//第一次需要点击登录按钮
-			if (this._autoLogin) {
-				this._autoLogin = false;
-
-                //重新登陆
-				let nc : NowAccount = Account.getNowAccount ();
-				this.loginServer (nc.userID, nc.openid, nc.pwd, nc.lastLoginType, nc.area);
-
-			} else {
-				this.Emit(AccountEvent.EVENT[AccountEvent.EVENT.CONNECT_SERVER]
-					,selectSeverMode,msg);//隐藏loading动画，不是自动登陆，需要点击
-			}
-        }
-    }
-
-    private OnConnectError(msg : any) : void{
-        this.Emit(AccountEvent.EVENT[AccountEvent.EVENT.NETWORK_ERROR],msg);
-    }
-    private OnDisconnect(msg : any) : void{
-        this.Emit(AccountEvent.EVENT[AccountEvent.EVENT.NETWORK_DISCONNECT],msg);
-    }
-
-	public OnLogin(lt : ProtocolDefine.MsgLogin.eLoginType,arg0 : any) : void{
-		this._loginType =  lt;
-
-		//首先获取本地保存的数据
-		if (Account.loadNowAccout ()) {
-			//已经登陆过
-			let nc : NowAccount = Account.getNowAccount ();
-			if (nc.lastLoginType == this._loginType) {
-
-				//需要保存
-				Account.thirdOpenID = nc.openid;
-				Account.thirdToken = nc.token;
-
-				//不必启动第三方
-				this.loginServer (nc.userID, nc.openid, nc.pwd, nc.lastLoginType, nc.area);
-
-				return;
-			}
-		}
-
-		switch (this._loginType) {
-		case ProtocolDefine.MsgLogin.eLoginType.LOGIN_TYPE_YK:
-			this.loginByYK ();
-			break;
-		case ProtocolDefine.MsgLogin.eLoginType.LOGIN_TYPE_WX:
-			this.loginByQQWX (ProtocolDefine.MsgLogin.eLoginType.LOGIN_TYPE_WX);
-			break;
-		case ProtocolDefine.MsgLogin.eLoginType.LOGIN_TYPE_QQ:
-			this.loginByQQWX (ProtocolDefine.MsgLogin.eLoginType.LOGIN_TYPE_QQ);
-			break;
-		}
-    }
-    public OnLogout(data : any) : void{
-		//ProtocolManager.getInstance().Disconnect();//断开，即退出的时候调用
-
-		//这个时候其实应该转到登陆界面
-		//to do
-	}
-	public loginByQQWX(type : ProtocolDefine.MsgLogin.eLoginType ) : void{
-		//这里需要回调到ui界面处理三方登陆
-        if (type == ProtocolDefine.MsgLogin.eLoginType.LOGIN_TYPE_WX) {
-			//ssdk.Authorize(PlatformType.WeChat);
-		}else if(type == ProtocolDefine.MsgLogin.eLoginType.LOGIN_TYPE_QQ){
-			//ssdk.Authorize(PlatformType.QQ);
-		}
-	}
-	//登陆
-	public loginByYK() : void{
-		this.loginServer (0,"","",ProtocolDefine.MsgLogin.eLoginType.LOGIN_TYPE_YK,1);
-    }
-    
-    public OnReLogin(arg0 : any,arg1 : any) : void{
-		this._autoLogin = true;
-		ProtocolManager.getInstance().Restart(arg0);
-    }
-    //-------------
-    public OnLoginServer() : void{
-        //用于选择服务器列表时的登陆
-    }
-    private loginServer(userId : number,openId : string,pwd : string,
-        loginType : ProtocolDefine.MsgLogin.eLoginType,
-        area : number) : void{
-		let msg : ProtocolDefine.MsgLogin.msgLogin = {
-            userID : userId,
-            area : area,//用户所选服务器
-            appVersion : 20001,
-            channelID : 101010,
-            deviceID : "test1819",
-            ipAddr : 1111,
-            loginType : loginType as ProtocolDefine.MsgLogin.eLoginType,
-            netWorkType : 1,
-            osVersion : 10000,
-            password : pwd,
-            openID : openId,
-            token : "",
-            nickName : "",
-            head : "",
-            sex : 0,
-            expireTime : 0,
-        };
-        //.. etc.
-        ProtocolManager.getInstance ().SendMsg(ProtocolDefine.LobbyProtocol.P_LOBBY_REQ_LOGIN as number, 
-            Utils.encodeMsg(msg), 
-            this.OnLoginSuccess.bind(this));
-    }
-	public OnLoginSuccess(msg : any) : void{
-        let userData : ProtocolDefine.MsgUserData.msgUserData =  msg;//JSON.parse(msg); 
-		if (userData.flag == ProtocolDefine.MsgUserData.eLoginResultFlag.LOGIN_SUCCESS) {
-			//登陆成功
-			let selfData : SelfData = {
-                adult : userData.adult,
-                area : userData.area,
-                charm : userData.charm,
-                diamond : userData.diamond,
-                draw : userData.draw,
-                energy : userData.energy,
-                escape : userData.escape,
-                exp : userData.exp,
-                gameTime : userData.gameTime,
-                gold : userData.gold,
-                head : userData.head,
-                lastloginTime : userData.lastlogin_time,
-                lose : userData.lose,
-                name : userData.name,
-                talent : userData.talent,
-                roomID : userData.room_id,
-                score : userData.score,
-                sex : userData.sex,
-                userID : userData.user_id,
-                win : userData.win,
-
-                talentList : [],
-            }
-
-            let btnStateStr : string = "";
-            btnStateStr = Utils.getPlayerPrefs(CommonDefine.TALENT_SLOT_STATE, "");
-            if(btnStateStr === null) btnStateStr = "";
-
-			if (btnStateStr.length != 0) {
-                let btnStates : Array<string> = btnStateStr.split (',');
-				for (var st in btnStates) {
-					let data : Array<string> = st.split ('#');
-					let ttp : CommonDefine.eTalentType = CommonDefine.eTalentType.TALENT_NONE;
-
-					if (Number(data[2]) == CommonDefine.TalentSlotState.TALENT_INSTALLED.valueOf()) {
-						//已配置
-						ttp = Number(data [0] ) as CommonDefine.eTalentType;
-					}
-
-					selfData.talentList.push (ttp);
-				}
-			} else {
-				//如果还没有配置，则默认不配
-				for (var i = 0; i < CommonDefine.MAX_TALENT_CFG_NUM; i++) {
-					selfData.talentList.push (CommonDefine.eTalentType.TALENT_NONE);
-				}
-			}
-
-			//设置用户数据
-			Account.onLoginSuccess(selfData,this._loginType);
-			Account.inRoomId = userData.room_id;
-
-			//切换界面并通知 登陆成功
-			this.Emit(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN_SUCCESS],true,
-				this.reqLobbyDataAfterLoadedLobby.bind(this));
-
-		} else {
-            this.Emit(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN_SUCCESS],false);
-		}
-    }
-	public reqLobbyDataAfterLoadedLobby() : void{
-            //请求大厅数据 -- 这里需要判断是否是重连，重连可以不请求？
-            this.reqLobbyData();
-	}
-    //--------------------------大厅相关数据----------------------
-    //#region 
-    private reqLobbyData() : void{
-        let self : SelfData = Account.getSelfData();
-		//为了节省服务器压力，以下数据后续需要实现md5方式请求，如果数据未发生变动，则不需要请求。to do
-		//请求大厅数据
-		let plaza : ProtocolDefine.nLobby.nPlaza.msgReqPlazaList = {game : ProtocolDefine.GameType.GAME_LIANQI}
-        ProtocolManager.getInstance().SendMsg(ProtocolDefine.LobbyProtocol.P_LOBBY_REQ_PLAZA_LIST, 
-            Utils.encodeMsg(plaza), 
-            this.OnRespPlazaList.bind(this));
-
-        let prop : ProtocolDefine.nLobby.nProp.msgReqPropList = {game : ProtocolDefine.GameType.GAME_LIANQI}
-        ProtocolManager.getInstance().SendMsg(ProtocolDefine.LobbyProtocol.P_LOBBY_REQ_PROP_LIST, 
-            Utils.encodeMsg(prop), 
-            this.OnRespPropList.bind(this));
-
-        let pkg : ProtocolDefine.nLobby.nPackage.msgReqPackageList = {game : ProtocolDefine.GameType.GAME_LIANQI}
-        ProtocolManager.getInstance().SendMsg(ProtocolDefine.LobbyProtocol.P_LOBBY_REQ_PACKAGE_LIST, 
-            Utils.encodeMsg(pkg), 
-            this.OnRespPackageList.bind(this));
-
-        let sysmsg : ProtocolDefine.nLobby.nSysOrPrivateMsg.msgReqSysMsgList = {game : ProtocolDefine.GameType.GAME_LIANQI,
-            channelID : ProtocolDefine.ChannelType.CHANNEL_APPSTORE}
-        ProtocolManager.getInstance().SendMsg(ProtocolDefine.LobbyProtocol.P_LOBBY_REQ_SYSMSG, 
-            Utils.encodeMsg(sysmsg), 
-            this.OnRespSysMsgList.bind(this));
-
-        let primsg : ProtocolDefine.nLobby.nSysOrPrivateMsg.msgReqPrivateMsgList = {game : ProtocolDefine.GameType.GAME_LIANQI,
-            begin : 0,cnt : 20}
-        ProtocolManager.getInstance().SendMsg(ProtocolDefine.LobbyProtocol.P_LOBBY_REQ_PRIVATEMSG, 
-            Utils.encodeMsg(primsg), 
-            this.OnRespPrivateMsgList.bind(this)); 
-
-        let store : ProtocolDefine.nLobby.nStore.msgReqStoreList = {game : ProtocolDefine.GameType.GAME_LIANQI,
-            channelID : ProtocolDefine.ChannelType.CHANNEL_APPSTORE};
-        ProtocolManager.getInstance().SendMsg(ProtocolDefine.LobbyProtocol.P_LOBBY_REQ_STORE_LIST, 
-            Utils.encodeMsg(store), 
-            this.OnRespStoreList.bind(this)); 
-            
-        let friend : ProtocolDefine.nLobby.nFriend.msgReqFriendList = {game : ProtocolDefine.GameType.GAME_LIANQI};
-        ProtocolManager.getInstance().SendMsg(ProtocolDefine.LobbyProtocol.P_LOBBY_REQ_FRIEND_LIST, 
-            Utils.encodeMsg(friend), 
-            this.OnRespFriendList.bind(this));
-
-		/////新增 2017－04－05
-        //请求签到和抽奖数据
-        let sild : ProtocolDefine.nLobby.nSignInDraw.msgReqSignInLuckDrawData = {game : ProtocolDefine.GameType.GAME_LIANQI,
-            areaID : self.area,
-            deviceID : "deviceID"};
-        ProtocolManager.getInstance().SendMsg(ProtocolDefine.LobbyProtocol.P_LOBBY_REQ_SIGNIN_LUCKDRAW_DATA, 
-            Utils.encodeMsg(sild), 
-            this.OnRespSignInLuckDrawList.bind(this));
-
-        //请求签到
-        let signin : ProtocolDefine.nLobby.nSignInDraw.msgReqSignIn = {game : ProtocolDefine.GameType.GAME_LIANQI,
-            areaID : self.area,
-            deviceID : "deviceID"};
-        ProtocolManager.getInstance().SendMsg(ProtocolDefine.LobbyProtocol.P_LOBBY_REQ_SIGNIN, 
-            Utils.encodeMsg(signin), 
-            this.OnRespSignIn.bind(this));
-
-
-        //请求抽奖
-        let luckdraw : ProtocolDefine.nLobby.nSignInDraw.msgReqLuckDraw = {game : ProtocolDefine.GameType.GAME_LIANQI,
-            areaID : self.area,
-            deviceID : "deviceID"};
-        ProtocolManager.getInstance().SendMsg(ProtocolDefine.LobbyProtocol.P_LOBBY_REQ_LUCKDRAW, 
-            Utils.encodeMsg(luckdraw), 
-            this.OnRespLuckDraw.bind(this));
-    }
-    private OnRespPlazaList(msg : any) : void{
-		//
-		let plazaList : ProtocolDefine.nLobby.nPlaza.msgRespPlazaList = msg;
-
-		Lobby.LobbyData.plazaList = [];//首先清空
-		// 转换存数据
-		for (var i = 0; i < plazaList.plazaList.length; i++) {
-			let plazaLevel : Array<Lobby.PlazaLevel> = [];
-			for (var j = 0; j < plazaList.plazaList [i].levelList.length; j++) {
-				let pl : Lobby.PlazaLevel = {
-					base_score : plazaList.plazaList [i].levelList[j].base_score,
-					levelid : plazaList.plazaList [i].levelList[j].levelid,
-					minsr : plazaList.plazaList [i].levelList[j].minsr,
-					maxsr : plazaList.plazaList [i].levelList[j].maxsr,
-				}
-				plazaLevel.push(pl);
-			}
-
-			let plaza : Lobby.Plaza = {
-				lmtType : plazaList.plazaList[i].lmt_type,
-				des : plazaList.plazaList[i].des,
-				star : plazaList.plazaList[i].star,
-				name : plazaList.plazaList[i].name,
-				plazaid : plazaList.plazaList[i].plazaid,
-				rule : plazaList.plazaList[i].rule,
-				roomType : plazaList.plazaList[i].room_type,
-				plazaLevel : plazaLevel,
-			}
-
-			Lobby.LobbyData.plazaList.push(plaza);
-		}
-		//刷新界面
-        this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PLAZA]);
-	}
-	private OnRespPropList(msg : any) : void{
-		//
-		let propList : ProtocolDefine.nLobby.nProp.msgRespPropList = msg;
-		Lobby.LobbyData.propList = [];//首先清空
-		for (var i = 0; i < propList.propList.length; i++) {
-			let prop : Lobby.Prop = {
-				data : propList.propList [i].data,
-				des : propList.propList [i].des,
-				id : propList.propList [i].id,
-				name : propList.propList [i].name,
-				pic : propList.propList [i].pic,
-				price : propList.propList [i].price,
-				type : propList.propList [i].type,
-			}
-			Lobby.LobbyData.propList.push(prop);
-		}
-	}
-	private OnRespPackageList(msg : any) : void{
-		//
-		let packageList : ProtocolDefine.nLobby.nPackage.msgRespPackageList = msg;
-
-		if(packageList.packageList == null){
-			return;
-		}
-
-		Lobby.LobbyData.packageList = [];//首先清空
-
-		for (var i = 0; i < packageList.packageList.length; i++) {
-			let prop : Lobby.Prop = this.getProp(packageList.packageList [i].prop_id)[1];
-			let pk : Lobby.Package = {
-				end_time : packageList.packageList[i].end_time,
-				prop_cnt : packageList.packageList[i].prop_cnt,
-				prop : prop,
-			}
-
-			Lobby.LobbyData.packageList.push(pk);
-		}
-
-        this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PACKAGE]);
-	}
-	private OnRespSysMsgList(msg : any) : void{
-		//
-		let sml : ProtocolDefine.nLobby.nSysOrPrivateMsg.msgRespSysMsgList = msg;
-		let sysMsgList : Array<Lobby.SysMsg> = [];
-		for (var i = 0; i < sml.sysMsgList.length; i++) {
-			let sm : Lobby.SysMsg = {
-				content : sml.sysMsgList [i].content,
-				id : sml.sysMsgList [i].id,
-			}
-			sysMsgList.push(sm);
-		}
-
-        this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_SYSMSG],sysMsgList);
-	}
-	private OnRespPrivateMsgList(msg : any) : void{
-		//
-		let privateMsgList : ProtocolDefine.nLobby.nSysOrPrivateMsg.msgRespPrivateMsgList = msg;
-		Lobby.LobbyData.privateMsgList = [];//首先清空
-
-		for (var i = 0; i < privateMsgList.privateMsgList.length; i++) {
-			let psm : Lobby.PrivateMsg = {
-				author : privateMsgList.privateMsgList[i].author,
-				content : privateMsgList.privateMsgList[i].content,
-				end_time : privateMsgList.privateMsgList[i].end_time,
-				has_read : privateMsgList.privateMsgList[i].has_read,
-				id : privateMsgList.privateMsgList[i].id,
-				send_time : privateMsgList.privateMsgList[i].send_time,
-				title : privateMsgList.privateMsgList[i].title,
-			}
-			Lobby.LobbyData.privateMsgList.push(psm);
-		}
-
-        this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PRIVATEMSG]);
-
-		this.checkIfHasUnReadEmail();
-	}
-	private OnRespStoreList(msg : any) : void{
-		//
-		let storeList : ProtocolDefine.nLobby.nStore.msgRespStoreList = msg;
-		Lobby.LobbyData.storeList = [];//首先清空
-
-		for (var i = 0; i < storeList.storeList.length; i++) {
-			let store : Lobby.Store = {
-				data : storeList.storeList[i].data,
-				des : storeList.storeList[i].des,
-				id : storeList.storeList[i].id,
-				name : storeList.storeList[i].name,
-				pic : storeList.storeList[i].pic,
-				point : storeList.storeList[i].point,
-				price : storeList.storeList[i].price,
-			}
-			Lobby.LobbyData.storeList.push(store);
-		}
-
-        this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_STORE]);
-	}
-
-	private OnRespSignInLuckDrawList(msg : any) : void{
-		let resp : ProtocolDefine.nLobby.nSignInDraw.msgRespSignInLuckDrawData = msg;
-
-		let signInList : Array<Lobby.SignIn> = [];
-		for (var i = 0; i < resp.signData.length; i++) {
-			let prop : Lobby.Prop = this.getProp(resp.signData [i].prop_id)[1];
-			let sn : Lobby.SignIn = {
-				gold_num : resp.signData [i].gold_num,
-				prop : prop,
-				type : resp.signData[i].type,
-			}
-			signInList.push(sn);
-		}
-
-		Lobby.LobbyData.signInData = {
-			hasSigned : resp.hasSigned,
-			currentSignDay : resp.signInDay,
-			signInList : signInList
-		};
-
-        this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_SIGNIN]);
-
-		let luckDrawList : Array<Lobby.LuckDraw> = [];
-		for (var i = 0; i < resp.luckData.length; i++) {
-			let prop : Lobby.Prop = this.getProp(resp.luckData [i].prop_id)[1];
-			let ld : Lobby.LuckDraw = {
-				gold_num : resp.luckData[i].gold_num,
-				prop : prop,
-				type : resp.luckData[i].type,
-			}
-			luckDrawList.push(ld);
-		}
-
-		Lobby.LobbyData.luckDrawData = {
-			hasDrawed : resp.hasDrawed,
-			luckDrawList : luckDrawList
-		};
-
-        this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_LUCKDRAW]);
-
-		this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.RECEIVE_ALL_LOBBY_DATA]);// 如果没有请求所有数据，需要在登陆成功后就调用
-	}
-	private OnRespSignIn(msg : any) : void{
-		let resp : ProtocolDefine.nLobby.nSignInDraw.msgRespSignIn = msg;
-		//to do 
-	}
-	private OnRespLuckDraw(msg : any) : void{
-		let resp : ProtocolDefine.nLobby.nSignInDraw.msgRespLuckDraw = msg;
-		//to do  
-    }
-    private OnRespFriendList(msg : any) : void{
-		//
-		let resp : ProtocolDefine.nLobby.nFriend.msgRespFriendList = msg;
-		if(resp.friendList == null) {
-			//console.log("没有好友");
-			return;
-		}
-
-		Lobby.LobbyData.friendList = [];//首先清空
-
-		for (var i = 0; i < resp.friendList.length; i++) {
-			let fd : Lobby.Friend = {
-				des : resp.friendList [i].des,
-				friend_id : resp.friendList [i].friend_id,
-				friend_score : resp.friendList [i].friend_score,
-				head_url : resp.friendList [i].head_url,
-				lastlogin_time : resp.friendList [i].lastlogin_time,
-				name : resp.friendList [i].name,
-			}
-			Lobby.LobbyData.friendList.push(fd);
-		}
-
-        this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_FRIEND]);
-    }
-    //#endregion
-
-    //#region 以下是界面请求数据 或者 服务器push数据
-    private  OnRespUpdateEmail(msg : any) : void{
-
-        this.showLoading(false);
-        let resp : ProtocolDefine.nLobby.nSysOrPrivateMsg.msgReqUpdateEmail = msg;
-        let find = -1;
-        for (var i = 0; i < Lobby.LobbyData.privateMsgList.length; i++) {
-            if (Lobby.LobbyData.privateMsgList [i].id == resp.awardEmailId) {
-                find = i;
-                break;
-            }
-        }
-        if (find == -1) {
-            //邮件不存在
-            return;
-        }
-        let psm : Lobby.PrivateMsg = {
-            author: Lobby.LobbyData.privateMsgList[find].author,
-            content: Lobby.LobbyData.privateMsgList[find].content,
-            end_time : Lobby.LobbyData.privateMsgList [find].end_time,
-            has_read : Lobby.LobbyData.privateMsgList [find].has_read,
-            id : Lobby.LobbyData.privateMsgList [find].id,
-            send_time : Lobby.LobbyData.privateMsgList [find].send_time,
-            title : Lobby.LobbyData.privateMsgList [find].title,
-        };
-        if (resp.type == ProtocolDefine.nLobby.nSysOrPrivateMsg.eUpdateEmailType.READ) {
-            //更新邮件缓存列表
-            psm.has_read = 1;
-            Lobby.LobbyData.privateMsgList [find] = psm;
-
-            this.checkIfHasUnReadEmail ();
-
-        } else if (resp.type == ProtocolDefine.nLobby.nSysOrPrivateMsg.eUpdateEmailType.DEL) {
-            //删除
-            Lobby.LobbyData.privateMsgList.splice(find,1);
-
-            this.checkIfHasUnReadEmail ();
-
-        } else if (resp.type == ProtocolDefine.nLobby.nSysOrPrivateMsg.eUpdateEmailType.GET_AWARD) {
-            let ec : Lobby.EmailContent = JSON.parse(Lobby.LobbyData.privateMsgList[find].content);
-
-            if (ec.hasGottenAward) {
-                //已经领取过奖励了
-				//this.showDialog ("温馨提示","您已经领取过奖励了 :)");
-				console.log("已经领取过奖励了");
-                return;
-            } else {
-                ec.hasGottenAward = true;
-                psm.content = JSON.stringify(ec);
-                Lobby.LobbyData.privateMsgList[find] = psm;
-
-                // 奖励需要同时更新 用户金币以及包裹信息
-                if (ec.type == Lobby.eAwardType.GOLD) {
-                    Account.updateUserGold(ec.awardCnt);
-                    //已经可以更新用户相关界面信息
-                    this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_USER_INFO]);
-                } else if (ec.type == Lobby.eAwardType.PROP) {
-                    //重新请求一遍
-                    let pkg : ProtocolDefine.nLobby.nPackage.msgReqPackageList = {game : ProtocolDefine.GameType.GAME_LIANQI}
-                    ProtocolManager.getInstance().SendMsg(ProtocolDefine.LobbyProtocol.P_LOBBY_REQ_PACKAGE_LIST, 
-                        Utils.encodeMsg(pkg), 
-                        this.OnRespPackageList.bind(this));
-                }
-            }
-        }
-
-        //to do  更新邮件界面 
-        this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_UPDATE_EMAIL_RESULT],resp.awardEmailId,resp.type);
-    }
-    private OnAwardEmail(msg : any) : void{
-		let ae : ProtocolDefine.nLobby.nSysOrPrivateMsg.msgAwardEmail = msg;
-		//
-		if(ae.type == ProtocolDefine.nLobby.nSysOrPrivateMsg.eSysOrPrivateMsgType.TYPE_MSG_PRIVATE){
-			//个人消息，这种是私人消息，比如队伍之间，非系统下发
-			//待完成
-		}else if(ae.type == ProtocolDefine.nLobby.nSysOrPrivateMsg.eSysOrPrivateMsgType.TYPE_MSG_SYS){
-			//系统下发消息，多是奖励信息，如果有必要则添加到邮件
-			if (ae.needAdd2Email) {
-				let psm : Lobby.PrivateMsg = {
-					author : ae.author,
-					content : ae.content,
-					end_time : ae.end_time,
-					has_read : ae.has_read,
-					id : ae.id,
-					send_time : ae.send_time,
-					title : ae.title,
-				}
-				Lobby.LobbyData.privateMsgList.splice(0,0,psm);
-
-                this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_PRIVATEMSG]);
-
-				this.checkIfHasUnReadEmail();
-
-			} else {
-				//如果不需要添加到邮件，则仅仅弹窗提示即可
-				//show dialog
-			}
-		}else if(ae.type == ProtocolDefine.nLobby.nSysOrPrivateMsg.eSysOrPrivateMsgType.TYPE_MSG_NOTICE){
-			//系统公告性质的消息，也就是要走跑马灯
-            this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_SYSMSG],ae.content);//插入显示一条系统消息
-		}
-    }
-    
-    private OnRespRankList(msg : any) : void{
-		this.showLoading(false);
-		
-		let rankList : ProtocolDefine.nLobby.nRank.msgRespRankList = msg;
-		Lobby.LobbyData.rankList = [];//首先清空
-
-		//此条有较大问题，后续优化
-		for (var i = 0; i < rankList.rankList.length; i++) {
-			let rst : Lobby.RankScopeType = {
-				scope : rankList.scope,
-				type : rankList.type,
-			};
-			let rk : Lobby.Rank = {
-				headUrl : rankList.rankList[i].headUrl,
-				exp : rankList.rankList[i].exp,
-				name : rankList.rankList[i].name,
-				score : rankList.rankList[i].score,
-				userID : rankList.rankList[i].userID,
-				charm : rankList.rankList [i].charm,
-				diamond : rankList.rankList [i].diamond,
-				gold : rankList.rankList [i].gold,
-				win_rate : rankList.rankList [i].win_rate,
-				rst : rst,
-			}
-			Lobby.LobbyData.rankList.push(rk);
-		}
-
-		//由于这个消息的特殊性，可以不在此处刷新，需要的展示界面的时候再请求，刷新
-		this.onEventShowRank (rankList.scope,rankList.type);//此为默认显示的榜单
-    }
-    
-    public OnEventReqUpdateEmail(id : number,type : ProtocolDefine.nLobby.nSysOrPrivateMsg.eUpdateEmailType){
-		
-		let msg : ProtocolDefine.nLobby.nSysOrPrivateMsg.msgReqUpdateEmail = {
-			type : type,
-			awardEmailId : id
-		}
-		ProtocolManager.getInstance().SendMsg(ProtocolDefine.LobbyProtocol.P_LOBBY_REQ_UPDATE_EMAIL, 
-			Utils.encodeMsg(msg), 
-			this.OnRespUpdateEmail.bind(this));
-
-		this.showLoading(true);
-	}
-
-	public onEventReqFeedback(type : ProtocolDefine.nLobby.nFeedback.eFeedbackType,content : string){
-		let msg : ProtocolDefine.nLobby.nFeedback.msgReqFeedback = {
-			type : type,
-			content : content
-		}
-		ProtocolManager.getInstance().SendMsg(ProtocolDefine.LobbyProtocol.P_LOBBY_REQ_FEEDBACK,
-			Utils.encodeMsg(msg), this.OnRespFeedback.bind(this));
-
-		this.showLoading(true);
-	}
-	
-	private OnRespFeedback(msg : any) : void{
-		this.showLoading(false);
-		let resp : ProtocolDefine.nLobby.nFeedback.msgReqFeedback = msg;
-		this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.RESP_FEEDBACK],resp.type,resp.content); 
-	}
-
-	public onEventReqOpenTalentslot(type : ProtocolDefine.nLobby.nTalent.eOpenByType,arg1 : any = undefined){
-		//需要判断是否有足够的金币或者钻石开槽，避免多余的网络请求
-		let msg : ProtocolDefine.nLobby.nTalent.msgReqOpenTalentslot = {
-			game : ProtocolDefine.GameType.GAME_LIANQI,
-			openBy : type
-		}
-		ProtocolManager.getInstance().SendMsg(ProtocolDefine.LobbyProtocol.P_LOBBY_REQ_OPENTALENTSLOT,
-			Utils.encodeMsg(msg), this.OnRespOpenTalentslot.bind(this));
-
-		this.showLoading(true);
-	}
-	private OnRespOpenTalentslot(msg : any) : void{
-		this.showLoading(false);
-
-		let resp : ProtocolDefine.nLobby.nTalent.msgRespOpenTalentslot = msg;
-
-		//更新界面
-		this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.RESP_OPEN_TALENTSLOT],resp.result);
-    }
-    private onEventShowRank(sc : ProtocolDefine.nLobby.nRank.eRankScopeType,
-		t : ProtocolDefine.nLobby.nRank.eRankType) : void{
-
-		let rankList : Array<Lobby.Rank> = [];
-		for (var i = 0; i < Lobby.LobbyData.rankList.length; i++) {
-			if (t == Lobby.LobbyData.rankList[i].rst.type
-				&& sc == Lobby.LobbyData.rankList[i].rst.scope) {
-				rankList.push(Lobby.LobbyData.rankList [i]);
-			}
-		}
-
-		if (rankList.length == 0) {
-			//说明还没有请求过，刷新一次
-			let rank : ProtocolDefine.nLobby.nRank.msgReqRankList = {game : ProtocolDefine.GameType.GAME_LIANQI,
-				areaID: Account.getSelfData().area,
-				rankNum : 50,// 只取前50
-				scope : sc,//区排行
-				type : t//财富排行
-			};
-			ProtocolManager.getInstance().SendMsg(ProtocolDefine.LobbyProtocol.P_LOBBY_REQ_RANK_LIST, 
-				Utils.encodeMsg(rank), 
-				this.OnRespRankList.bind(this));
-
-			this.showLoading(true);
-
-		} else {
-			this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_RANK],rankList);
-		}
-	}
-
-    //#endregion
-
-    //---------------------------通知更新ui----------------------
-    private checkIfHasUnReadEmail() : void{
-        let show : boolean = false;
-		for (var i = 0; i < Lobby.LobbyData.privateMsgList.length; i++) {
-			if (Lobby.LobbyData.privateMsgList [i].has_read == 0) {
-				//通知显示提示标示
-                show = true;
-                break;
-			}
-		}
-        
-        this.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_HAS_NEW_EMAIL_MARK],show);
-	}
-	
-	//最好修改为请求处显示，收到请求处隐藏
-    private showLoading(show : boolean) : void{
-        this.Emit(CommonEvent.EVENT[CommonEvent.EVENT.SHOW_LOADING],show);
-    }
-    //-------------------------一些封装--------------------------
-	private getProp(propID : number) : [boolean,Lobby.Prop]{
-		let prop : Lobby.Prop = {
-			data : "",
-			des : "",
-			id : 0,
-			name : "",
-			pic : "",
-			price : 0,
-			type : ProtocolDefine.nLobby.nProp.ePropType.NONE,
-		}
-
-		for(var j = 0;j < Lobby.LobbyData.propList.length;j++){
-			if (propID == Lobby.LobbyData.propList [j].id) {
-				prop = {
-					data : Lobby.LobbyData.propList [j].data,
-					des : Lobby.LobbyData.propList [j].des,
-					id : Lobby.LobbyData.propList [j].id,
-					name : Lobby.LobbyData.propList [j].name,
-					pic : Lobby.LobbyData.propList [j].pic,
-					price : Lobby.LobbyData.propList [j].price,
-					type : Lobby.LobbyData.propList [j].type,
-				}
-				return [true,prop];
-			} else {
-				//此时可能是背包数据先到，道具数据没有收到还，此类情况基本不可能出现
-				//后续做容错处理
-			}
-		}
-		return [false,prop];
-    }
-    
+	// }
+
+	//#region 登陆-账号相关
+	//all in =====> LoginController
+	//#endregion
+
+	//#region 大厅相关消息、事件
+	//all in =====> LobbyController
+	//#endregion
+
+	//#region 房间相关消息、事件
+	//all in =====> RoomController
+	//#endregion
 
     //--------------------------实现事件管理----------------------
     //#region 统一管理全局事件收发
@@ -856,9 +101,24 @@ export class GlobalController extends Component {
         }
     }
     //添加事件监听
-    public On(eventName : string, callback : any, target : any = undefined)
+    public On(eventName : string, callback : any, target : any)
     {
         this._handles[eventName] = this._handles[eventName] || [];
+
+        if(this._handles[eventName].length != 0){
+            //判断是否已经存在
+            for (var i = 0; i < this._handles[eventName].length; i++)
+            {
+                var handler = this._handles[eventName][i];
+                if (target.name == handler.target.name 
+                    && callback.name == callback.name 
+                    && target == handler.target)
+                {
+                    return;// 存在不重复添加
+                }
+            }
+        }
+
         this._handles[eventName].push({
             callback: callback,
             target: target
@@ -866,18 +126,14 @@ export class GlobalController extends Component {
     }
 
     //移除监听
-    public Off(eventName : string, callback : any, target : any = undefined)
+    public Off(eventName : string, callback : any, target : any)
     {
-        if (target == undefined)
-        {
-            target = callback;
-            callback = undefined;
-        }
         for (var i = 0; i < this._handles[eventName].length; i++)
         {
             var handler = this._handles[eventName][i];
-            if (target == handler.target &&
-                (callback.toString() == handler.callback.toString() || callback == undefined))
+            if (target.name == handler.target.name 
+                && callback.name == callback.name 
+                && target == handler.target)
             {
                 this._handles[eventName].splice(i, 1);
             }

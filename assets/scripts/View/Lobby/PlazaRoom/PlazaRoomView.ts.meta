@@ -1,0 +1,17 @@
+{
+  "ver": "4.0.9",
+  "importer": "typescript",
+  "imported": true,
+  "uuid": "9c2aec39-8d91-451d-9d9e-31d4d8e5928c",
+  "files": [
+    ".js",
+    "editor.js",
+    ".trans"
+  ],
+  "subMetas": {},
+  "userData": {
+    "importAsPlugin": false,
+    "moduleId": "project:///assets/scripts/View/Lobby/PlazaRoom/PlazaRoomView.js",
+    "importerSettings": 7
+  }
+}

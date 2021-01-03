@@ -51,4 +51,18 @@ export namespace LobbyEvent{
 		OPEN_CLOSE_EFFECT_SND,//开关音效
 		OPEN_CLOSE_BG_SND,//开关背景音
 	};
+
+	//大厅子界面，非scene实现部分
+	export enum eLobbyPanel{
+		LOBBY_LOBBY_PANEL,
+		LOBBY_PLAZAROOM_ROOM_PANEL,//房间组队界面
+		LOBBY_PLAZAROOM_PLAZA_PANEL,//场模式界面
+		LOBBY_PACKAGE_PANEL,
+		LOBBY_STORE_PANEL,
+		LOBBY_FRIEND_PANEL,
+		LOBBY_RANK_PANEL,
+		LOBBY_TASK_PANEL,//不一定是panel
+		LOBBY_TALENT_PANEL,
+		LOBBY_ROOMWAITMATCH_PANEL,//等待游戏匹配界面
+	};
 }

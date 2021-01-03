@@ -1,3 +1,6 @@
+import { ProtocolDefine } from "../Define/ProtocolDefine";
+import { nRoom } from "../Model/Room";
+
 export namespace RoomEvent{
     export enum EVENT{
         ROOM_EVENT_BEGIN = 40000,
@@ -20,20 +23,62 @@ export namespace RoomEvent{
     };
 
     export interface JoinRoom{
-		playerNum : number;//由于一个场支持两种人数模式，所以需要客户端上传这个两个参数
-		gridLevel : number;//
-		plazaID : number;//根据plazalist得到，界面也是根据plazalisy生成
-		pwd : string;//非用户创建无密码
-		roomId : number;//非用户创建房间填0，即通过各种模式直接进入游戏的
+      playerNum : number;//由于一个场支持两种人数模式，所以需要客户端上传这个两个参数
+      gridLevel : number;//
+      plazaID : number;//根据plazalist得到，界面也是根据plazalisy生成
+      pwd : string;//非用户创建无密码
+      roomId : number;//非用户创建房间填0，即通过各种模式直接进入游戏的
 
-		//未来方便，传递下name和tagid
-		plazaName : string;
-		tagId : number;
+      //未来方便，传递下name和tagid
+      plazaName : string;
+      tagId : number;
     };
     
     export enum eRoomClassicType{
-		MODE_2_4,//
-		MODE_2_6,
-		MODE_4_6,
-	}
+      MODE_2_4,//
+      MODE_2_6,
+      MODE_4_6,
+    }
+    
+    export enum eRoomPlayerType{
+      ROOM_WIAT,// 房间玩家
+      GAME_WAIT,//游戏等待时玩家
+    };
+    export interface IUpdateRoomRule{
+      type : ProtocolDefine.nRoom.eCreateRoomType;
+  
+      playerNum : number;
+      gridLevel: number;
+      rule : string;
+      gameTime: number;//限制总时长
+      lmtRound: number;//限制回合
+      lmtTurnTime: number;//限手时长
+      roomLevel: number;
+      roomID: number;
+  
+      //如果是场模式，需要以下参数
+      star: number;
+      tag: number;
+      plazaName : string;
+    }
+
+    export interface IUpdatePlayerState{
+      local : number;
+      ifAllReady : boolean;
+      state: ProtocolDefine.nRoom.eStateType;
+    }
+    export interface IReqCreateRoom{
+      roomType : ProtocolDefine.nRoom.eCreateRoomType;
+      baseScore : number;
+      minScore : number;
+      maxScore : number;
+      roomName : string;
+      roomPassword : string;
+      //此处rule已经拼接好，rule也可以拆分为单字段，看具体实现
+      rule : string;// "{\"playerNum\":2,\"gridLevel\":4,\"rule\":\"default\",\"gameTime\":\"360\"}";//规则json 或者字符串，非常重要
+    };
+    export interface IPlayerTalentList{
+      local : number;
+      talentList : Array<number>;
+    }
 }

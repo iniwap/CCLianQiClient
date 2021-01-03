@@ -80,4 +80,20 @@ export namespace Utils{
 
         return mode;
     }
+    export const getVipLevel = function(vip : number) : number{
+        if (vip == 0) {
+            return 0;
+        }
+        if (vip > 0 && vip <= 10) {
+            return 1;
+        }
+        if (vip > 10 && vip <= 99) {
+            return 2;
+        }
+        if (vip > 99) {
+            return 3;
+        }
+
+        return 0;
+    }
 }

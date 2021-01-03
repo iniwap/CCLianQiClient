@@ -5,6 +5,7 @@
 import { CommonDefine } from "../Define/CommonDefine";
 import { ProtocolDefine } from "../Define/ProtocolDefine";
 import { Utils } from "../Utils/Utils";
+import { Lobby } from "./Lobby";
 
 export interface NowAccount{
 	area : number;
@@ -144,9 +145,9 @@ export class Account{
 		}
 	}
 
-	public static updateUserTalent(tl : Array<CommonDefine.eTalentType>) : void{
+	public static updateUserTalent(tl : Array<Lobby.eTalentType>) : void{
 		for(var i = 0;i < Account._selfData.talentList.length;i++){
-			Account._selfData.talentList [i] = CommonDefine.eTalentType.TALENT_NONE;
+			Account._selfData.talentList [i] = Lobby.eTalentType.TALENT_NONE;
 		}
 
 		for(var i = 0; i < tl.length;i++){

@@ -20,6 +20,7 @@ export enum eDialogEventType{
     GAME_ABANDON,
     NETWORK_ERROR,
     NETWORK_DISCONNECT,
+    BACK_DISSOLVE_ROOM,////房间里返回视同解散
 };
 export interface IDialog{
     type : eDialogEventType;
