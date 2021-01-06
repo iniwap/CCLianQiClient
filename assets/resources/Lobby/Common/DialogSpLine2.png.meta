@@ -2,7 +2,7 @@
   "ver": "1.0.21",
   "importer": "image",
   "imported": true,
-  "uuid": "9c645e20-85ea-475e-8357-c12125b4e046",
+  "uuid": "7d2f141e-76e2-4d73-b918-d67018b891e7",
   "files": [
     ".png",
     ".json"
@@ -10,8 +10,8 @@
   "subMetas": {
     "6c48a": {
       "importer": "texture",
-      "uuid": "9c645e20-85ea-475e-8357-c12125b4e046@6c48a",
-      "displayName": "goldpoolbg",
+      "uuid": "7d2f141e-76e2-4d73-b918-d67018b891e7@6c48a",
+      "displayName": "DialogSpLine2",
       "id": "6c48a",
       "name": "texture",
       "userData": {
@@ -22,7 +22,7 @@
         "mipfilter": "none",
         "anisotropy": 1,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "9c645e20-85ea-475e-8357-c12125b4e046"
+        "imageUuidOrDatabaseUri": "7d2f141e-76e2-4d73-b918-d67018b891e7"
       },
       "ver": "1.0.20",
       "imported": true,
@@ -33,28 +33,28 @@
     },
     "f9941": {
       "importer": "sprite-frame",
-      "uuid": "9c645e20-85ea-475e-8357-c12125b4e046@f9941",
-      "displayName": "goldpoolbg",
+      "uuid": "7d2f141e-76e2-4d73-b918-d67018b891e7@f9941",
+      "displayName": "DialogSpLine2",
       "id": "f9941",
       "name": "spriteFrame",
       "userData": {
         "trimType": "auto",
         "trimThreshold": 1,
         "rotated": false,
-        "offsetX": 0,
-        "offsetY": 0,
+        "offsetX": -4,
+        "offsetY": -5.5,
         "trimX": 0,
-        "trimY": 0,
-        "width": 120,
-        "height": 109,
-        "rawWidth": 120,
-        "rawHeight": 109,
-        "borderTop": 50,
-        "borderBottom": 50,
-        "borderLeft": 50,
-        "borderRight": 50,
+        "trimY": 12,
+        "width": 627,
+        "height": 14,
+        "rawWidth": 635,
+        "rawHeight": 27,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "9c645e20-85ea-475e-8357-c12125b4e046@6c48a",
+        "imageUuidOrDatabaseUri": "7d2f141e-76e2-4d73-b918-d67018b891e7@6c48a",
         "atlasUuid": ""
       },
       "ver": "1.0.8",
@@ -68,6 +68,6 @@
   "userData": {
     "hasAlpha": true,
     "type": "sprite-frame",
-    "redirect": "9c645e20-85ea-475e-8357-c12125b4e046@f9941"
+    "redirect": "7d2f141e-76e2-4d73-b918-d67018b891e7@f9941"
   }
 }
