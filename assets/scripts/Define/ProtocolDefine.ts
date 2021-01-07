@@ -939,7 +939,7 @@ export namespace ProtocolDefine{
 				round : number;// 当前回合数
 				isPassTurn : boolean;//是否是第一手，自动
 				isTimeOut : boolean;//是否超时切换手
-				lmt : eLianQiDirectionType;
+				lmt : Array<number>;//eLianQiDirectionType
 			};
 			/// 服务器对于投降的玩家自动pass，客户端需要同时修改游戏逻辑的当前玩家
 			export interface msgLianQiAbandonPass{

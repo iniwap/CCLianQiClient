@@ -1,0 +1,13 @@
+{
+  "ver": "1.1.23",
+  "importer": "prefab",
+  "imported": true,
+  "uuid": "298ec4c7-bc19-4e3a-b056-24c87f052a19",
+  "files": [
+    ".json"
+  ],
+  "subMetas": {},
+  "userData": {
+    "syncNodeName": "GamePlayer"
+  }
+}

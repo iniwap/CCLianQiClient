@@ -66,6 +66,11 @@ export namespace CommonDefine{
       export const GAME_RESULT_TITLE_WIN : string = "Game/GameResult/titlewin";
       export const GAME_RESULT_TITLE_LOSE : string = "Game/GameResult/titlelose";
       export const GAME_RESULT_TITLE_DRAW : string = "Game/GameResult/titledraw";
+
+      //声音
+      export const GAME_EFF_SND : string = "Sound/Effect/";
+      export const GAME_BG_SND : string = "Sound/BG/";
+      export const GAME_TALK_SND : string = "Sound/Talk/";
     };
 
     export const TALENT_SLOT_STATE : string = "TALENT_SLOT_STATE";

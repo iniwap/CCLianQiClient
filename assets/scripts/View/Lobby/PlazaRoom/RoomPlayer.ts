@@ -135,9 +135,9 @@ export class RoomPlayer extends Component {
 	}
 	public updatePlayerReady() : void{        
         resources.load(CommonDefine.ResPath.ROOM_READY_HEAD_BG + nRoom.RoomData.getSeatByLocal(this._local) + "/spriteFrame",
-        SpriteFrame, (err, spriteFrame) => {
-            this.headBg.spriteFrame = spriteFrame!;
-            //spriteFrame.addRef();
+            SpriteFrame, (err, spriteFrame) => {
+                this.headBg.spriteFrame = spriteFrame!;
+                //spriteFrame.addRef();
         });
 	}
 }
