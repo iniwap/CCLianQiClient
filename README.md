@@ -3,7 +3,7 @@
 ----
 具体参看u3d版本
 
-![image](https://github.com/iniwap/CCLianQiClient/blob/main/screenshots/1.jpg)
+![image](https://github.com/iniwap/CCLianQiClient/blob/main/screenshots/1.png)
 
 环境:Version: 3.0 Preview
 ---
