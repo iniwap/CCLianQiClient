@@ -5,5 +5,5 @@
 
 ![image](https://github.com/iniwap/CCLianQiClient/blob/main/screenshots/1.png)
 
-环境:Version: 3.0 Preview
+环境:Creator 3.0.0-Preview.1 
 ---
