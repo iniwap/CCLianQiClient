@@ -1,5 +1,5 @@
 # CCLianQi
-基于Pomelo类棋类游戏Cocos Creator客户端，使用TypeScript
+基于Pomelo类棋类游戏Cocos Creator客户端
 ----
 预览图参看u3d版本
 
