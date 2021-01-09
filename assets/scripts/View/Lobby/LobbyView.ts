@@ -9,7 +9,7 @@ import { _decorator, Sprite, Label, Button, resources  as Res, SpriteFrame, asse
 import { Account,SelfData} from '../../Model/Account';
 import { EmailView } from './Email/EmailView';
 import { FeedbackView } from './FeedbackView';
-import { RankView } from './RankView';
+import { RankView } from './Rank/RankView';
 import { SettingView } from './SettingView';
 import { ProtocolDefine } from '../../Define/ProtocolDefine';
 import { Utils } from '../../Utils/Utils';
@@ -344,5 +344,17 @@ export class LobbyView extends NetwokState {
 	}
 	public OnEmailBtnClick() : void{
 		this.Email.node.active = true;
+	}
+	public OnRankBtnClick() : void{
+		this.Rank.node.active = true;
+	}
+	public OnFeedbackBtnClick() : void{
+		this.Feedback.node.active = true;
+	}
+	public OnClickTalentBtn() : void{
+		//切换到plaza room 界面
+		Utils.getGlobalController()?.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_LOBBY_PANEL],
+						LobbyEvent.eLobbyPanel.LOBBY_TALENT_PANEL);
+
 	}
 }

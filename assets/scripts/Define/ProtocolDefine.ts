@@ -442,7 +442,7 @@ export namespace ProtocolDefine{
 				scope : eRankScopeType;
 				type : eRankType;
 		
-				areaID : number;//区服id
+				area : number;//区服id
 				rankNum : number;//多少人
 			};
 			export interface Rank

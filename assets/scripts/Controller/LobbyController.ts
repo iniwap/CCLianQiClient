@@ -11,6 +11,7 @@ import { Utils } from "../Utils/Utils";
 export class LobbyController{
     public static _instance : LobbyController;
     constructor() {
+		Lobby.LobbyData.initData();
     }
 
     public static getInstance() : LobbyController{
@@ -538,7 +539,7 @@ export class LobbyController{
 		if (rankList.length == 0) {
 			//说明还没有请求过，刷新一次
 			let rank : ProtocolDefine.nLobby.nRank.msgReqRankList = {game : ProtocolDefine.GameType.GAME_LIANQI,
-				areaID: Account.getSelfData().area,
+				area: Account.getSelfData().area,
 				rankNum : 50,// 只取前50
 				scope : sc,//区排行
 				type : t//财富排行

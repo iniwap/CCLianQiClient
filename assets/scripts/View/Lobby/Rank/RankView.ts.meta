@@ -2,7 +2,7 @@
   "ver": "4.0.9",
   "importer": "typescript",
   "imported": true,
-  "uuid": "ea342ad1-3096-4b4a-8ad9-9984192a6e49",
+  "uuid": "3193c93a-070e-41b7-b201-7642c4e54aac",
   "files": [
     ".js",
     "editor.js",
@@ -11,7 +11,7 @@
   "subMetas": {},
   "userData": {
     "importAsPlugin": false,
-    "moduleId": "project:///assets/scripts/View/Lobby/RankView.js",
+    "moduleId": "project:///assets/scripts/View/Lobby/Rank/RankView.js",
     "importerSettings": 7
   }
 }

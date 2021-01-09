@@ -188,5 +188,24 @@ export namespace Lobby{
             }
             return null;
         }
+        
+		public static initData() : void {
+            LobbyData.plazaList = [];
+            LobbyData.storeList = [];
+            LobbyData.propList = [];
+            LobbyData.packageList = [];
+            LobbyData.privateMsgList = [];
+            LobbyData.friendList = [];
+            LobbyData.rankList = [];
+            LobbyData.signInData = {		
+                hasSigned : false,
+                currentSignDay : 0,
+                signInList : []
+            };
+            LobbyData.luckDrawData = {
+                hasDrawed : false,
+                luckDrawList : []
+            };
+		}
     };
 }
