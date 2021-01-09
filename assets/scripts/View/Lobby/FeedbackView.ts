@@ -5,21 +5,37 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Component, Node } from 'cc';
+import { _decorator, Component, Node, EditBox, Label, Sprite } from 'cc';
+import { eDialogBtnType, eDialogEventType, IDialog } from '../../Common/Dialog';
 import { ProtocolDefine } from '../../Define/ProtocolDefine';
+import { CommonEvent } from '../../Event/CommonEvent';
 import { LobbyEvent } from '../../Event/LobbyEvent';
-import { NetwokState } from '../../Utils/NetwokState';
 import { Utils } from '../../Utils/Utils';
 const { ccclass, property } = _decorator;
 
 @ccclass('FeedbackView')
-export class FeedbackView extends NetwokState {
-    /* class member could be defined like this */
-    // dummy = '';
+export class FeedbackView extends Component {
 
-    /* use `property` decorator if your want the member to be serializable */
-    // @property
-    // serializableDummy = 0;
+	@property(Node)
+	public feedBackList : Array<Node> = [];
+
+	@property(Label)
+	public feedBackTextList : Array<Label> = [];
+
+	@property(Sprite)
+	public selectedBg! : Sprite;
+	private _feedBackTextStrList = [
+		"BUG报错",
+		"账号问题",
+		"奖励发放",
+		"充值问题",
+		"改善建议",
+		"发射弹幕"
+	];
+
+	@property(EditBox)
+	public editBox! : EditBox;
+
     private _feedType : ProtocolDefine.nLobby.nFeedback.eFeedbackType = ProtocolDefine.nLobby.nFeedback.eFeedbackType.BUG;
 
     start () {
@@ -27,12 +43,10 @@ export class FeedbackView extends NetwokState {
     }
 
 	onEnable(){
-		super.onEnable();
 		Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.RESP_FEEDBACK],
 			this.OnRespFeedback.bind(this),this);
 	}
 	onDisable(){
-		super.onDisable();
 		Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.RESP_FEEDBACK],
 			this.OnRespFeedback.bind(this),this);
 	}
@@ -44,32 +58,53 @@ export class FeedbackView extends NetwokState {
 		if (type == ProtocolDefine.nLobby.nFeedback.eFeedbackType.DANMU) {
 			//显示弹幕
 		}else{
-			this.showDialog ("温馨提示",content);
+			let dlg : IDialog = {
+				type : eDialogEventType.LOBBY_EMAIL_GET_AWARD_RESULT,
+				tip : "反馈成功，我们会在收到后会第一时间处理，感谢",
+				hasOk : true,
+				okText : "确定",
+				hasCancel : true,
+				cancelText : "取消",
+				hasClose : false,
+				closeText : "返回大厅",
+				callBack : this.onClickDialogBtn
+			};
+
+			Utils.getGlobalController()?.Emit(CommonEvent.EVENT[CommonEvent.EVENT.SHOW_DIALOG],dlg);
 		}
 	}
-
-    public OnClickSubmitBtn() : void{
-		// if(_inputText.text.Length != 0 && _inputText.text.Length <= 200){
-		// 	//发送反馈
-		// 	LobbyEvent.sV2C_Feedback fb;
-		// 	fb.type = _feedType;
-		// 	fb.content = _inputText.text;
-
-		// 	LobbyEvent.EM().InvokeEvent(LobbyEvent.EVENT.REQ_FEEDBACK,(object)fb);
-		// }
-		// this.gameObject.SetActive (false);
+	public onClickDialogBtn(btn : eDialogBtnType, type : eDialogEventType){
+		if (type == eDialogEventType.FEED_BACK) {
+			if(btn == eDialogBtnType.DIALOG_BTN_OK){
+				//继续保持在这个界面
+			}else{
+				this.OnClickCloseBtn();
+			}
+		}
 	}
-	public OnClickFBBtn(id : number) : void{
-		// //背景图设置到这个位置
-		// //反馈类型为id
-		// _feedType = id as ProtocolDefine.nLobby.nFeedback.eFeedbackType;
-		// _selectedBg.transform.localPosition = _feedBackList[id].transform.localPosition;
-		// _inputText.text = "11";
+	public OnClickCloseBtn() : void{
+		this.node.active = false;
+	}
+    public OnClickSubmitBtn() : void{
+		if(this.editBox.string.length != 0 && this.editBox.string.length <= 200){
+			//发送反馈
+			Utils.getGlobalController()?.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_FEEDBACK],
+				this._feedType,this.editBox.string);
+		}
+		this.node.active =  false;
+	}
+	public OnClickFBBtn(event : any,id : string) : void{
+		//背景图设置到这个位置
+		//反馈类型为id
+		this._feedType = Number(id) as ProtocolDefine.nLobby.nFeedback.eFeedbackType ;
+		this.selectedBg.node.setPosition(this.feedBackList[Number(id)].position);
+		//this.editBox.string = "";
 
-		// for(int i =0;i<6;i++){
-		// 	_feedBackTextList[i].text = "<color=#261601FF>"+ _feedBackTextStrList[i] + "</color>";
-		// }
+		for(var i =0;i<6;i++){
+		//	this.feedBackTextList[i].string = "<color=#261601FF>"+ this._feedBackTextStrList[i] + "</color>";
+		}
 
-		// //_feedBackTextList[id].text = "<color=#FFE8AEFF>"+ _feedBackTextStrList[id] + "</color>";
+		//this.feedBackTextList[Number(id)].string = "<color=#FFE8AEFF>"+ this.feedBackTextList[Number(id)].string + "</color>";
+
 	}
 }

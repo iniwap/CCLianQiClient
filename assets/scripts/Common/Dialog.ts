@@ -21,6 +21,7 @@ export enum eDialogEventType{
     NETWORK_ERROR,
     NETWORK_DISCONNECT,
     BACK_DISSOLVE_ROOM,////房间里返回视同解散
+    FEED_BACK,
 };
 export interface IDialog{
     type : eDialogEventType;

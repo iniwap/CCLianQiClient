@@ -32,7 +32,7 @@ export class LobbyController{
 
         //请求反馈
 		Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_FEEDBACK],
-			this.OnRespFeedback.bind(this),LobbyController);
+			this.onEventReqFeedback.bind(this),LobbyController);
 
         Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_OPEN_TALENTSLOT],
           this.onEventReqOpenTalentslot.bind(this),LobbyController);
@@ -48,7 +48,8 @@ export class LobbyController{
           this.OnEventReqUpdateEmail.bind(this),LobbyController);
 
         //请求反馈
-        Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_FEEDBACK],this.OnRespFeedback.bind(this),LobbyController);
+		Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_FEEDBACK],
+			this.onEventReqFeedback.bind(this),LobbyController);
 
         Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.REQ_OPEN_TALENTSLOT],
           this.onEventReqOpenTalentslot.bind(this),LobbyController);
