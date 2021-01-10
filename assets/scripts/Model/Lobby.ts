@@ -161,7 +161,7 @@ export namespace Lobby{
         TALENT_C1,// c1吃子移动：己方活动时，若通过攻击干掉对方棋子，则获得1点移动能力，允许在本回合内向前移1格；
         //etc..
     };
-    export enum TalentSlotState{
+    export enum eTalentSlotState{
       TALENT_LOCK,
       TALENT_CAN_INSTALL,
       TALENT_INSTALLED,

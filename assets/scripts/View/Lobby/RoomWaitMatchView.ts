@@ -8,13 +8,13 @@ import { ProtocolDefine } from '../../Define/ProtocolDefine';
 import { GameEvent } from '../../Event/GameEvent';
 import { RoomEvent } from '../../Event/RoomEvent';
 import { nRoom } from '../../Model/Room';
-import { NetwokState } from '../../Utils/NetwokState';
+import { NetworkState } from '../../Utils/NetworkState';
 import { Utils } from '../../Utils/Utils';
 import { RoomPlayer } from './PlazaRoom/RoomPlayer';
 const { ccclass, property } = _decorator;
 
 @ccclass('RoomWaitMatchView')
-export class RoomWaitMatchView extends NetwokState {
+export class RoomWaitMatchView extends NetworkState {
     private _inRoomGridLevel : number = 0;
     private _inRoomPlayerNum : number = 0;
     

@@ -12,7 +12,7 @@ import { ProtocolDefine } from '../../Define/ProtocolDefine';
 import { GameEvent } from '../../Event/GameEvent';
 import { RoomEvent } from '../../Event/RoomEvent';
 import { nRoom } from '../../Model/Room';
-import { NetwokState } from '../../Utils/NetwokState';
+import { NetworkState } from '../../Utils/NetworkState';
 import { Utils } from '../../Utils/Utils';
 import { Action } from './Action';
 import { GamePlayer } from './GamePlayer';
@@ -21,7 +21,7 @@ import { LianQi } from './LianQi';
 const { ccclass, property } = _decorator;
 
 @ccclass('GameView')
-export class GameView extends NetwokState {
+export class GameView extends NetworkState {
     @property(LianQi)
     public  lianQi! : LianQi;
     @property(Action)

@@ -198,7 +198,7 @@ export class LoginController{
                     let data : Array<string> = st.split ('#');
                     let ttp : Lobby.eTalentType = Lobby.eTalentType.TALENT_NONE;
 
-                    if (Number(data[2]) == Lobby.TalentSlotState.TALENT_INSTALLED.valueOf()) {
+                    if (Number(data[2]) == Lobby.eTalentSlotState.TALENT_INSTALLED.valueOf()) {
                         //已配置
                         ttp = Number(data [0] ) as Lobby.eTalentType;
                     }

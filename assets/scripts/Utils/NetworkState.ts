@@ -13,8 +13,8 @@ import { CommonEvent } from '../Event/CommonEvent';
 import { Utils } from './Utils';
 const { ccclass, property } = _decorator;
 
-@ccclass('NetwokState')
-export class NetwokState extends Component {
+@ccclass('NetworkState')
+export class NetworkState extends Component {
     /* class member could be defined like this */
     // dummy = '';
 

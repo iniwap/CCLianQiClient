@@ -507,7 +507,7 @@ export class LobbyController{
 		Utils.getGlobalController()?.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.RESP_FEEDBACK],resp.type,resp.content); 
 	}
 
-	public onEventReqOpenTalentslot(type : ProtocolDefine.nLobby.nTalent.eOpenByType,arg1 : any = undefined){
+	public onEventReqOpenTalentslot(type : ProtocolDefine.nLobby.nTalent.eOpenByType){
 		//需要判断是否有足够的金币或者钻石开槽，避免多余的网络请求
 		let msg : ProtocolDefine.nLobby.nTalent.msgReqOpenTalentslot = {
 			game : ProtocolDefine.GameType.GAME_LIANQI,
@@ -523,8 +523,14 @@ export class LobbyController{
 
 		let resp : ProtocolDefine.nLobby.nTalent.msgRespOpenTalentslot = msg;
 
+		let utfos : LobbyEvent.IUpdateTalentForOpenSlot = {
+			ret : resp.result,
+			gold : resp.currentGold,
+			diamond : resp.currentDiamond,
+			currentTalentNum : resp.currentOpenedCnt
+		};
 		//更新界面
-		Utils.getGlobalController()?.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.RESP_OPEN_TALENTSLOT],resp.result);
+		Utils.getGlobalController()?.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.RESP_OPEN_TALENTSLOT],utfos);
     }
     private onEventShowRank(sc : ProtocolDefine.nLobby.nRank.eRankScopeType,
 		t : ProtocolDefine.nLobby.nRank.eRankType) : void{

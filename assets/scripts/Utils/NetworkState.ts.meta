@@ -2,7 +2,7 @@
   "ver": "4.0.9",
   "importer": "typescript",
   "imported": true,
-  "uuid": "cd53de6a-a2d4-49cf-8133-118b3688ae19",
+  "uuid": "8d1c014f-a142-4dcb-b395-333c928b4f38",
   "files": [
     ".js",
     "editor.js",
@@ -11,7 +11,7 @@
   "subMetas": {},
   "userData": {
     "importAsPlugin": false,
-    "moduleId": "project:///assets/scripts/View/Lobby/TalentView.js",
+    "moduleId": "project:///assets/scripts/Utils/NetworkState.js",
     "importerSettings": 7
   }
 }

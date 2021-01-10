@@ -9,12 +9,12 @@ import { _decorator ,Node,director, Button} from 'cc';
 import { ProtocolDefine } from '../../Define/ProtocolDefine';
 import { AccountEvent } from '../../Event/AccountEvent';
 import { Utils } from '../../Utils/Utils';
-import { NetwokState } from '../../Utils/NetwokState';
+import { NetworkState } from '../../Utils/NetworkState';
 import { CommonDefine } from '../../Define/CommonDefine';
 const { ccclass, property } = _decorator;
 
 @ccclass('Login')
-export class Login extends NetwokState {
+export class Login extends NetworkState {
     /* class member could be defined like this */
     // dummy = '';
 

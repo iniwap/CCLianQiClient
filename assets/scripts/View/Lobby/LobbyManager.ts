@@ -11,7 +11,7 @@ import { Utils } from '../../Utils/Utils';
 import { LobbyView } from './LobbyView';
 import { PlazaRoomView } from './PlazaRoom/PlazaRoomView';
 import { RoomWaitMatchView } from './RoomWaitMatchView';
-import { TalentView } from './TalentView';
+import { TalentView } from './Talent/TalentView';
 const { ccclass, property } = _decorator;
 
 @ccclass('LobbyManager')

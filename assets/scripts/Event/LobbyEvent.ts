@@ -1,3 +1,6 @@
+import { CommonDefine } from "../Define/CommonDefine";
+import { ProtocolDefine } from "../Define/ProtocolDefine";
+
 //原则上这些事件也是直接大厅界面访问到相应节点，直接操作使用
 export namespace LobbyEvent{
     export enum EVENT{
@@ -8,7 +11,6 @@ export namespace LobbyEvent{
 		SHOW_LOBBY_PANEL,
 
 		UPDATE_USER_INFO,//更新用户信息
-		SHOW_USER_INFO,//主动请求刷新用户信息
 
 		UPDATE_PLAZA,//更新场次显示
 		SHOW_PLAZA,
@@ -46,7 +48,6 @@ export namespace LobbyEvent{
 		RESP_FEEDBACK,
 		REQ_OPEN_TALENTSLOT,
 		RESP_OPEN_TALENTSLOT,
-		UPDATE_USER_TALENT,//更新用户天赋列表
 		//
 		OPEN_CLOSE_EFFECT_SND,//开关音效
 		OPEN_CLOSE_BG_SND,//开关背景音
@@ -64,5 +65,11 @@ export namespace LobbyEvent{
 		LOBBY_TASK_PANEL,//不一定是panel
 		LOBBY_TALENT_PANEL,
 		LOBBY_ROOMWAITMATCH_PANEL,//等待游戏匹配界面
+	};
+	export interface IUpdateTalentForOpenSlot{
+		ret : ProtocolDefine.nLobby.nTalent.eOpenTalentslotResultType;
+		gold : number;
+		diamond : number;
+		currentTalentNum : number;
 	};
 }

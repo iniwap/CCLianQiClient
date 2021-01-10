@@ -2,7 +2,7 @@
   "ver": "4.0.9",
   "importer": "typescript",
   "imported": true,
-  "uuid": "f7e3c2fa-de42-45d0-b4ce-30a1d5a4e685",
+  "uuid": "cd53de6a-a2d4-49cf-8133-118b3688ae19",
   "files": [
     ".js",
     "editor.js",
@@ -11,7 +11,7 @@
   "subMetas": {},
   "userData": {
     "importAsPlugin": false,
-    "moduleId": "project:///assets/scripts/Utils/NetwokState.js",
+    "moduleId": "project:///assets/scripts/View/Lobby/Talent/TalentView.js",
     "importerSettings": 7
   }
 }

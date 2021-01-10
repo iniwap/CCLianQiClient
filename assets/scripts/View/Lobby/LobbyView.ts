@@ -22,8 +22,8 @@ import { StoreView } from './StoreView';
 import { FriendView } from './FriendView';
 import { PackageView } from './PackageView';
 import { PlazaRoomView } from './PlazaRoom/PlazaRoomView';
-import { TalentView } from './TalentView';
-import { NetwokState } from '../../Utils/NetwokState';
+import { TalentView } from './Talent/TalentView';
+import { NetworkState } from '../../Utils/NetworkState';
 
 const { ccclass, property } = _decorator;
 
@@ -34,7 +34,7 @@ enum eRoomClassicType{
 }
 
 @ccclass('LobbyView')
-export class LobbyView extends NetwokState {
+export class LobbyView extends NetworkState {
     /* class member could be defined like this */
     // dummy = '';
 

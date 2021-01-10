@@ -13,7 +13,7 @@ import { LobbyEvent } from '../../../Event/LobbyEvent';
 import { RoomEvent } from '../../../Event/RoomEvent';
 import { Lobby } from '../../../Model/Lobby';
 import { nRoom } from '../../../Model/Room';
-import { NetwokState } from '../../../Utils/NetwokState';
+import { NetworkState } from '../../../Utils/NetworkState';
 import { Utils } from '../../../Utils/Utils';
 import { Plaza } from './Plaza';
 import { RoomPlayer } from './RoomPlayer';
@@ -26,7 +26,7 @@ export enum ePlazaRoomPanelType{
 };
 
 @ccclass('PlazaRoomView')
-export class PlazaRoomView extends NetwokState {
+export class PlazaRoomView extends NetworkState {
 	//#region 界面控件定义
 	@property(Node)
 	public createRoomPanel! : Node;
