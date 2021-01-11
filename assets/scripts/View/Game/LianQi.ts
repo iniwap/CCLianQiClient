@@ -52,8 +52,6 @@ export class LianQi extends Component {
             this.onActionFail.bind(this),this);
         Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.TO_LQP_CLOCK],
             this.onShowClock.bind(this),this);
-
-        //Utils.getGlobalController()?.OnNotifyStartGame(true);
     }
     onDisable(){
         Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.ACTION_PLAY],

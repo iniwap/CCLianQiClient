@@ -164,4 +164,8 @@ export class ProtocolManager  {
             //取消监听
         });
     }
+
+    public Clear() : void{
+        this._connection.clear();
+    }
 }

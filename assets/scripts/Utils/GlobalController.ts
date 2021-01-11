@@ -11,6 +11,7 @@ import { RoomController } from '../Controller/RoomController';
 import { LobbyController } from '../Controller/LobbyController';
 import { GameController } from '../Controller/GameController';
 import { LoginController } from '../Controller/LoginController';
+import { ProtocolManager } from '../ProtocolManager/ProtocolManager';
 const { ccclass } = _decorator;
 
 @ccclass('GlobalController')
@@ -57,7 +58,8 @@ export class GlobalController extends Component {
 		RoomController.getInstance().RemoveAllEvent();
 		GameController.getInstance().RemoveAllEvent();
 		//切换场景过程中，全局常驻节点会有个disable过程，此时需要清空之前所有事件监听，否则会导致前场景的监听未取消，产生BUG
-		this._handles = {};
+        this._handles = {};
+        ProtocolManager.getInstance().Clear();
     }
 
     //

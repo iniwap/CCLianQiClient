@@ -105,6 +105,9 @@ export namespace nRoom{
 
 			Account.inRoomId = 0;//清除
 		}
+		public static getAllPlayers() : Array<Player>{
+			return this.playerList;
+		}
 		public static setPlazaData(name : string,tag : number) : void{
 			this.tagId = tag;
 			this.plazaName = name;

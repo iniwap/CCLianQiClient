@@ -5,7 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Component, Sprite, Label, Button, resources, SpriteFrame } from 'cc';
+import { _decorator, Component, Sprite, Label, Button, resources, SpriteFrame, tween, Vec3 } from 'cc';
 import { CommonDefine } from '../../Define/CommonDefine';
 const { ccclass, property } = _decorator;
 import { ProtocolDefine } from  "../../Define/ProtocolDefine"
@@ -58,7 +58,7 @@ export class GamePlayer extends Component {
 		return this.nick.string;
 	}
 
-	public updatePlayer(self : boolean,isOwner : boolean,seat : number,head : string,sex : number,name : string) : void{
+	public updatePlayer(self : boolean,isOwner : boolean,seat : number,head : string,sex : number,nickname : string) : void{
 		this.seat = seat;
 		this.isSelf = self;
         
@@ -71,7 +71,7 @@ export class GamePlayer extends Component {
             //spriteFrame.addRef();
         });
         
-		this.nick.string = name;
+		this.nick.string = nickname;
 		//_chatBg
 		this.chatBg.node.active = false;
 		if (self) {
@@ -89,6 +89,13 @@ export class GamePlayer extends Component {
 	public showChatMsg(content : string) : void{
 		this.chatBg.node.active = true;
 		this.chatMsg.string = content;
+		this.chatBg.node.setScale(0,0);
+		
+		tween(this.chatBg.node)
+		.to(1, { scale: new Vec3(1, 1, 1) }, { easing: 'bounceOut' })
+		.delay(2)
+		.to(0, { scale: new Vec3(0, 0, 0) })
+		.start();
 	}
 	public updateScore(score : number) : void{
 

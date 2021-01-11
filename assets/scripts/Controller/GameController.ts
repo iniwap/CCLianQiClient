@@ -28,8 +28,6 @@ export class GameController{
     }
 
     public AddAllEvent() : void{
-        Utils.getGlobalController()?.On(RoomEvent.EVENT[RoomEvent.EVENT.START_GAME],
-			this.onEventStartGame.bind(this),GameController);
         //注册界面消息
         Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.PLAY],
 			this.onEventPlay.bind(this),GameController);
@@ -58,8 +56,6 @@ export class GameController{
 		nGame.GameData.reset();
     }
     public RemoveAllEvent() : void{
-        Utils.getGlobalController()?.Off(RoomEvent.EVENT[RoomEvent.EVENT.START_GAME],
-			this.onEventStartGame.bind(this),GameController);
         //注册界面消息
         Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.PLAY],
 			this.onEventPlay.bind(this),GameController);
@@ -399,7 +395,7 @@ export class GameController{
 		} else {
 			//自己投降的响应
 			nRoom.RoomData.setHasAbandon();
-		}
+        }
     }
 
     //---------------------------

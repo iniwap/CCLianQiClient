@@ -139,7 +139,15 @@
 
     return this;
   };
+  /**
+   * clear all of callbacks.
+   *
+   * @api public
+   */
 
+  Emitter.prototype.clear = function(){
+    this._callbacks = {};
+  };
   /**
    * Return array of callbacks for `event`.
    *

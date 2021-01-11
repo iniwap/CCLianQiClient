@@ -11,6 +11,7 @@ import { CommonDefine } from '../../Define/CommonDefine';
 import { ProtocolDefine } from '../../Define/ProtocolDefine';
 import { GameEvent } from '../../Event/GameEvent';
 import { RoomEvent } from '../../Event/RoomEvent';
+import { Lobby } from '../../Model/Lobby';
 import { nRoom } from '../../Model/Room';
 import { NetworkState } from '../../Utils/NetworkState';
 import { Utils } from '../../Utils/Utils';
@@ -37,6 +38,10 @@ export class GameView extends NetworkState {
     @property(ScrollView)
     public  chatPanel! : ScrollView;
     
+    @property(Node)
+    public playerInfoPanel! : Node;
+    @property(Node)
+    public playerRoot : Array<Node> = [];
     private _players : Array<GamePlayer | null> = [];
     
     @property(Prefab)
@@ -82,7 +87,8 @@ export class GameView extends NetworkState {
 
 		this.addAllEvent ();
 
-        Utils.getGlobalController()?.OnNotifyStartGame(true);
+        Utils.getGlobalController()?.OnNotifyStartGame(true);//此处最好是游戏所有初始化完成再通知服务器
+        this.UpdateUI();
     }
 
     onDisable(){
@@ -98,16 +104,8 @@ export class GameView extends NetworkState {
     }
 
     private addAllEvent() : void{
-        Utils.getGlobalController()?.On(RoomEvent.EVENT[RoomEvent.EVENT.UPDATE_ROOMRULE],
-            this.onUpdateRoomRule.bind(this),this);
-        Utils.getGlobalController()?.On(RoomEvent.EVENT[RoomEvent.EVENT.PLAER_ENTER],
-            this.onPlayerEnter.bind(this),this);
-        Utils.getGlobalController()?.On(RoomEvent.EVENT[RoomEvent.EVENT.UPDATE_PLAER_STATE],
-            this.onPlayerState.bind(this),this);
         Utils.getGlobalController()?.On(RoomEvent.EVENT[RoomEvent.EVENT.SHOW_TALK_MSG],
             this.onShowTalkMsg.bind(this),this);
-        Utils.getGlobalController()?.On(RoomEvent.EVENT[RoomEvent.EVENT.UPDATE_LEAVE_ROOM],
-            this.onPlayerLeave.bind(this),this);
 
         Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.SHOW_GAME_START],
             this.onShowGameStart.bind(this),this);
@@ -137,16 +135,8 @@ export class GameView extends NetworkState {
             this.onUpdateScore.bind(this),this);
     }
     private removeAllEvent() : void{
-        Utils.getGlobalController()?.Off(RoomEvent.EVENT[RoomEvent.EVENT.UPDATE_ROOMRULE],
-            this.onUpdateRoomRule.bind(this),this);
-        Utils.getGlobalController()?.Off(RoomEvent.EVENT[RoomEvent.EVENT.PLAER_ENTER],
-            this.onPlayerEnter.bind(this),this);
-        Utils.getGlobalController()?.Off(RoomEvent.EVENT[RoomEvent.EVENT.UPDATE_PLAER_STATE],
-            this.onPlayerState.bind(this),this);
         Utils.getGlobalController()?.Off(RoomEvent.EVENT[RoomEvent.EVENT.SHOW_TALK_MSG],
             this.onShowTalkMsg.bind(this),this);
-        Utils.getGlobalController()?.Off(RoomEvent.EVENT[RoomEvent.EVENT.UPDATE_LEAVE_ROOM],
-            this.onPlayerLeave.bind(this),this);
 
         Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.SHOW_GAME_START],
             this.onShowGameStart.bind(this),this);
@@ -183,7 +173,7 @@ export class GameView extends NetworkState {
 	public OnAbandonBtn() : void {
         let dlg : IDialog = {
             type : eDialogEventType.GAME_ABANDON,
-            tip : "你向对手举起了白旗，是否真的要<size=60><color=green>投降</color></size>？",
+            tip : "你向对手举起了白旗，是否真的要<size=60><color=#00ff00>投降</color></size>？",
             hasOk : true,
             okText : "投降",
             hasCancel : true,
@@ -207,14 +197,34 @@ export class GameView extends NetworkState {
 	public OnClickHintBtn() : void{
         Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.TO_LQP_SWITCH_HINT]);
     }
-    
-    //-------------------网络消息，刷新界面--------------------------------------
-	public onShowTalkMsg(local : number,content : string) : void{		
-		this._players[local]?.showChatMsg (this._chatMsg[Number(content)]);
-		//播放声音
-		this.playTalkSnd(Number(content));
+    //-------------------刷新界面，数据已经收到----------------------------------
+    public UpdateUI(){
+        let star : number = 0;
+		if (nRoom.RoomData.plazaid != 0) {
+			star = Lobby.LobbyData.getPlazaById(nRoom.RoomData.plazaid)?.star!;
+		}
+        let rr : RoomEvent.IUpdateRoomRule = { 
+			playerNum : nRoom.RoomData.roomRule.playerNum,
+			gameTime : nRoom.RoomData.roomRule.gameTime,
+			gridLevel : nRoom.RoomData.roomRule.gridLevel,
+			rule : nRoom.RoomData.roomRule.rule,
+			lmtRound : nRoom.RoomData.roomRule.lmtRound,
+			lmtTurnTime : nRoom.RoomData.roomRule.lmtTurnTime,
+			roomLevel : nRoom.RoomData.roomLevel,
+			roomID : 0,
+			plazaName : nRoom.RoomData.plazaName,
+			tag : nRoom.RoomData.tagId,
+			type : nRoom.RoomData.roomType,
+			star :star
+		}
+        this.onUpdateRoomRule(rr);
+        let players : Array<nRoom.Player> = nRoom.RoomData.getAllPlayers();
+        for(var i = 0;i < players.length;i++){
+            this.onPlayerEnter(players[i]);
+            //所有人设置为游戏中
+            this.onPlayerState(nRoom.RoomData.getLocalBySeat(players[i].seat),players[i].state);
+        }
     }
-    
     public onUpdateRoomRule(rr : RoomEvent.IUpdateRoomRule){
 		this._roomRule = rr;
 		let rule : Label = this.gameRule.getComponentInChildren(Label)!;
@@ -239,14 +249,6 @@ export class GameView extends NetworkState {
 		//初始化联棋界面
 		this.lianQi.onInit(rr);
     }
-    //更新玩家当前棋子数
-	public onUpdateScore(score : Array<number>) : void{
-		for (var i = 0; i < this._players.length; i++) {
-			if (this._players[i] != null) {
-				this._players[i]!.updateScore(score[i]);
-			}
-		}
-	}
     public onPlayerEnter(player : nRoom.Player) : void{
 		let local : number = nRoom.RoomData.getLocalBySeat(player.seat) ;
 		if (this._players[local] != null) {
@@ -259,12 +261,12 @@ export class GameView extends NetworkState {
 		if (this._roomRule.playerNum == 2) {
 			//对家跳到下家位置
 			if(local == nRoom.eSeatType.TOP){
-				this._players[local]!.node.position = this.node.getChildByName("PlayerInfoPanel/Player" + nRoom.eSeatType.RIGHT)!.position;
+				this._players[local]!.node.setPosition(this.playerRoot[nRoom.eSeatType.RIGHT].position);
 			}
 		} else if (this._roomRule.playerNum == 3) {
 			//上家位置调到对家
 			if(local == nRoom.eSeatType.LEFT){
-				this._players[local]!.node.position = this.node.getChildByName("PlayerInfoPanel/Player" + nRoom.eSeatType.TOP)!.position;	
+				this._players[local]!.node.setPosition(this.playerRoot[nRoom.eSeatType.TOP].position);
 			}
 		}
 
@@ -276,11 +278,27 @@ export class GameView extends NetworkState {
     }
     public onPlayerState(local : number,state : ProtocolDefine.nRoom.eStateType) : void{
 		this._players[local]!.updateState(state);
-	}
-	public onPlayerLeave(local : number) : void{
-		if (this._players[local] != null) {
-			this._players[local]!.node.destroy();
-			this._players[local] = null;
+    }
+    //游戏中不能逃跑
+    // public onPlayerLeave(local : number) : void{
+	// 	if (this._players[local] != null) {
+	// 		this._players[local]!.node.destroy();
+	// 		this._players[local] = null;
+	// 	}
+	// }
+    //-------------------网络消息，刷新界面--------------------------------------
+	public onShowTalkMsg(local : number,content : string) : void{		
+		this._players[local]?.showChatMsg (this._chatMsg[Number(content)]);
+		//播放声音
+		this.playTalkSnd(Number(content));
+    }
+    
+    //更新玩家当前棋子数
+	public onUpdateScore(score : Array<number>) : void{
+		for (var i = 0; i < this._players.length; i++) {
+			if (this._players[i] != null) {
+				this._players[i]!.updateScore(score[i]);
+			}
 		}
 	}
     public onShowGameStart(seat : number) : void{
@@ -384,13 +402,12 @@ export class GameView extends NetworkState {
 		let n : Node = instantiate(this.gamePlayerPrefab);
 		let player : GamePlayer = n.getComponent(GamePlayer)!;
 
-        player.node.setParent(this._players[local]!.node);
+        player.node.setParent(this.playerInfoPanel);
 
 		let self : boolean = nRoom.RoomData.getLocalBySeat(data.seat) == nRoom.eSeatType.SELF;
-		player.updatePlayer(self,data.isOwner,data.seat,data.head,data.sex,data.name);
+        player.updatePlayer(self,data.isOwner,data.seat,data.head,data.sex,data.name);
+        player.node.setPosition(this.playerRoot[local].position);
 
-		//位置根据local来
-		player.node.position = this.node.getChildByName("PlayerInfoPanel/Player" + nRoom.RoomData.getLocalBySeat(data.seat))!.position;
 		return player;
 	}
 

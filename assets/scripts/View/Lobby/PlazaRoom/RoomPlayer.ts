@@ -110,7 +110,7 @@ export class RoomPlayer extends Component {
         
 		if (type == nRoom.eRoomPlayerType.ROOM_WIAT) {
 			
-			this.winRate.string = "胜率" + winRate + "%";
+			this.winRate.string = "胜率" + winRate.toFixed(1) + "%";
 			this.multiple.node.active = false;
 			this.ownerImg.node.active = isOwner;
 			this._isOwner = isOwner;
