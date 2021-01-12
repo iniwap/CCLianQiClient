@@ -96,4 +96,24 @@ export namespace Utils{
 
         return 0;
     }
+
+    // export const copy = function(obj : object,objs : object,deep : boolean) : object {
+    //     deep = deep || false; // tue深copy false 浅copy
+    //     for(let pro in objs) {
+    //     　　if(!deep) {
+    //     　　　　obj[pro] = objs[pro];
+    //     　　}else{
+    //     　　　　if(typeof objs[pro] == 'object') {
+    //     　　　　　　if(Object.prototype.toString.call(objs[pro]) == '[object Object]') {
+    //     　　　　　　　　for(let key in objs[pro]) {
+    //     　　　　　　　　　　obj[key] = objs[pro][key]
+    //     　　　　　　　　}
+    //     　　　　　　}
+    //     　　　　}else{
+    //     　　　　　　obj[pro] = objs[pro];
+    //     　　　　}
+    //     　　}
+    //     }
+    //     return obj;
+    // }
 }

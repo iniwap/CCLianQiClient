@@ -28,7 +28,7 @@ export class LianQi extends Component {
 	private _ifOpenHint : boolean = false;// 是否开启棋子信息提示
 
     start () {
-        // Your initialization goes here.
+		// Your initialization goes here.
     }
 
     // update (deltaTime: number) {
