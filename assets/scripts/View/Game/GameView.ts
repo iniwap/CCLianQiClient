@@ -24,8 +24,6 @@ const { ccclass, property } = _decorator;
 
 @ccclass('GameView')
 export class GameView extends NetworkState {
-    @property(LianQi)
-    public  lianQi! : LianQi;
     @property(Action)
     public action! : Action;
     @property(GameResult)
@@ -73,9 +71,6 @@ export class GameView extends NetworkState {
     // }
     onEnable(){
         super.onEnable();
-		this.lianQi.node.active = false;
-		this.action.node.active = false;
-		//_playerInfoPanel.SetActive (false);
 		this.chatPanel.node.active = false;
 		this.gameResult.node.active = false;
 
@@ -109,6 +104,8 @@ export class GameView extends NetworkState {
     private addAllEvent() : void{
         Utils.getGlobalController()?.On(RoomEvent.EVENT[RoomEvent.EVENT.SHOW_TALK_MSG],
             this.onShowTalkMsg.bind(this),this);
+        Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.SHOW_ABANDON],
+            this.onShowAbandon.bind(this),this);
 
         Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.SHOW_GAME_START],
             this.onShowGameStart.bind(this),this);
@@ -116,24 +113,10 @@ export class GameView extends NetworkState {
             this.onReqDraw.bind(this),this);
         Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.SHOW_DRAW_RESULT],
             this.onRespDraw.bind(this),this);
-        Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.SHOW_TURN],
-            this.onShowTurn.bind(this),this);
-        Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.SHOW_ABANDON],
-            this.onShowAbandon.bind(this),this);
-        Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.SHOW_PASS],
-            this.onShowPass.bind(this),this);
-        Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.SHOW_ABANDON_PASS],
-            this.onShowAbandonPass.bind(this),this);
-        Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.SHOW_PLAY],
-            this.onShowPlay.bind(this),this);
-        Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.SHOW_MOVE],
-            this.onShowMove.bind(this),this);
         Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.SHOW_RESULT],
             this.onShowResult.bind(this),this);
         Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.SHOW_FLAG],
             this.onShowFlag.bind(this),this);
-        Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.SHOW_LIANQI],
-            this.onShowLianQi.bind(this),this);
         Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.TO_GAMEVEIW_UPDATE_SCORE],
             this.onUpdateScore.bind(this),this);
 
@@ -143,31 +126,18 @@ export class GameView extends NetworkState {
     private removeAllEvent() : void{
         Utils.getGlobalController()?.Off(RoomEvent.EVENT[RoomEvent.EVENT.SHOW_TALK_MSG],
             this.onShowTalkMsg.bind(this),this);
-
+        Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.SHOW_ABANDON],
+            this.onShowAbandon.bind(this),this);
         Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.SHOW_GAME_START],
             this.onShowGameStart.bind(this),this);
         Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.SHOW_DRAW],
             this.onReqDraw.bind(this),this);
         Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.SHOW_DRAW_RESULT],
             this.onRespDraw.bind(this),this);
-        Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.SHOW_TURN],
-            this.onShowTurn.bind(this),this);
-        Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.SHOW_ABANDON],
-            this.onShowAbandon.bind(this),this);
-        Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.SHOW_PASS],
-            this.onShowPass.bind(this),this);
-        Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.SHOW_ABANDON_PASS],
-            this.onShowAbandonPass.bind(this),this);
-        Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.SHOW_PLAY],
-            this.onShowPlay.bind(this),this);
-        Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.SHOW_MOVE],
-            this.onShowMove.bind(this),this);
         Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.SHOW_RESULT],
             this.onShowResult.bind(this),this);
         Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.SHOW_FLAG],
             this.onShowFlag.bind(this),this);
-        Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.SHOW_LIANQI],
-            this.onShowLianQi.bind(this),this);
         Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.TO_GAMEVEIW_UPDATE_SCORE],
             this.onUpdateScore.bind(this),this);
 
@@ -175,7 +145,7 @@ export class GameView extends NetworkState {
             this.OnShowOpTips.bind(this),this);
     }
 
-    	//----------------------------以下是界面事件发送-----------------------------
+    //----------------------------以下是界面事件发送-----------------------------
 	public OnDrawBtn() : void{
         Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.DRAW]);
 	}
@@ -287,12 +257,10 @@ export class GameView extends NetworkState {
 			rule.string = modeStr + " 房间模式";
 		}else if (this._roomRule.type == ProtocolDefine.nRoom.eCreateRoomType.ROOM_TEAM){
 			rule.string = modeStr + " 组队模式";
-		}
-
-		///this.lianQi.node.active =  true; -- show game start的时候在显示？
-
+        }
+        
 		//初始化联棋界面
-		this.lianQi.onInit(rr);
+		this.action.onInit(this._roomRule);
     }
     public onPlayerEnter(player : nRoom.Player) : void{
 		let local : number = nRoom.RoomData.getLocalBySeat(player.seat) ;
@@ -348,13 +316,10 @@ export class GameView extends NetworkState {
 	}
     public onShowGameStart(seat : number) : void{
 		// 对局开始
-		this.lianQi.node.active = true;
-		this.action.node.active = true;
 		//顶部按钮可以点击了
 		this.enableTopBarButton(true);
 		//设置先手
 		this.action.onUpdateFirstHandSeat(seat);
-		this.action.onInitActionPanel(this._roomRule);
 	}
 	public onReqDraw(data : any) : void{
         //请求和棋
@@ -362,19 +327,6 @@ export class GameView extends NetworkState {
 	public onRespDraw(data : any) : void{
         //请求和棋的响应
     }
-    public onShowTurn(st : GameEvent.IShowTurn) : void{
-		//通知action panel
-		this.action.onShowTurn(st);
-		this.lianQi.onLQShowTurn(st);
-	}
-	public onShowPass(local : number) : void{
-		this.action.onShowPass(local);
-		this.lianQi.onLQShowPass(local);
-	}
-	public onShowAbandonPass(local : number) : void{
-		this.lianQi.onShowAbandonPass(local);
-		this.action.onShowAbandonPass(local);
-	}
 	public onShowAbandon(local : number) : void{
         let dlg : IDialog = {
             type : eDialogEventType.GAME_ABANDON,
@@ -388,27 +340,14 @@ export class GameView extends NetworkState {
             callBack : ()=>{}
         };
         this.OnShowDialog(dlg);
-	}
-	public onShowPlay(pm : GameEvent.IPlayOrMove) : void{
-		//通知action panel
-		this.action.onShowPlay(pm);
-		this.lianQi.onLQShowPlay(pm);
-	}
-	public onShowMove(pm : GameEvent.IPlayOrMove) : void{
-		this.action.onShowMove(pm);
-		this.lianQi.onLQShowMove(pm);
-	}
-
-	public onShowResult(gr : GameEvent.IShowGameResult) : void{
+    }
+    public onShowResult(gr : GameEvent.IShowGameResult) : void{
 		//其他面板是否也需要处理？
 		this.gameResult.showGameResult(gr);
     }
     //标致，重连等
 	public onShowFlag(data : any) : void{
 		
-	}
-	public onShowLianQi(cb : Array<ProtocolDefine.nGame.nLianQi.Chess>) : void{
-		this.lianQi.onShowLianQi(cb);
     }
     
     //--------------------------------------------------------

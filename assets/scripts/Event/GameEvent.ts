@@ -35,17 +35,8 @@ export namespace GameEvent{
 		//游戏界面之间的消息定义
 
 		//lianqi panel
-		TO_LQP_ACTION_FAIL,
 		TO_LQP_CLOCK,
 		TO_LQP_SWITCH_HINT,//棋子信息提示
-
-		//action panel
-		ACTION_MOVE,//操作面板 移动
-		ACTION_BAN_DIR,//操作面板 禁用方向
-		ACTION_PASS,//操作面板 结束回合
-		ACTION_PLAY,//操作面板 落子
-		ACTION_STEP,//操作是否轮到自己
-
 
 		//to gameview
 		TO_GAMEVEIW_UPDATE_SCORE,

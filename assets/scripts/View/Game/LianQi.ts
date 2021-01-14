@@ -46,22 +46,12 @@ export class LianQi extends Component {
     // }
 
     onEnable(){
-        Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.ACTION_PLAY],
-            this.onActionPlay.bind(this),this);
-        Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.ACTION_PASS],
-            this.onActionPass.bind(this),this);
-        Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.ACTION_MOVE],
-            this.onActionMove.bind(this),this);
-        Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.ACTION_STEP],
-            this.onActionStep.bind(this),this);
-        Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.ACTION_BAN_DIR],
-            this.onActionBanDir.bind(this),this);
         Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.TO_LQP_SWITCH_HINT],
             this.onSwitchHint.bind(this),this);
-        Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.TO_LQP_ACTION_FAIL],
-            this.onActionFail.bind(this),this);
         Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.TO_LQP_CLOCK],
 			this.onShowClock.bind(this),this);
+		Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.SHOW_LIANQI],
+			this.onShowLianQi.bind(this),this);
 		
 		//界面消息
 		Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.PLACE_CHESS],
@@ -70,23 +60,13 @@ export class LianQi extends Component {
 			this.onEventChangeChessDir.bind(this),this);
     }
     onDisable(){
-        Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.ACTION_PLAY],
-            this.onActionPlay.bind(this),this);
-        Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.ACTION_PASS],
-            this.onActionPass.bind(this),this);
-        Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.ACTION_MOVE],
-            this.onActionMove.bind(this),this);
-        Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.ACTION_STEP],
-            this.onActionStep.bind(this),this);
-        Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.ACTION_BAN_DIR],
-            this.onActionBanDir.bind(this),this);
         Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.TO_LQP_SWITCH_HINT],
             this.onSwitchHint.bind(this),this);
-        Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.TO_LQP_ACTION_FAIL],
-            this.onActionFail.bind(this),this);
         Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.TO_LQP_CLOCK],
 			this.onShowClock.bind(this),this);
 		
+		Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.SHOW_LIANQI],
+			this.onShowLianQi.bind(this),this);
 		//界面消息
 		Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.PLACE_CHESS],
 			this.onEventPlaceChess.bind(this),this);
@@ -96,7 +76,7 @@ export class LianQi extends Component {
 		//清空
 		this.clearGridList();
 		this.clearChessList();
-    }
+	}
     //-------------------------- 界面事件-----------------------------
 	public onInit(rr : RoomEvent.IUpdateRoomRule) : void{
         this._ifOpenHint = true;//默认开启，该类设置信息，需要后续根据用户习惯，从本地读取配置
@@ -109,43 +89,38 @@ export class LianQi extends Component {
 		this._ifOpenHint = !this._ifOpenHint;
     }
     
-	public onActionPlay() : void{
+	public onActionPlay() : boolean{
+		let can = this.canPlay();
+		if(!can) return false;
 
-		// Hex coord;
-		// int dir;
-		// int campId;
+		let play : GameEvent.IPlay = {
+			x : this._tryPlaceChess!.getChessPos().x,
+			y : this._tryPlaceChess!.getChessPos().y,
+			direction : this._tryPlaceChess!.getChessDir()
+		};
+        Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.PLAY],play);
 
-		// if (!_Port.GetOperatingChessInfo (out coord, out dir, out campId)) {
-			let op : GameEvent.IShowOpTips = {
-				show : true,
-				autoHide : true,
-				content : "您还没有落子，请先点击空白棋盘位置落子。"
-			};
-			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],op);
-		// 	return;
-		// }
-
-        // Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.PLAY],,,);
-
-		// GameEvent.sV2C_Play pdata;
-
-		// pdata.direction = (GameEvent.LIANQI_DIRECTION_TYPE)dir;
-		// pdata.x = CommonUtil.Util.Hex2Point(coord).x;
-		// pdata.y = CommonUtil.Util.Hex2Point(coord).y;
-		// GameEvent.EM().InvokeEvent(GameEvent.EVENT.PLAY,(object)pdata);
+		return true;
     }
     
-    public onActionPass() : void{
-        Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.PASS]);
+    public onActionPass() : boolean{
+		let can = this.canPass();
+		if(!can) return false;
+		Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.PASS]);
+		return true;
     }
-    public  onActionMove() : void{
-		// GameEvent.sV2C_Move mdata;
-
-		// //请根据实际数据填写
-		// mdata.direction = GameEvent.LIANQI_DIRECTION_TYPE.LIANQI_DIRECTION_TYPE_0;
-		// mdata.x = 1;
-		// mdata.y = 1;
-		// GameEvent.EM().InvokeEvent(GameEvent.EVENT.MOVE,(object)mdata);
+    public  onActionMove() : boolean{
+		let can = this.canMove();
+		if(!can) return false;
+		//移动到当前操作棋子到攻击方向下一格，该格需要被吃掉
+		let move : GameEvent.IMove = {
+			x : this._tryPlaceChess!.getChessPos().x,
+			y : this._tryPlaceChess!.getChessPos().y,
+			direction : this._tryPlaceChess!.getChessDir()
+		};
+		//Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.MOVE],move);
+		
+		return true;
     }
     public onActionBanDir(ban : boolean,dir : number) : void{
 		//_Port.SetBanDir (ban,dir);
@@ -163,19 +138,29 @@ export class LianQi extends Component {
 			// //_Port.EnableChessboardOperation ();
 			// _Port.EnableChessboardOpearionOnEmptyPlacableHex ();
 		}
-    }
+	}
+	//自己点结束回合的响应
     public  onLQShowPass(local : number) : void{
-		//end turn next
-		//_Port.ChooseOperatingCamp ((_Port.GetOperatingCampId()+1)%this._PlayerNum);
+		//肯定不会轮到自己
+		//如果存在试棋的棋子则删除
+		this.endTurn();
+		if(this._tryPlaceChess != null){
+			if(this._tryPlaceChess.getGridID() != -1){//不应该出现
+				this._gridList[this._tryPlaceChess.getGridID()].enableGrid(true);
+			}
+			this._tryPlaceChess.node.destroy();
+			this._tryPlaceChess = null;
+		}
     }
     public onShowAbandonPass(local : number) : void{
 		this.onLQShowPass(local);
+		
     }
     public onLQShowTurn(st : GameEvent.IShowTurn) : void {
 		this.showTurnTip();
 		// 如果是别人pass导致的turn变化，则切换手，否则是第一次发turn，不需要切换
 		if (st.isPassTurn) {
-			nGame.GameData.changeTurn();
+			this.endTurn();
 		}else{
 			//游戏开始的turn，无需change
 		}
@@ -191,7 +176,7 @@ export class LianQi extends Component {
 			}
 		}
     }
-    public onLQShowPlay(pm : GameEvent.IPlayOrMove) : void{
+    public onLQShowPlay(pm : GameEvent.IPlayOrMove){
 		//销毁试用的棋子，如果有的话，其实只有当自己下的时候才有
 		if(this._tryPlaceChess != null){
 			this._tryPlaceChess.node.destroy();
@@ -200,9 +185,10 @@ export class LianQi extends Component {
 		//别人落子，刷新棋盘
 		let chess : GameChess | null = this.tryPlaceChess(false,pm.x,pm.y,pm.direction,nRoom.RoomData.getSeatByLocal(pm.local));
 		if(chess != null){
-			if(!this.placeChess(chess)){
-				//落子失败，销毁
+			if(chess.getHealth() <= 0){
 				chess.node.destroy();
+			}else{
+				this.placeChess(chess);
 			}
 		}else{
 			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
@@ -266,7 +252,7 @@ export class LianQi extends Component {
 				{show : true,autoHide : true,content : "请先点击空白棋格落子，再调整攻击方向。"});
 			return;
 		}
-		this.changeChessDir(true,this._tryPlaceChess,dir);
+		this.changeChessDir(this._tryPlaceChess,dir);
 	}
     //------------------------------网络事件-----------------------------
 	public onActionFail(data : GameEvent.EVENT) : void{
@@ -353,15 +339,13 @@ export class LianQi extends Component {
 		chess.node.setPosition(this.getPosByGridLevel(x,y,nGame.GameData.boardLevel));// 此处需要放置到实际位置
 		return chess;
 	}
-	public updateBoard(chesses : Array<nLianQiLogic.Chess>,isTry : boolean,chess : GameChess | null = null) : void{
-		if(isTry){
-			if (chess != null){
-				for(let lc of chesses){
-					if (lc.isPosEqual(chess.getChessPos().x, chess.getChessPos().y)) {
-						chess.setChessIdentityNumber(lc.identityNumber);
-						chess.updateChessUI(lc);
-						break;
-					}
+	public updateBoard(chesses : Array<nLianQiLogic.Chess>,chess : GameChess | null = null) : void{
+		if (chess != null){
+			for(let lc of chesses){
+				if (lc.isPosEqual(chess.getChessPos().x, chess.getChessPos().y)) {
+					chess.setChessIdentityNumber(lc.identityNumber);
+					chess.updateChessUI(lc);
+					break;
 				}
 			}
 		}
@@ -377,31 +361,24 @@ export class LianQi extends Component {
 		//因此会出现这样被动新增棋子的局面
 		// todo
 	}
-	public placeChess(chess : GameChess) : boolean{
+	public placeChess(chess : GameChess) : void{
 		//落子成功，原则上一定是成功的，需要以服务端为准
-		//如果生命值小于等于零
-		if (chess.getHealth() <= 0){
-			return false;
-		}else {
-			//如果可以下棋，则下棋一个
-			this._chessList.push(chess);
-			nGame.GameData.placeChess(chess.getChessPos().x,chess.getChessPos().y,chess.getChessDir());
-			if (nGame.GameData.chessBoard!.deads.length > 0){
-				//可以移动 -- 对于自己来说，别人进入移动阶段
-				Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
-					{show : true,autoHide : false,content : "对方进入可移动棋子阶段，请等待对方回合结束。"});
-				chess.setCanMove(true);
-			}else{
-				//不能移动棋子，等待对方结束回合
-				Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
-					{show : true,autoHide : false,content : "对方已落子，请等待对方回合结束。"});
-				chess.endPlaceChess();
-			}
-
-			chess.updateWhosChess();
-
-			return true;
+		//如果可以下棋，则下棋一个
+		this._chessList.push(chess);
+		nGame.GameData.placeChess(chess.getChessPos().x,chess.getChessPos().y,chess.getChessDir());
+		if (nGame.GameData.chessBoard!.deads.length > 0){
+			//可以移动 -- 对于自己来说，别人进入移动阶段
+			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
+				{show : true,autoHide : false,content : "对方进入可移动棋子阶段，请等待对方回合结束。"});
+			chess.setCanMove(true);
+		}else{
+			//不能移动棋子，等待对方结束回合
+			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
+				{show : true,autoHide : false,content : "对方已落子，请等待对方回合结束。"});
+			chess.endPlaceChess();
 		}
+
+		chess.updateWhosChess();
 	}
 	public tryPlaceChess(isTry : boolean,x : number,y : number,dir : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType,
 		owner : number) : GameChess | null{
@@ -409,7 +386,7 @@ export class LianQi extends Component {
 		let chess : GameChess | null = this.createChess(x,y,-1,
 			ProtocolDefine.nGame.nLianQi.eLianQiDirectionType.LIANQI_DIRECTION_TYPE_NONE,gid,owner);
 		chess.updateIsTryChess(isTry);
-		if(this.changeChessDir(isTry,chess,dir)){
+		if(this.changeChessDir(chess,dir)){
 			this._gridList[gid].enableGrid(false);//禁用棋格
 		}else{
 			chess.node.destroy();
@@ -417,7 +394,7 @@ export class LianQi extends Component {
 		}
 		return chess;
 	}
-	public changeChessDir(isTry : boolean, chess : GameChess,dir : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType) : boolean{
+	public changeChessDir(chess : GameChess,dir : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType) : boolean{
 		chess.updateDir(dir);
 		let banDirs: Array<ProtocolDefine.nGame.nLianQi.eLianQiDirectionType> = nGame.GameData.getUsableDirection();
 		//如果这个方向不禁手
@@ -428,7 +405,7 @@ export class LianQi extends Component {
 				return false;
 			}
 			//更新棋子显示
-			this.updateBoard(lcb.chesses,isTry,chess);
+			this.updateBoard(lcb.chesses,chess);
 			let lc : nLianQiLogic.Chess | null= lcb.findChessByPosition(chess.getChessPos().x,chess.getChessPos().y);
 			if (lc == null) {
 				return false;
@@ -454,7 +431,7 @@ export class LianQi extends Component {
 			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
 				{show : false,autoHide : false,content : ""});
 			chess.setCantPlace();
-			this.updateBoard(nGame.GameData.chessBoard!.chesses,isTry,chess);
+			this.updateBoard(nGame.GameData.chessBoard!.chesses,chess);
 		}
 
 		return true;
@@ -528,5 +505,58 @@ export class LianQi extends Component {
 			}
 		}
 		return -1;
+	}
+	private canPlay() : boolean{
+		if(!this.checkSelfTurn()){
+			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
+				{show : true,autoHide : true,content : "当前不是你的回合，无法执行操作。"});
+			return false;
+		}
+		if(this._tryPlaceChess == null){
+			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
+				{show : true,autoHide : true,content : "请先点击棋盘空白格落子，再确定落子。"});
+			return false;
+		}
+		if(this._tryPlaceChess.getHealth() <= 0){
+			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
+				{show : true,autoHide : true,content : "此处落子棋子直接阵亡，请换其他地方落子。"});
+			return false;
+		}
+		return true;
+	}
+	private canPass() : boolean{
+		if(!this.checkSelfTurn()){
+			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
+				{show : true,autoHide : true,content : "当前不是你的回合，无法执行操作。"});
+			return false;
+		}
+		return true;
+	}
+	private canMove() : boolean{
+		if(!this.checkSelfTurn()){
+			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
+				{show : true,autoHide : true,content : "当前不是你的回合，无法执行操作。"});
+			return false;
+		}
+		
+		if (nGame.GameData.chessBoard!.deads.length > 0){
+			return true;
+		}
+		return false;
+	}
+	private endTurn(){
+		nGame.GameData.changeTurn();
+		//删除所有死掉的棋子
+		let dco : Array<GameChess> = [];
+		for(let co of this._chessList) {
+			if (co.getHealth() <= 0) {
+				dco.push(co);
+			}
+		}
+
+		for(let co of dco) {
+			this._chessList.splice(this._chessList.indexOf(co),1);
+			co.node.destroy();
+		}
 	}
 }

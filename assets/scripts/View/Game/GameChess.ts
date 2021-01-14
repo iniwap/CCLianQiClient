@@ -31,7 +31,6 @@ export class GameChess extends Component {
     public _direction : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType = ProtocolDefine.nGame.nLianQi.eLianQiDirectionType.LIANQI_DIRECTION_TYPE_NONE;
     public _canMove : boolean = false;// 是否可以移动
     public _hasMove : boolean = false;//是否移动过
-    public _isAlive : boolean = false;//是否存活
 
     @property(Label)
     public healthLabel! : Label;
@@ -82,7 +81,6 @@ export class GameChess extends Component {
         //方向
         this._canMove = false;// 是否可以移动
         this._hasMove = false;//是否移动过
-        this._isAlive = true;//是否存活
 
         //只有确定落子后才会更换棋子外观，为了区分当前操作棋子
         this.updateDir(dir);
@@ -141,7 +139,12 @@ export class GameChess extends Component {
     }
 
     public onTouchEndCallback(event : any) : void{
-
+        if(this._isTryChess){
+            Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
+                {show : true,autoHide : true,content : "调整方向结束后，点击[Play]按钮，确认落子。"});
+        }else if(this._canMove){
+            //移动阶段
+        }
     }
     public onTouchCancelCallback(event : any) : void{
         this.onTouchEndCallback(event);
@@ -179,6 +182,9 @@ export class GameChess extends Component {
     }
     public getHealth() : number{
         return this._health;
+    }
+    public getCanMove() : boolean{
+        return this._canMove;
     }
     public setCantPlace() : void{
         this.healthLabel.string = "";
