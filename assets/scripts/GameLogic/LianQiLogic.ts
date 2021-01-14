@@ -299,7 +299,7 @@ export namespace nLianQiLogic{
             }
 
             let dirs : Array<number> = nRule.getUsableDirection(this);
-            if (dirs.indexOf(dir) != -1) {
+            if (dirs.indexOf(dir) == -1) {
                 this.chesses.splice(this.chesses.indexOf(nlc),1);
                 return -2;
             }

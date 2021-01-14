@@ -52,8 +52,6 @@ export class GameController{
         ProtocolManager.getInstance().On(ProtocolDefine.GameLianQiProtocol.P_GAME_LIANQI_TURN,this.OnLQTurn.bind(this));//该谁落子
         ProtocolManager.getInstance().On(ProtocolDefine.GameLianQiProtocol.P_GAME_LIANQI_RESP_ABANDON,this.OnLQAbandon.bind(this));//联棋投降
         ProtocolManager.getInstance().On(ProtocolDefine.GameLianQiProtocol.P_GAME_LIANQI_ABANDON_PASS,this.OnLQAbandonPass.bind(this));//投降玩家自动pass
-
-		nGame.GameData.reset();
     }
     public RemoveAllEvent() : void{
         //注册界面消息
@@ -80,8 +78,6 @@ export class GameController{
         ProtocolManager.getInstance().Off(ProtocolDefine.GameLianQiProtocol.P_GAME_LIANQI_TURN,this.OnLQTurn.bind(this));//该谁落子
         ProtocolManager.getInstance().Off(ProtocolDefine.GameLianQiProtocol.P_GAME_LIANQI_RESP_ABANDON,this.OnLQAbandon.bind(this));//联棋投降
         ProtocolManager.getInstance().Off(ProtocolDefine.GameLianQiProtocol.P_GAME_LIANQI_ABANDON_PASS,this.OnLQAbandonPass.bind(this));//投降玩家自动pass
-
-		nGame.GameData.reset();
     }
 
     //-----------------界面消息------------------

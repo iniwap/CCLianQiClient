@@ -33,7 +33,7 @@ export class GameGrid extends Component {
         this._gridID = gid;
     }
     public OnGridClick(event : any) : void {
-        if (nGame.GameData.isThisGridEmpty(this._pos.x, this._pos.y)){
+        if (!nGame.GameData.isThisGridEmpty(this._pos.x, this._pos.y)){
             return;
         }
         Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.PLACE_CHESS],this._pos,this._gridID);

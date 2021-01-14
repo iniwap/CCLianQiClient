@@ -25,6 +25,7 @@ export namespace nGame{
             return nRule.getTryResult(this.chessBoard!.getCopy(), x, y, dir, this.currentTurn);
 		}
 		public static startGame(pn : number,bl : number) : void{
+			this.reset();
 			this.playerNum = pn;
 			this.boardLevel = bl;
             this.chessBoard = new nLianQiLogic.ChessBoard(this.boardLevel);

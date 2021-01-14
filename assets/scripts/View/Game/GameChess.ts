@@ -88,12 +88,18 @@ export class GameChess extends Component {
         this.updateDir(dir);
 
         this.deadTip.setScale(0,0,1);
+
+        //默认没有支援,不显示
+        this.absorbLabel.node.setScale(0,0);
+    }
+    public updateIsTryChess(isTry : boolean) : void{
+        this._isTryChess = isTry;
     }
     public updateDir(dir : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType){
         this._direction = dir;
         if(this._direction != ProtocolDefine.nGame.nLianQi.eLianQiDirectionType.LIANQI_DIRECTION_TYPE_NONE){
             this.chessDir.node.active = true;
-            this.chessDir.node.setRotation(new math.Quat(0,0,-60 * this._direction,0));
+            this.chessDir.node.setRotationFromEuler(0,0,-60 * this._direction);
         }else{
             this.chessDir.node.active = false;//错误的方向就隐藏
         }
@@ -123,8 +129,8 @@ export class GameChess extends Component {
     //event : Event.EventTouch ?
     public onTouchMoveCallback(event : EventTouch) : void{
         if (this._isTryChess){
-            let deg : number = Math.atan2(event.getLocationX() - this.node.position.x, event.getLocationY()- this.node.position.y);
-
+            let deg : number = Math.atan2(event.getUILocation().x - 960- this.node.position.x, 
+                event.getUILocation().y - this.node.position.y - 540);//fuck
             let i : number = Math.floor(57.2957 * deg);
             i = (i + 480) % 360;
             i = Math.floor(i / 60);

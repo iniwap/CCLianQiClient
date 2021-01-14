@@ -369,7 +369,7 @@ export namespace nRule {
         }
 
         for(let scl of tscl) {
-            if (lcb.deads.indexOf(scl) != -1) {
+            if (lcb.deads.indexOf(scl) == -1) {
                 lcb.attacks.push(scl);
             }
         }

@@ -347,7 +347,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Absorb",
+    "_name": "Health",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -482,7 +482,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Attack",
+    "_name": "Absorb",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -617,7 +617,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "Health",
+    "_name": "Attack",
     "_objFlags": 0,
     "_parent": {
       "__id__": 1
@@ -925,13 +925,13 @@
       "__id__": 41
     },
     "healthLabel": {
-      "__id__": 29
+      "__id__": 17
     },
     "attackLabel": {
-      "__id__": 23
+      "__id__": 29
     },
     "absorbLabel": {
-      "__id__": 17
+      "__id__": 23
     },
     "deadTip": {
       "__id__": 32

@@ -198,7 +198,7 @@ export class LianQi extends Component {
 			this._tryPlaceChess = null;
 		}
 		//别人落子，刷新棋盘
-		let chess : GameChess | null = this.tryPlaceChess(pm.x,pm.y,pm.direction,nRoom.RoomData.getSeatByLocal(pm.local));
+		let chess : GameChess | null = this.tryPlaceChess(false,pm.x,pm.y,pm.direction,nRoom.RoomData.getSeatByLocal(pm.local));
 		if(chess != null){
 			if(!this.placeChess(chess)){
 				//落子失败，销毁
@@ -239,17 +239,17 @@ export class LianQi extends Component {
 
 		let prevGridID = -1;
 		if(this._tryPlaceChess != null){
-			prevGridID = this._tryPlaceChess.getChessID();
+			prevGridID = this._tryPlaceChess.getGridID();
 			this._tryPlaceChess.node.destroy();
 			this._tryPlaceChess = null;
-			if(prevGridID != gid){
+			if(prevGridID != -1 && prevGridID != gid){
 				this._gridList[prevGridID].enableGrid(true);//原来的棋格可以点击了
 			}
 		}
 		//需要查找一个可用的方向
 		//try chess id 为落到的棋格id，不需要去查找，确定落子的时候赋值为实际id
 		let banDirs : Array<ProtocolDefine.nGame.nLianQi.eLianQiDirectionType> = nGame.GameData.getUsableDirection();
-		this._tryPlaceChess = this.tryPlaceChess(pos.x,pos.y,banDirs[0],nRoom.RoomData.selfSeat);
+		this._tryPlaceChess = this.tryPlaceChess(true,pos.x,pos.y,banDirs[0],nRoom.RoomData.selfSeat);
 	}
 	public onEventChangeChessDir(dir : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType) : void{
 		if(!this.checkSelfTurn()){
@@ -261,7 +261,12 @@ export class LianQi extends Component {
 			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],op);
 			return;
 		}
-		this.changeChessDir(this._tryPlaceChess!,dir);
+		if(this._tryPlaceChess == null){
+			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
+				{show : true,autoHide : true,content : "请先点击空白棋格落子，再调整攻击方向。"});
+			return;
+		}
+		this.changeChessDir(true,this._tryPlaceChess,dir);
 	}
     //------------------------------网络事件-----------------------------
 	public onActionFail(data : GameEvent.EVENT) : void{
@@ -348,16 +353,18 @@ export class LianQi extends Component {
 		chess.node.setPosition(this.getPosByGridLevel(x,y,nGame.GameData.boardLevel));// 此处需要放置到实际位置
 		return chess;
 	}
-	public updateBoard(chesses : Array<nLianQiLogic.Chess>) : void{
-        if (this._tryPlaceChess != null){
-            for(let lc of chesses){
-                if (lc.isPosEqual(this._tryPlaceChess.getChessPos().x, this._tryPlaceChess.getChessPos().y)) {
-                    this._tryPlaceChess.setChessIdentityNumber(lc.identityNumber);
-                    this._tryPlaceChess.updateChessUI(lc);
-                    break;
-                }
-            }
-        }
+	public updateBoard(chesses : Array<nLianQiLogic.Chess>,isTry : boolean,chess : GameChess | null = null) : void{
+		if(isTry){
+			if (chess != null){
+				for(let lc of chesses){
+					if (lc.isPosEqual(chess.getChessPos().x, chess.getChessPos().y)) {
+						chess.setChessIdentityNumber(lc.identityNumber);
+						chess.updateChessUI(lc);
+						break;
+					}
+				}
+			}
+		}
 
         for(let co of this._chessList) {
             for(let lc of chesses) {
@@ -396,12 +403,13 @@ export class LianQi extends Component {
 			return true;
 		}
 	}
-	public tryPlaceChess(x : number,y : number,dir : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType,
+	public tryPlaceChess(isTry : boolean,x : number,y : number,dir : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType,
 		owner : number) : GameChess | null{
 		let gid = this.getGridIDByPos(x,y);
 		let chess : GameChess | null = this.createChess(x,y,-1,
 			ProtocolDefine.nGame.nLianQi.eLianQiDirectionType.LIANQI_DIRECTION_TYPE_NONE,gid,owner);
-		if(this.changeChessDir(chess,dir)){
+		chess.updateIsTryChess(isTry);
+		if(this.changeChessDir(isTry,chess,dir)){
 			this._gridList[gid].enableGrid(false);//禁用棋格
 		}else{
 			chess.node.destroy();
@@ -409,8 +417,7 @@ export class LianQi extends Component {
 		}
 		return chess;
 	}
-	public changeChessDir(chess : GameChess,dir : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType) : boolean{
-		//该方向为禁手方向
+	public changeChessDir(isTry : boolean, chess : GameChess,dir : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType) : boolean{
 		chess.updateDir(dir);
 		let banDirs: Array<ProtocolDefine.nGame.nLianQi.eLianQiDirectionType> = nGame.GameData.getUsableDirection();
 		//如果这个方向不禁手
@@ -421,7 +428,7 @@ export class LianQi extends Component {
 				return false;
 			}
 			//更新棋子显示
-			this.updateBoard(lcb.chesses);
+			this.updateBoard(lcb.chesses,isTry,chess);
 			let lc : nLianQiLogic.Chess | null= lcb.findChessByPosition(chess.getChessPos().x,chess.getChessPos().y);
 			if (lc == null) {
 				return false;
@@ -447,7 +454,7 @@ export class LianQi extends Component {
 			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
 				{show : false,autoHide : false,content : ""});
 			chess.setCantPlace();
-			this.updateBoard(nGame.GameData.chessBoard!.chesses);
+			this.updateBoard(nGame.GameData.chessBoard!.chesses,isTry,chess);
 		}
 
 		return true;

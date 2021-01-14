@@ -90,9 +90,8 @@ export class GameView extends NetworkState {
 		}
 
 		this.addAllEvent ();
-
-        Utils.getGlobalController()?.OnNotifyStartGame(true);//此处最好是游戏所有初始化完成再通知服务器
         this.UpdateUI();
+        Utils.getGlobalController()?.OnNotifyStartGame(true);//此处最好是游戏所有初始化完成再通知服务器
     }
 
     onDisable(){
@@ -208,13 +207,16 @@ export class GameView extends NetworkState {
         Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.TO_LQP_SWITCH_HINT]);
     }
     public OnShowOpTips(op : GameEvent.IShowOpTips) : void{
+        if(this.opTips.active == op.show) return;//已经在显示，不执行操作。已经隐藏，不执行隐藏
+        tween(this.opTips).stop();
         this.opTips.active = true;
-        this.opTips.getComponentInChildren(RichText)!.string = op.content;
-
         if(op.show){
+            //只有显示才修改文字内容
+            this.opTips.getComponentInChildren(RichText)!.string = op.content;
             this.opTips.position = new Vec3(0,100,0);
             if(op.autoHide){
                 tween(this.opTips)
+                .delay(0.01)
                 .to(0.5, { position: new Vec3(0, 0, 0) })
                 .delay(3)
                 .to(0.5, { position: new Vec3(0, 100, 0)},{onComplete: (target?: object) => {
@@ -223,12 +225,14 @@ export class GameView extends NetworkState {
                 .start();
             }else{
                 tween(this.opTips)
+                .delay(0.01)
                 .to(1, { position: new Vec3(0, 0, 0) })
                 .start();
             }
         }else{
             this.opTips.position = new Vec3(0,0,0);//
             tween(this.opTips)
+            .delay(0.01)
             .to(0.5, { position: new Vec3(0, 100, 0)},{onComplete: (target?: object) => {
                 this.opTips.active = false;
             }})

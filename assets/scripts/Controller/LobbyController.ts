@@ -322,7 +322,6 @@ export class LobbyController{
 		//
 		let resp : ProtocolDefine.nLobby.nFriend.msgRespFriendList = msg;
 		if(resp.friendList == null) {
-			//console.log("没有好友");
 			return;
 		}
 
