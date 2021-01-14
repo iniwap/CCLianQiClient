@@ -281,8 +281,10 @@ export class GameController{
 
 		if (resp.flag != ProtocolDefine.nGame.nLianQi.eGameOpRespFlag.SUCCESS) {
 			//不成功
-			//根据具体值给予错误提示
-            Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.ACTION_FAIL],GameEvent.EVENT.PLAY);
+            //根据具体值给予错误提示,只有是自己下棋的响应时才显示
+            if(this.checkSelfTurn()){
+                Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.ACTION_FAIL],GameEvent.EVENT.PLAY);
+            }
 			return;
 		}
 

@@ -2,7 +2,7 @@
   "ver": "1.0.21",
   "importer": "image",
   "imported": true,
-  "uuid": "04fd80b0-9505-498c-94b7-751487abcfea",
+  "uuid": "5b601e99-7a82-41fd-be88-7946fc10ff20",
   "files": [
     ".png",
     ".json"
@@ -10,8 +10,8 @@
   "subMetas": {
     "6c48a": {
       "importer": "texture",
-      "uuid": "04fd80b0-9505-498c-94b7-751487abcfea@6c48a",
-      "displayName": "1080)联测试版UI-3-2-六相指令盘底板",
+      "uuid": "5b601e99-7a82-41fd-be88-7946fc10ff20@6c48a",
+      "displayName": "RedNum",
       "id": "6c48a",
       "name": "texture",
       "userData": {
@@ -22,7 +22,7 @@
         "mipfilter": "none",
         "anisotropy": 1,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "04fd80b0-9505-498c-94b7-751487abcfea"
+        "imageUuidOrDatabaseUri": "5b601e99-7a82-41fd-be88-7946fc10ff20"
       },
       "ver": "1.0.20",
       "imported": true,
@@ -33,8 +33,8 @@
     },
     "f9941": {
       "importer": "sprite-frame",
-      "uuid": "04fd80b0-9505-498c-94b7-751487abcfea@f9941",
-      "displayName": "1080)联测试版UI-3-2-六相指令盘底板",
+      "uuid": "5b601e99-7a82-41fd-be88-7946fc10ff20@f9941",
+      "displayName": "RedNum",
       "id": "f9941",
       "name": "spriteFrame",
       "userData": {
@@ -45,16 +45,16 @@
         "offsetY": 0,
         "trimX": 0,
         "trimY": 0,
-        "width": 253,
-        "height": 289,
-        "rawWidth": 253,
-        "rawHeight": 289,
+        "width": 260,
+        "height": 32,
+        "rawWidth": 260,
+        "rawHeight": 32,
         "borderTop": 0,
         "borderBottom": 0,
         "borderLeft": 0,
         "borderRight": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "04fd80b0-9505-498c-94b7-751487abcfea@6c48a",
+        "imageUuidOrDatabaseUri": "5b601e99-7a82-41fd-be88-7946fc10ff20@6c48a",
         "atlasUuid": ""
       },
       "ver": "1.0.8",
@@ -68,6 +68,6 @@
   "userData": {
     "hasAlpha": true,
     "type": "sprite-frame",
-    "redirect": "04fd80b0-9505-498c-94b7-751487abcfea@f9941"
+    "redirect": "5b601e99-7a82-41fd-be88-7946fc10ff20@f9941"
   }
 }

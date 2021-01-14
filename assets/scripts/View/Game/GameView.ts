@@ -5,12 +5,13 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Component, Node, ScrollView, Prefab, AudioSource, AudioClip, resources, Label, Vec3, UITransform, Game, Button, instantiate } from 'cc';
+import { _decorator, Component, Node, ScrollView, Prefab, AudioSource, AudioClip, resources, Label, Vec3, UITransform, Game, Button, instantiate, RichText, Vec2, tween } from 'cc';
 import { eDialogBtnType, eDialogEventType, IDialog } from '../../Common/Dialog';
 import { CommonDefine } from '../../Define/CommonDefine';
 import { ProtocolDefine } from '../../Define/ProtocolDefine';
 import { GameEvent } from '../../Event/GameEvent';
 import { RoomEvent } from '../../Event/RoomEvent';
+import { nGame } from '../../Model/Game';
 import { Lobby } from '../../Model/Lobby';
 import { nRoom } from '../../Model/Room';
 import { NetworkState } from '../../Utils/NetworkState';
@@ -60,6 +61,9 @@ export class GameView extends NetworkState {
     "你苏定了！",
     "不要走，决战到天亮"];
 
+    @property(Node)
+    public opTips! : Node;
+    
     start () {
         // Your initialization goes here.
     }
@@ -133,6 +137,9 @@ export class GameView extends NetworkState {
             this.onShowLianQi.bind(this),this);
         Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.TO_GAMEVEIW_UPDATE_SCORE],
             this.onUpdateScore.bind(this),this);
+
+        Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
+            this.OnShowOpTips.bind(this),this);
     }
     private removeAllEvent() : void{
         Utils.getGlobalController()?.Off(RoomEvent.EVENT[RoomEvent.EVENT.SHOW_TALK_MSG],
@@ -164,6 +171,9 @@ export class GameView extends NetworkState {
             this.onShowLianQi.bind(this),this);
         Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.TO_GAMEVEIW_UPDATE_SCORE],
             this.onUpdateScore.bind(this),this);
+
+        Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
+            this.OnShowOpTips.bind(this),this);
     }
 
     	//----------------------------以下是界面事件发送-----------------------------
@@ -197,8 +207,39 @@ export class GameView extends NetworkState {
 	public OnClickHintBtn() : void{
         Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.TO_LQP_SWITCH_HINT]);
     }
+    public OnShowOpTips(op : GameEvent.IShowOpTips) : void{
+        this.opTips.active = true;
+        this.opTips.getComponentInChildren(RichText)!.string = op.content;
+
+        if(op.show){
+            this.opTips.position = new Vec3(0,100,0);
+            if(op.autoHide){
+                tween(this.opTips)
+                .to(0.5, { position: new Vec3(0, 0, 0) })
+                .delay(3)
+                .to(0.5, { position: new Vec3(0, 100, 0)},{onComplete: (target?: object) => {
+                    this.opTips.active = false;
+                }})
+                .start();
+            }else{
+                tween(this.opTips)
+                .to(1, { position: new Vec3(0, 0, 0) })
+                .start();
+            }
+        }else{
+            this.opTips.position = new Vec3(0,0,0);//
+            tween(this.opTips)
+            .to(0.5, { position: new Vec3(0, 100, 0)},{onComplete: (target?: object) => {
+                this.opTips.active = false;
+            }})
+            .start();
+        }
+    }
     //-------------------刷新界面，数据已经收到----------------------------------
     public UpdateUI(){
+        this.opTips.active = false;
+        this.opTips.position = new Vec3(0,100,0);
+
         let star : number = 0;
 		if (nRoom.RoomData.plazaid != 0) {
 			star = Lobby.LobbyData.getPlazaById(nRoom.RoomData.plazaid)?.star!;

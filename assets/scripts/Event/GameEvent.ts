@@ -5,6 +5,8 @@ export namespace GameEvent{
     export enum EVENT{
 		// 因为不希望在界面体现网络通信相关代码，所以需要传出这两个事件
 		GAME_EVENT_BEGIN = 30000,
+		PLACE_CHESS,//尝试落子，即点击空白棋格落子
+		CHANGE_CHESS_DIR,//改变棋子方向
 		PLAY,//落子
 		MOVE,//移动
 		PASS,//过，回合结束
@@ -13,6 +15,7 @@ export namespace GameEvent{
 		ACTION_FAIL,//操作失败，响应
 		CLOCK,
 
+		SHOW_OP_TIPS,//显示下拉框提示
 		SHOW_GAME_START,//对局开始
 		SHOW_FLAG,//
 		SHOW_DRAW,// 显示谁请求和棋
@@ -93,5 +96,10 @@ export namespace GameEvent{
 		x : number;
 		y : number;
 		direction : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType;
+	};
+	export interface IShowOpTips{
+		autoHide : boolean,
+		content : string,
+		show : boolean,//  只有autohide = true时有效s
 	};
 };

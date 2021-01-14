@@ -2,7 +2,7 @@
   "ver": "1.0.21",
   "importer": "image",
   "imported": true,
-  "uuid": "9dcc5919-42bb-45a4-86c8-331e057c9c14",
+  "uuid": "bf40c338-235d-420d-8a4e-94dc2e22c586",
   "files": [
     ".png",
     ".json"
@@ -10,8 +10,8 @@
   "subMetas": {
     "6c48a": {
       "importer": "texture",
-      "uuid": "9dcc5919-42bb-45a4-86c8-331e057c9c14@6c48a",
-      "displayName": "1080)联测试版UI-3-2-棋盘数值-（红）",
+      "uuid": "bf40c338-235d-420d-8a4e-94dc2e22c586@6c48a",
+      "displayName": "GridD",
       "id": "6c48a",
       "name": "texture",
       "userData": {
@@ -22,7 +22,7 @@
         "mipfilter": "none",
         "anisotropy": 1,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "9dcc5919-42bb-45a4-86c8-331e057c9c14"
+        "imageUuidOrDatabaseUri": "bf40c338-235d-420d-8a4e-94dc2e22c586"
       },
       "ver": "1.0.20",
       "imported": true,
@@ -33,8 +33,8 @@
     },
     "f9941": {
       "importer": "sprite-frame",
-      "uuid": "9dcc5919-42bb-45a4-86c8-331e057c9c14@f9941",
-      "displayName": "1080)联测试版UI-3-2-棋盘数值-（红）",
+      "uuid": "bf40c338-235d-420d-8a4e-94dc2e22c586@f9941",
+      "displayName": "GridD",
       "id": "f9941",
       "name": "spriteFrame",
       "userData": {
@@ -43,18 +43,18 @@
         "rotated": false,
         "offsetX": 0,
         "offsetY": 0,
-        "trimX": 0,
+        "trimX": 1,
         "trimY": 0,
-        "width": 260,
-        "height": 32,
-        "rawWidth": 260,
-        "rawHeight": 32,
+        "width": 84,
+        "height": 98,
+        "rawWidth": 86,
+        "rawHeight": 98,
         "borderTop": 0,
         "borderBottom": 0,
         "borderLeft": 0,
         "borderRight": 0,
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "9dcc5919-42bb-45a4-86c8-331e057c9c14@6c48a",
+        "imageUuidOrDatabaseUri": "bf40c338-235d-420d-8a4e-94dc2e22c586@6c48a",
         "atlasUuid": ""
       },
       "ver": "1.0.8",
@@ -68,6 +68,6 @@
   "userData": {
     "hasAlpha": true,
     "type": "sprite-frame",
-    "redirect": "9dcc5919-42bb-45a4-86c8-331e057c9c14@f9941"
+    "redirect": "bf40c338-235d-420d-8a4e-94dc2e22c586@f9941"
   }
 }
