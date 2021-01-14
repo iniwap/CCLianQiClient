@@ -349,7 +349,6 @@ export class GameView extends NetworkState {
 		//顶部按钮可以点击了
 		this.enableTopBarButton(true);
 		//设置先手
-		this.lianQi.onUpdateFirstHandSeat(seat);
 		this.action.onUpdateFirstHandSeat(seat);
 		this.action.onInitActionPanel(this._roomRule);
 	}
