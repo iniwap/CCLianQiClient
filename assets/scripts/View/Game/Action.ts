@@ -34,9 +34,6 @@ export class Action extends Component {
     @property(Button)
 	public btnPass! : Button;
 
-	private _lmtTurnTime : number = 0;
-	private _leftTime : number = 0;
-
 	private _currentStep : eActionStep = eActionStep.STEP_NOT_TURN;
 	
 	@property(LianQi)
@@ -106,6 +103,17 @@ export class Action extends Component {
 			}
 			return;
 		}else if (this._currentStep == eActionStep.STEP_MOVE_OR_PASS){
+			if(!this.lianQi.getHaveMoveChess()){
+				//提示有可移动棋子，但是没有移动
+				Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
+					{show : true,autoHide : true,content : "有可以棋子，但是选择了跳过不移动，直接跳过回合。"});
+				//直接视为pass
+				if(this.lianQi.onActionPass()){
+					this.btnPass.interactable  = false;
+					this.setCurrentStep (eActionStep.STEP_WAIT_PASS_RESULT);
+				}
+				return;
+			}
 			//如果不选择不移动，则此步骤为pass步骤
 			if(this.lianQi.onActionMove()){
 				this.btnPass.interactable  = false;
@@ -122,10 +130,7 @@ export class Action extends Component {
 		this.round.string = "回合 1" + "/" + rr.lmtRound;
 
 		this.round.node.active = false;
-
-		this._lmtTurnTime = rr.lmtTurnTime;
-		this._leftTime = this._lmtTurnTime;
-		if (this._lmtTurnTime == 0) {
+		if (rr.lmtTurnTime == 0) {
 			//不限制每手时长
 			this.clock.node.active = false;
 		}
@@ -215,8 +220,10 @@ export class Action extends Component {
 		this.lianQi.onActionFail(act);
 	}
 
-	public onShowClock(local : number,leftTime : number,step : number) : void{
-		//来自服务器的思考倒计时，这里直接客户端实现，不采用服务端的
+	public onShowClock(sc : GameEvent.IUpdateClock) : void{
+		//刷新倒计时
+		if(sc.leftTime <= 0) return;//0的时候不显示了
+		this.clock.string = ""+ sc.leftTime + "s";
 	}
 
 	public onUpdateFirstHandSeat(seat : number) : void{
@@ -230,21 +237,6 @@ export class Action extends Component {
 		}
     }
     //------------------------封装------------------
-    private updateClock() : void{
-
-		this.clock.string = ""+ this._leftTime + "s";
-		//通知lq panel
-        Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.TO_LQP_CLOCK],this._leftTime);
-
-		if (this._leftTime == 0) {
-			// 超时了
-			//自动pass
-            this.unschedule(this.updateClock);
-			return;
-		}
-
-		--this._leftTime;
-	}
 	private updateRound(round : number) : void{
 		//更新回合数
 		let lmtRound : number = Number(this.round.string.split('/')[1]);
@@ -316,13 +308,6 @@ export class Action extends Component {
 
 		if (st.isPassTurn) {
 			this.updateRound (st.round);
-		}
-
-		if (this._lmtTurnTime != 0) {
-            this.unschedule(this.updateClock);
-			this._leftTime = this._lmtTurnTime;// 重置限手时间
-
-			this.schedule(this.updateClock, 1);
 		}
     }
     

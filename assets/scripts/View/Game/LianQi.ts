@@ -48,8 +48,6 @@ export class LianQi extends Component {
     onEnable(){
         Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.TO_LQP_SWITCH_HINT],
             this.onSwitchHint.bind(this),this);
-        Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.TO_LQP_CLOCK],
-			this.onShowClock.bind(this),this);
 		Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.SHOW_LIANQI],
 			this.onShowLianQi.bind(this),this);
 		
@@ -62,8 +60,6 @@ export class LianQi extends Component {
     onDisable(){
         Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.TO_LQP_SWITCH_HINT],
             this.onSwitchHint.bind(this),this);
-        Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.TO_LQP_CLOCK],
-			this.onShowClock.bind(this),this);
 		
 		Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.SHOW_LIANQI],
 			this.onShowLianQi.bind(this),this);
@@ -113,11 +109,24 @@ export class LianQi extends Component {
 		let can = this.canMove();
 		if(!can) return false;
 		//移动到当前操作棋子到攻击方向下一格，该格需要被吃掉
-		let move : GameEvent.IMove = {
-			x : this._tryPlaceChess!.getChessPos().x,
-			y : this._tryPlaceChess!.getChessPos().y,
-			direction : this._tryPlaceChess!.getChessDir()
-		};
+		//这里是移动所有用户点击了移动的棋子
+		let moveList : Array<ProtocolDefine.nGame.nLianQi.Chess> = [];
+		for(let chess of this._chessList){
+			if(chess.getHasMove()){
+				if(chess.getOwner() != nRoom.RoomData.selfSeat){
+					//此棋子非自己的棋子，属于错误，不加入移动列表
+					continue;
+				}
+				let mchess : ProtocolDefine.nGame.nLianQi.Chess = {
+					x : chess.getChessPos().x,
+					y : chess.getChessPos().y,
+					direction : chess.getChessDir(),
+					playerID : chess.getOwner()
+				};
+				moveList.push(mchess);
+			}
+		}
+		let move : GameEvent.IMove = {moveList : moveList};
 		//Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.MOVE],move);
 		
 		return true;
@@ -183,7 +192,8 @@ export class LianQi extends Component {
 			this._tryPlaceChess = null;
 		}
 		//别人落子，刷新棋盘
-		let chess : GameChess | null = this.tryPlaceChess(false,pm.x,pm.y,pm.direction,nRoom.RoomData.getSeatByLocal(pm.local));
+		let chess : GameChess | null = this.tryPlaceChess(false,pm.chessList[0].x,
+			pm.chessList[0].y,pm.chessList[0].direction,nRoom.RoomData.getSeatByLocal(pm.local));
 		if(chess != null){
 			if(chess.getHealth() <= 0){
 				chess.node.destroy();
@@ -197,8 +207,8 @@ export class LianQi extends Component {
 		
 		this.updatePlayerChessNum();
     }
-    public onLQShowMove(data : any) : void{
-		
+    public onLQShowMove(pm : GameEvent.IPlayOrMove) : void{
+		//move list
 	}
     //断线重连
 	public onShowLianQi(cb : Array<ProtocolDefine.nGame.nLianQi.Chess>) : void{
@@ -269,10 +279,6 @@ export class LianQi extends Component {
 		case GameEvent.EVENT.MOVE:
 			break;
 		}
-	}
-
-	public onShowClock(data : any) : void{
-		
 	}
 	//-------------------界面封装---------------
 	private clearChessList() : void{
@@ -374,7 +380,7 @@ export class LianQi extends Component {
 		}else{
 			//不能移动棋子，等待对方结束回合
 			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
-				{show : true,autoHide : false,content : "对方已落子，请等待对方回合结束。"});
+				{show : true,autoHide : false,content : "对方已落子，请等待对方结束回合。"});
 			chess.endPlaceChess();
 		}
 
@@ -544,6 +550,14 @@ export class LianQi extends Component {
 		}
 		return false;
 	}
+	public  getHaveMoveChess() : boolean{
+		for(let chess of this._chessList){
+			if(chess.getHasMove()){
+				return true;
+			}
+		}
+		return false;
+    }
 	private endTurn(){
 		nGame.GameData.changeTurn();
 		//删除所有死掉的棋子

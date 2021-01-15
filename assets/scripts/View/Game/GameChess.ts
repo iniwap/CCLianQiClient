@@ -186,6 +186,9 @@ export class GameChess extends Component {
     public getCanMove() : boolean{
         return this._canMove;
     }
+    public getHasMove() : boolean{
+        return this._hasMove;
+    }
     public setCantPlace() : void{
         this.healthLabel.string = "";
         this.attackLabel.string = "";

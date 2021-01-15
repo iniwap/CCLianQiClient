@@ -41,6 +41,7 @@ export class GameController{
             this.onEventPass.bind(this),GameController);
 
         //注册网络消息
+        ProtocolManager.getInstance().On(ProtocolDefine.GameProtocol.P_GAME_CLOCK,this.OnPlayerClock.bind(this));//玩家步骤剩余时间
         ProtocolManager.getInstance().On(ProtocolDefine.GameLianQiProtocol.P_GAME_LIANQI_START,this.OnLQStart.bind(this));//联棋游戏开始 -播放相关动画
         ProtocolManager.getInstance().On(ProtocolDefine.GameLianQiProtocol.P_GAME_LIANQI_FLAG,this.OnLQFlag.bind(this));//标志,诸如重连，特殊棋型出现
         ProtocolManager.getInstance().On(ProtocolDefine.GameLianQiProtocol.P_GAME_LIANQI_QI,this.OnLQ.bind(this));//联棋棋盘数据
@@ -67,6 +68,7 @@ export class GameController{
             this.onEventPass.bind(this),GameController);
 
         //注册网络消息
+        ProtocolManager.getInstance().Off(ProtocolDefine.GameProtocol.P_GAME_CLOCK,this.OnPlayerClock.bind(this));//玩家步骤剩余时间
         ProtocolManager.getInstance().Off(ProtocolDefine.GameLianQiProtocol.P_GAME_LIANQI_START,this.OnLQStart.bind(this));//联棋游戏开始 -播放相关动画
         ProtocolManager.getInstance().Off(ProtocolDefine.GameLianQiProtocol.P_GAME_LIANQI_FLAG,this.OnLQFlag.bind(this));//标志,诸如重连，特殊棋型出现
         ProtocolManager.getInstance().Off(ProtocolDefine.GameLianQiProtocol.P_GAME_LIANQI_QI,this.OnLQ.bind(this));//联棋棋盘数据
@@ -127,10 +129,8 @@ export class GameController{
 		}
 
         let rmove : ProtocolDefine.nGame.nLianQi.msgLianQiReqMove = {
-            direction : move.direction,
             seat : nRoom.RoomData.selfSeat,
-            x : move.x,
-            y : move.y
+            moveList : move.moveList
         };
 
         ProtocolManager.getInstance().SendMsg(ProtocolDefine.GameLianQiProtocol.P_GAME_LIANQI_REQ_MOVE,
@@ -283,13 +283,18 @@ export class GameController{
             }
 			return;
 		}
-
-		let pm : GameEvent.IPlayOrMove = {
-            checkerBoard : resp.checkerBoard,
-            direction : resp.direction,
-            local : nRoom.RoomData.getLocalBySeat(resp.seat),
+        let chees : ProtocolDefine.nGame.nLianQi.Chess = {
             x : resp.x,
             y : resp.y,
+            direction : resp.direction,
+            playerID : resp.seat
+        };
+        let chessList : Array<ProtocolDefine.nGame.nLianQi.Chess> = [];
+        chessList.push(chees);
+		let pm : GameEvent.IPlayOrMove = {
+            isMove : false,
+            local : nRoom.RoomData.getLocalBySeat(resp.seat),
+            chessList : chessList
         }
 
         Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_PLAY],pm);
@@ -306,11 +311,9 @@ export class GameController{
 		}
 
 		let pm : GameEvent.IPlayOrMove = {
-            checkerBoard : resp.checkerBoard,
-            direction : resp.direction,
+            isMove : true,
             local : nRoom.RoomData.getLocalBySeat(resp.seat),
-            x : resp.x,
-            y : resp.y,
+            chessList : resp.moveList
         }
 
         Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_MOVE],pm);

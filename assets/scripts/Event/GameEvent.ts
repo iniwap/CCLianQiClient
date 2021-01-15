@@ -35,7 +35,6 @@ export namespace GameEvent{
 		//游戏界面之间的消息定义
 
 		//lianqi panel
-		TO_LQP_CLOCK,
 		TO_LQP_SWITCH_HINT,//棋子信息提示
 
 		//to gameview
@@ -54,11 +53,9 @@ export namespace GameEvent{
 		banDirList : Array<number>;
 	}
 	export interface IPlayOrMove{
+		isMove : boolean;
 		local : number;
-		x : number;
-		y : number;
-		direction : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType;
-		checkerBoard : Array<ProtocolDefine.nGame.nLianQi.Chess>;
+		chessList : Array<ProtocolDefine.nGame.nLianQi.Chess>
 	}
 	export interface IGameResult{
 		seat : number;
@@ -84,9 +81,7 @@ export namespace GameEvent{
 		direction : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType;
 	};
 	export interface IMove{
-		x : number;
-		y : number;
-		direction : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType;
+		moveList : Array<ProtocolDefine.nGame.nLianQi.Chess>
 	};
 	export interface IShowOpTips{
 		autoHide : boolean,

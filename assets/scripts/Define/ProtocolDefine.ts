@@ -890,37 +890,11 @@ export namespace ProtocolDefine{
 				REQ_RESP,//其它玩家的响应
 				RESP,//自己收到的网络响应
 			};
-			export interface Skill{
-				healthChange : number;
-				attackChange : number;
-				absorbChange : number;
-				applyPosX : number;
-				applyPosY : number;
-				applyPosZ : number;
-				basePosX : number;
-				basePosY : number;
-				basePosZ : number;
-				type : string;
-			};
-			export interface Buff{
-				healthChange : number;
-				attackChange : number;
-				absorbChange : number;
-				type : string;
-			};
 			export interface Chess{
-				health : number;
-				attack : number;
-				support : number;
-				absorb : number;
-		
 				direction : number;
-				playerID : number;
-		
+				playerID : number;//seat
 				x : number;
 				y : number;
-				skillList : Array<Skill>;
-				buffList : Array<Buff>;
 			};
 			/// 联棋游戏开始 
 			export interface msgLianQiStart{
@@ -930,8 +904,7 @@ export namespace ProtocolDefine{
 			/// 联棋棋盘
 			export interface msgLianQi{
 				turn : number;//当前下棋的人的seat
-				checkerBoard : Array<Chess>;
-				//棋盘数据相对复杂，需要进一步确认
+				checkerBoard : Array<Chess>;//只发送基本信息，棋盘自动生成计算
 			};
 			/// 联棋执子
 			export interface msgLianQiTurn{
@@ -975,22 +948,16 @@ export namespace ProtocolDefine{
 				x : number;
 				y : number;
 				direction : eLianQiDirectionType;
-				checkerBoard : Array<Chess>;
 			};
 			/// 联棋移动
 			export interface msgLianQiReqMove{
 				seat : number;
-				x : number;
-				y : number;
-				direction : eLianQiDirectionType;
+				moveList : Array<Chess>
 			};
 			export interface msgLianQiRespMove{
 				flag : eGameOpRespFlag;
 				seat : number;
-				x : number;
-				y : number;
-				direction : eLianQiDirectionType;
-				checkerBoard : Array<Chess>;
+				moveList : Array<Chess>
 			};
 			/// 联棋请求和局
 			export interface msgLianQiReqDraw{
@@ -1019,7 +986,6 @@ export namespace ProtocolDefine{
 				poolGold: number;//实际的奖池积分
 				result : Array<GameResult>;
 				type : Array<eFormationType>;//如果存在
-				checkerBoard : Array<Chess>;
 			};
 			/// 各种flag，包括重连
 			export enum eFlagType{
