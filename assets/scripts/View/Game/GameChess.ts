@@ -21,16 +21,22 @@ export class GameChess extends Component {
     private _chessID : number = -1;
     private _gridID : number = -1;// 占据的grid id
     private _pos : Vec2 = new Vec2(0,0);//棋格坐标
-    private _prevPos : Vec2 = new Vec2(0,0);//棋格坐标--用于移动，记录旧的坐标
+    private _oriPos : Vec2 = new Vec2(0,0);//棋格坐标--用于移动，记录旧的坐标
+    private _forwardPos : Vec2 = new Vec2(0,0);//可以移动到的前方x,y
+    private _forwardUIPos : Vec3 = new Vec3(0,0,0);//实际坐标
+    private _oriUIPos : Vec3 = new Vec3(0,0,0);//实际坐标
+    private _toIdm : number = 0;
+
     private _isTryChess : boolean = false; //是否是尝试落子，已经确定的落子是不能操作的，除非可以移动
 
-    public _health : number = 0;//生命值
-    public _attack : number = 0;//攻击力
-    public _absorb : number = 0;//防御值
+    private _health : number = 0;//生命值
+    private _attack : number = 0;//攻击力
+    private _absorb : number = 0;//防御值
     //方向
-    public _direction : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType = ProtocolDefine.nGame.nLianQi.eLianQiDirectionType.LIANQI_DIRECTION_TYPE_NONE;
-    public _canMove : boolean = false;// 是否可以移动
-    public _hasMove : boolean = false;//是否移动过
+    private _direction : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType = ProtocolDefine.nGame.nLianQi.eLianQiDirectionType.LIANQI_DIRECTION_TYPE_NONE;
+    private _canMove : boolean = false;// 是否可以移动
+    private _hasMove : boolean = false;//是否移动过
+    private _isAlive : boolean = false;
 
     @property(Label)
     public healthLabel! : Label;
@@ -71,8 +77,8 @@ export class GameChess extends Component {
         this._gridID = gid;
         this._pos.x = x;
         this._pos.y = y;
-        this._prevPos.x = -1;
-        this._prevPos.y = -1;
+        this._oriPos.x = -1;
+        this._oriPos.y = -1;
         this._isTryChess = true;
     
         this._health = 0;//生命值
@@ -81,6 +87,7 @@ export class GameChess extends Component {
         //方向
         this._canMove = false;// 是否可以移动
         this._hasMove = false;//是否移动过
+        this._isAlive = true;
 
         //只有确定落子后才会更换棋子外观，为了区分当前操作棋子
         this.updateDir(dir);
@@ -121,6 +128,7 @@ export class GameChess extends Component {
 			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],op);
         }else if(this._canMove){
             //移动阶段
+            Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.MOVE_CHESS],this);
         }
     }
 
@@ -158,9 +166,22 @@ export class GameChess extends Component {
             this.chessBg.spriteFrame = spriteFrame!;
         });
     }
+    public updateChessDead() : void{
+        this.healthLabel.string = "";
+        this.attackLabel.string = "";
+        this.absorbLabel.string = "";
+        this.node.pauseSystemEvents(false);//禁用事件
+        this._isAlive = false;
+    }
     public endPlaceChess(){
         this._isTryChess = false;
         this.setCanMove(false);
+    }
+    public getOriPos(){
+        return this._oriPos;
+    }
+    public getIsAlive() : boolean{
+        return this._isAlive;
     }
     public setCanMove(can : boolean){
         this._canMove = can;
@@ -189,6 +210,9 @@ export class GameChess extends Component {
     public getHasMove() : boolean{
         return this._hasMove;
     }
+    public getToIDM() : number{
+        return this._toIdm;
+    }
     public setCantPlace() : void{
         this.healthLabel.string = "";
         this.attackLabel.string = "";
@@ -202,8 +226,13 @@ export class GameChess extends Component {
         .to(0.25, { scale: new Vec3(0, 0, 1) })
         .start();
     }
+    public openHint(open : boolean){
+        this.healthLabel.node.active = open;
+        this.attackLabel.node.active = open;
+        this.absorbLabel.node.active = open;
+    }
     private doLabelScaleAni(n : Node,show : boolean = true) : void{
-        n.active = true;
+        //n.active = true; //通过缩放大小来显示隐藏，因为有切换显示，所以此处不能设置true
         if(show){
             n.scale = new Vec3(0,0,1);
             tween(n)
@@ -255,5 +284,28 @@ export class GameChess extends Component {
                 this.absorbLabel.string = "" + this._absorb;
             }
         }
+    }
+
+    public moveForward() : void{
+        tween(this.node).to(0.35,{position : this._forwardUIPos});
+        this._pos.x = this._forwardPos.x;
+        this._pos.y = this._forwardPos.y;
+        this._hasMove = true;
+    }
+    public moveOri() : void{
+        tween(this.node).to(0.35,{position : this._oriUIPos});
+        this._pos.x = this._oriPos.x;
+        this._pos.y = this._oriPos.y;
+        this._hasMove = false;
+    }
+    public setForward(forwardUIPos : Vec3,forwardPos : Vec2,ti : number) : void{
+        this._oriUIPos = this.node.position;
+        this._forwardUIPos = forwardUIPos;
+        this._forwardPos = forwardPos;
+        this._canMove = true;
+        this._hasMove = false;
+        this._oriPos.x = this._pos.x;
+        this._oriPos.y = this._pos.y;
+        this._toIdm = ti;
     }
 }

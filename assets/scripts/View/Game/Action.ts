@@ -91,9 +91,19 @@ export class Action extends Component {
 		// 这里需要判断当前处于哪个阶段来决定是落子还是结束回合
 		//不在play步骤，不能落子
 		if (this._currentStep == eActionStep.STEP_PLAY) {
-            if(this.lianQi.onActionPlay()){
-				this.btnPass.interactable  = false;
-				this.setCurrentStep (eActionStep.STEP_WAIT_PLAY_RESULT);
+			if(!this.lianQi.getHaveTryPlayChess()){
+				Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
+					{show : true,autoHide : true,content : "你没有点击空白棋格落子，将直接<b>结束回合</b>"});
+				//直接视为pass
+				if(this.lianQi.onActionPass()){
+					this.btnPass.interactable  = false;
+					this.setCurrentStep (eActionStep.STEP_WAIT_PASS_RESULT);
+				}
+			}else{
+				if(this.lianQi.onActionPlay()){
+					this.btnPass.interactable  = false;
+					this.setCurrentStep (eActionStep.STEP_WAIT_PLAY_RESULT);
+				}
 			}
 			return;
 		}else if (this._currentStep == eActionStep.STEP_PASS) {
@@ -117,7 +127,7 @@ export class Action extends Component {
 			//如果不选择不移动，则此步骤为pass步骤
 			if(this.lianQi.onActionMove()){
 				this.btnPass.interactable  = false;
-				this.setCurrentStep (eActionStep.STEP_WAIT_MOVE_RESULT);
+				this.setCurrentStep(eActionStep.STEP_WAIT_MOVE_RESULT);
 			}
 			return;
 		}
@@ -171,7 +181,11 @@ export class Action extends Component {
 	//移动棋子成功
 	public onShowMove(pm : GameEvent.IPlayOrMove) : void{
 		this.setCurrentStep(eActionStep.STEP_PASS);
-		this.lianQi.onLQShowMove(pm);
+		if(this.lianQi.onLQShowMove(pm)){//仍有棋子可以移动
+			this.setCurrentStep(eActionStep.STEP_MOVE_OR_PASS);
+		}else{
+			this.setCurrentStep(eActionStep.STEP_PASS);
+		}
 	}
 	//落子成功
 	public onShowPlay(pm : GameEvent.IPlayOrMove) : void{
@@ -183,21 +197,24 @@ export class Action extends Component {
 
 		//落子之棋盘不能操作，无论是否是自己
 		for (var i = 0; i < 6; i++) {
-			this.banDir (true,i);
+			this.banDir(true,i);
 		}
 
 		//执行落子逻辑，如果根据是否可以移动更新当前步骤
-		this.lianQi.onLQShowPlay(pm);
-		if (nGame.GameData.chessBoard!.deads.length > 0){
-			this.setPassBtnTxt("移动棋子");
+		if (this.lianQi.onLQShowPlay(pm)){
+			if(pm.local == nRoom.eSeatType.SELF){
+				this.setPassBtnTxt("确定移动");
+			}
 			this.setCurrentStep(eActionStep.STEP_MOVE_OR_PASS);
 		}else{
-			this.setPassBtnTxt("结束回合");
+			if(pm.local == nRoom.eSeatType.SELF){
+				this.setPassBtnTxt("结束回合");
+			}
 			this.setCurrentStep(eActionStep.STEP_PASS);
 		}
 	}
 
-	//操作失败
+	//操作失败--都不应该出现，否则基本上客户端-服务端数据不一致了
 	public onActionFail(act : GameEvent.EVENT) : void{
 		switch (act) {
 		case GameEvent.EVENT.ABANDON:
@@ -266,7 +283,6 @@ export class Action extends Component {
 	}
 	private setCurrentStep(step : eActionStep) : void{
 		this._currentStep = step;
-		this.lianQi.onActionStep(step);
 	}
 	private showTurn(isPass : boolean,st : GameEvent.IShowTurn) : void{
 		if (!isPass) {
@@ -289,12 +305,12 @@ export class Action extends Component {
 			for (var i = 0; i < 6; i++) {
 				this.banDir(false,i);
 			}
+			this.setPassBtnTxt("确定落子");
 
 		} else {
 			this.btnPass.interactable = false;
+			this.setPassBtnTxt("等待回合");
 		}
-
-		this.setPassBtnTxt("落子");
 
 		if (!isPass) {
 			//ON TURN

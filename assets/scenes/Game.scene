@@ -1520,11 +1520,11 @@
       "b": 0,
       "a": 255
     },
-    "_string": "Play",
+    "_string": "结束回合",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 60,
-    "_fontSize": 60,
+    "_actualFontSize": 48,
+    "_fontSize": 48,
     "_fontFamily": "Arial",
     "_lineHeight": 40,
     "_overflow": 1,
@@ -8893,7 +8893,7 @@
       "y": 0,
       "z": 0
     },
-    "_id": "f8Fgc8NqFCKovzrOFU6OvA"
+    "_id": "26Ba6ZlI9MW4DL3no2SYBF"
   },
   {
     "__type__": "cc.UITransform",
@@ -8915,7 +8915,7 @@
       "x": 0,
       "y": 0
     },
-    "_id": "11uRhIz+NLRbelpuWCyhL1"
+    "_id": "5bT1NVGTROmLPvKgG9H3/g"
   },
   {
     "__type__": "cc.Label",
@@ -8953,7 +8953,7 @@
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
-    "_id": "8c6RkuYeNJe5RVkxeXw4KE"
+    "_id": "85X5+4fpBHwon6ICrpax4O"
   },
   {
     "__type__": "cc.UITransform",

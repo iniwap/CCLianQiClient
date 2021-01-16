@@ -76,37 +76,13 @@ export namespace nRule {
         if (gvs != nLianQiLogic.eGridValidState.VOID){
             return false;
         }
+        
+        for(let pm of board.places){
+            if(dir == pm.chessDir){
+                return false;//该方向为禁手方向
+            }
+        }
 
-        let ss : number = board.places.length;
-        if (ss > 2) {
-            //严重问题！！ 过去存储超过限额！
-            //return false;
-        }
-
-        if (ss == 1)
-        {
-            let pm : nLianQiLogic.IPlaceMemory = board.places[0];
-            if (pm.placeOwnner == playerId) {
-                //该玩家这回合已经下过了！
-                return false;
-            }
-            if (pm.chessDir == dir) {
-                //这个方向是禁手方向！
-                return false;
-            }
-        }
-        else if (ss == 2) {
-            let pm0 : nLianQiLogic.IPlaceMemory = board.places[0];
-            let pm1 : nLianQiLogic.IPlaceMemory = board.places[1];
-            if (pm1.placeOwnner == playerId) {
-                //该玩家这回合已经下过了！
-                return false;
-            }
-            if (pm0.chessDir == dir || pm1.chessDir == dir) {
-                //这个方向是禁手方向！
-                return false;
-            }
-        }
         let idm : number = board.addNewChess(xx, yy, dir, playerId);
         if(idm < 0){
             //此位置存在错误！

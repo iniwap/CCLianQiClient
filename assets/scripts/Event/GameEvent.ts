@@ -7,6 +7,7 @@ export namespace GameEvent{
 		GAME_EVENT_BEGIN = 30000,
 		PLACE_CHESS,//尝试落子，即点击空白棋格落子
 		CHANGE_CHESS_DIR,//改变棋子方向
+		MOVE_CHESS,//尝试移动棋子
 		PLAY,//落子
 		MOVE,//移动
 		PASS,//过，回合结束

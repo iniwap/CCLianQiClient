@@ -53,7 +53,7 @@ export namespace nRoom{
 	{
 		playerNum : number;
 		gridLevel : number;
-		rule : string;
+		rule : string;//额外规则，诸如三禁手，自动开始，默认等等
 		gameTime : number;
 		lmtRound : number;
 		lmtTurnTime : number;

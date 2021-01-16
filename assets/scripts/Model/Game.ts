@@ -1,6 +1,7 @@
 import { ProtocolDefine } from "../Define/ProtocolDefine";
 import { nLianQiLogic } from "../GameLogic/LianQiLogic";
 import { nRule } from "../GameLogic/Rule";
+import { GameChess } from "../View/Game/GameChess";
 
 export namespace nGame{
 	export class GameData{
@@ -24,11 +25,11 @@ export namespace nGame{
 			dir : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType) : nLianQiLogic.ChessBoard | null{
             return nRule.getTryResult(this.chessBoard!.getCopy(), x, y, dir, this.currentTurn);
 		}
-		public static startGame(pn : number,bl : number) : void{
+		public static startGame(pn : number,bl : number,banDirNum : number) : void{
 			this.reset();
 			this.playerNum = pn;
 			this.boardLevel = bl;
-            this.chessBoard = new nLianQiLogic.ChessBoard(this.boardLevel);
+            this.chessBoard = new nLianQiLogic.ChessBoard(this.boardLevel,banDirNum);
 		}
 		public static isThisGridEmpty(x : number,y : number) : boolean{
             let gvs : nLianQiLogic.eGridValidState = nRule.getGridValidState(this.chessBoard!, x, y);
@@ -57,7 +58,28 @@ export namespace nGame{
 		public static updateChessBoard() : void {
 			nRule.GameBoardCalculateItself(this.chessBoard!);           
 
+		}
+        public static tryEndAction() : Array<nLianQiLogic.ISpecialChessLink> | null{
+            let lcb : nLianQiLogic.ChessBoard = this.chessBoard!.getCopy();
+            nRule.GameBoardCalculateItself(lcb);
+            //没有棋子被吃掉的话
+            if (lcb.deads.length == 0){
+                return null;
+            }else{
+                return lcb.attacks;
+            }
+		}
+		public static washOut() : void {
+            nRule.washChessBoard(this.chessBoard!);
+		}
+		public static moveChess(co : GameChess) : boolean{
+            return nRule.moveChessInBoard(this.chessBoard!.findChessByIdnum(co.getChessIdentityNumber())!,this.chessBoard!); 
+		}
+		public static getTryMovesMultiChessBoard(coses : Array<number>,
+			lcb : nLianQiLogic.ChessBoard) : nLianQiLogic.ChessBoard | null{
+				
+            return nRule.getTryChessesEndBoard(coses, lcb);
         }
-	}
 
+	}
 }

@@ -5,7 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Component, Node, instantiate, Prefab, tween, Vec3, Vec2, UITransform, Size, Game } from 'cc';
+import { _decorator, Component, Node, instantiate, Prefab, tween, Vec3, Vec2 } from 'cc';
 import { eDialogEventType, IDialog } from '../../Common/Dialog';
 import { ProtocolDefine } from '../../Define/ProtocolDefine';
 import { CommonEvent } from '../../Event/CommonEvent';
@@ -15,7 +15,6 @@ import { nLianQiLogic } from '../../GameLogic/LianQiLogic';
 import { nGame } from '../../Model/Game';
 import { nRoom } from '../../Model/Room';
 import { Utils } from '../../Utils/Utils';
-import { eActionStep } from './Action';
 import { GameChess } from './GameChess';
 import { GameGrid } from './GameGrid';
 const { ccclass, property } = _decorator;
@@ -34,7 +33,7 @@ export class LianQi extends Component {
 	public chessPrefab! : Prefab;
 	private _gridList : Array<GameGrid> = [];//棋格
 	private _chessList : Array<GameChess> = [];       //棋子
-
+	private _movedChessList : Array<GameChess> = [];    //移动棋子的列表
 	private _tryPlaceChess : GameChess | null = null;
 	
     start () {
@@ -56,6 +55,8 @@ export class LianQi extends Component {
 			this.onEventPlaceChess.bind(this),this);
 		Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.CHANGE_CHESS_DIR],
 			this.onEventChangeChessDir.bind(this),this);
+		Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.MOVE_CHESS],
+			this.onEventMoveChess.bind(this),this);
     }
     onDisable(){
         Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.TO_LQP_SWITCH_HINT],
@@ -68,6 +69,8 @@ export class LianQi extends Component {
 			this.onEventPlaceChess.bind(this),this);
 		Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.CHANGE_CHESS_DIR],
 			this.onEventChangeChessDir.bind(this),this);
+		Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.MOVE_CHESS],
+			this.onEventMoveChess.bind(this),this);
 			
 		//清空
 		this.clearGridList();
@@ -78,11 +81,14 @@ export class LianQi extends Component {
         this._ifOpenHint = true;//默认开启，该类设置信息，需要后续根据用户习惯，从本地读取配置
 		//生成棋盘，并执行动画 
 		this.generateGridBoard(rr.gridLevel);
-		nGame.GameData.startGame(rr.playerNum,rr.gridLevel);
+		nGame.GameData.startGame(rr.playerNum,rr.gridLevel,rr.rule.indexOf("bandir3")!=-1?3:2);
     }
 	// 切换显示棋子信息提示
 	public onSwitchHint() : void{
 		this._ifOpenHint = !this._ifOpenHint;
+		for(let chess of this._chessList){
+			chess.openHint(this._ifOpenHint);
+		}
     }
     
 	public onActionPlay() : boolean{
@@ -110,16 +116,39 @@ export class LianQi extends Component {
 		if(!can) return false;
 		//移动到当前操作棋子到攻击方向下一格，该格需要被吃掉
 		//这里是移动所有用户点击了移动的棋子
+
+		//检查棋子能否移动，因为移动后可能死掉，不能则撤回
+	 	let lcb : nLianQiLogic.ChessBoard | null = nGame.GameData.chessBoard!.getCopy();
+		let ids : Array<number> = [];
+		for(let mc of this._movedChessList){
+			ids.push(mc.getChessIdentityNumber());
+		}
+		let allMovedOk = true;
+		lcb = nGame.GameData.getTryMovesMultiChessBoard(ids, lcb);
+		let dcoes : Array<GameChess> = [];
+		for(let co of this._movedChessList) {
+			if (lcb!.findChessByIdnum(co.getChessIdentityNumber())!.health<=0) {
+				co.moveOri();
+				dcoes.push(co);
+				allMovedOk = false;
+			}
+		}
+		if(!allMovedOk){
+			for(let c of dcoes) {
+				this._movedChessList.splice(this._movedChessList.indexOf(c),1);
+			}
+		}
+
 		let moveList : Array<ProtocolDefine.nGame.nLianQi.Chess> = [];
-		for(let chess of this._chessList){
+		for(let chess of this._movedChessList){
 			if(chess.getHasMove()){
 				if(chess.getOwner() != nRoom.RoomData.selfSeat){
 					//此棋子非自己的棋子，属于错误，不加入移动列表
 					continue;
 				}
 				let mchess : ProtocolDefine.nGame.nLianQi.Chess = {
-					x : chess.getChessPos().x,
-					y : chess.getChessPos().y,
+					x : chess.getOriPos().x,
+					y : chess.getOriPos().y,
 					direction : chess.getChessDir(),
 					playerID : chess.getOwner()
 				};
@@ -127,27 +156,13 @@ export class LianQi extends Component {
 			}
 		}
 		let move : GameEvent.IMove = {moveList : moveList};
-		//Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.MOVE],move);
+		Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.MOVE],move);
 		
 		return true;
     }
     public onActionBanDir(ban : boolean,dir : number) : void{
-		//_Port.SetBanDir (ban,dir);
+		//游戏逻辑自己维护禁用方向，这里不使用服务器的，一般不会出错。也可以优化为用服务器的重置本地禁用方向
     }
-    public onActionStep(step : eActionStep) : void{
-
-		if (step == eActionStep.STEP_NOT_TURN) {
-			// _Port.DisableChessboardOperation ();
-			// //_Port.DisableChessboardOpearionOnEmptyPlacableHex ();
-			// //_Port.DisableAllChessOperation();
-
-			// //_Port.TurnDynamics (false);
-
-		} else {
-			// //_Port.EnableChessboardOperation ();
-			// _Port.EnableChessboardOpearionOnEmptyPlacableHex ();
-		}
-	}
 	//自己点结束回合的响应
     public  onLQShowPass(local : number) : void{
 		//肯定不会轮到自己
@@ -185,7 +200,8 @@ export class LianQi extends Component {
 			}
 		}
     }
-    public onLQShowPlay(pm : GameEvent.IPlayOrMove){
+    public onLQShowPlay(pm : GameEvent.IPlayOrMove): boolean{
+		let haveCanMove = false;
 		//销毁试用的棋子，如果有的话，其实只有当自己下的时候才有
 		if(this._tryPlaceChess != null){
 			this._tryPlaceChess.node.destroy();
@@ -198,7 +214,7 @@ export class LianQi extends Component {
 			if(chess.getHealth() <= 0){
 				chess.node.destroy();
 			}else{
-				this.placeChess(chess);
+				haveCanMove = this.placeChess(chess);
 			}
 		}else{
 			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
@@ -206,9 +222,28 @@ export class LianQi extends Component {
 		}
 		
 		this.updatePlayerChessNum();
+
+		return haveCanMove;
     }
-    public onLQShowMove(pm : GameEvent.IPlayOrMove) : void{
+    public onLQShowMove(pm : GameEvent.IPlayOrMove) : boolean{
+		let hasCanMove = false;
 		//move list
+		this.removeAllDeadChess();
+		nGame.GameData.washOut();
+		for(let co of pm.chessList) {
+			let chess : GameChess | null = this.getGameChessByPos(co.x,co.y);
+			if(chess == null){
+				//出错了，找不到对应的棋子
+				continue;
+			}
+			nGame.GameData.moveChess(chess);
+		}
+		this.updateBoard(nGame.GameData.chessBoard!.chesses);
+		this._movedChessList = [];
+		//加个是否有棋子死亡判断？
+		if (nGame.GameData.chessBoard!.deads.length > 0)
+			hasCanMove = this.findAllChessCanMove();//查找继续
+		return hasCanMove;
 	}
     //断线重连
 	public onShowLianQi(cb : Array<ProtocolDefine.nGame.nLianQi.Chess>) : void{
@@ -263,6 +298,44 @@ export class LianQi extends Component {
 			return;
 		}
 		this.changeChessDir(this._tryPlaceChess,dir);
+	}
+	//尝试移动棋子
+	public onEventMoveChess(chess : GameChess) : void{
+		if(!this.checkSelfTurn()){
+			//出错了，不是自己的移动阶段，不能操作
+			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
+				{show : true,autoHide : true,content : "当前不是你的回合，无法移动棋子。"});
+			chess.setCanMove(false);
+			return;
+		}
+
+        if(chess.getHasMove()){
+            chess.moveOri();//返回
+            this._movedChessList.splice(this._movedChessList.indexOf(chess),1);
+        }else{
+			let oldc = this.findChessByMoveToIdm(chess.getToIDM());
+			//这个位置的棋子移动过的是，让它移动回去，因为这个要被新的移动过来
+            if (oldc != null){
+                this._movedChessList.splice(this._movedChessList.indexOf(oldc),1);
+                oldc.moveOri();
+            }
+            chess.moveForward();
+            this._movedChessList.push(chess);
+        }
+
+		let lcb : nLianQiLogic.ChessBoard | null = nGame.GameData.chessBoard!.getCopy();
+		let ids : Array<number> = [];
+		for(let mc of this._movedChessList){
+			ids.push(mc.getChessIdentityNumber());
+		}
+		lcb = nGame.GameData.getTryMovesMultiChessBoard(ids, lcb);
+		if(lcb != null){
+			this.updateBoard(lcb.chesses);
+		}else{
+			//出错了，退回去
+			chess.moveOri();
+            this._movedChessList.splice(this._movedChessList.indexOf(chess),1);
+		}
 	}
     //------------------------------网络事件-----------------------------
 	public onActionFail(data : GameEvent.EVENT) : void{
@@ -367,24 +440,35 @@ export class LianQi extends Component {
 		//因此会出现这样被动新增棋子的局面
 		// todo
 	}
-	public placeChess(chess : GameChess) : void{
+	public placeChess(chess : GameChess) : boolean{
+		let hasCanMove = false;
 		//落子成功，原则上一定是成功的，需要以服务端为准
 		//如果可以下棋，则下棋一个
 		this._chessList.push(chess);
 		nGame.GameData.placeChess(chess.getChessPos().x,chess.getChessPos().y,chess.getChessDir());
 		if (nGame.GameData.chessBoard!.deads.length > 0){
 			//可以移动 -- 对于自己来说，别人进入移动阶段
-			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
-				{show : true,autoHide : false,content : "对方进入可移动棋子阶段，请等待对方回合结束。"});
-			chess.setCanMove(true);
+			hasCanMove = this.findAllChessCanMove();
+			if(hasCanMove){
+				let tip =  "对方进入移动棋子阶段，请等待对方回合结束。";
+				if(this.checkSelfTurn()){
+					tip =  "有可移动棋子，请<b>点击棋子</b>移动(可多选)或直接点击<b>确定移动</b>跳过。";
+				}
+				Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
+					{show : true,autoHide : false,content : tip});
+			}
 		}else{
 			//不能移动棋子，等待对方结束回合
+			let tip =  "对方已落子，请等待对方结束回合。";
+			if(this.checkSelfTurn()){
+				tip =  "没有可移动棋子，请点击<b>结束回合</b>。";
+				chess.endPlaceChess();
+			}
 			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
-				{show : true,autoHide : false,content : "对方已落子，请等待对方结束回合。"});
-			chess.endPlaceChess();
+				{show : true,autoHide : false,content : tip});
 		}
-
 		chess.updateWhosChess();
+		return hasCanMove;
 	}
 	public tryPlaceChess(isTry : boolean,x : number,y : number,dir : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType,
 		owner : number) : GameChess | null{
@@ -545,7 +629,7 @@ export class LianQi extends Component {
 			return false;
 		}
 		
-		if (nGame.GameData.chessBoard!.deads.length > 0){
+		if (this._movedChessList.length > 0){
 			return true;
 		}
 		return false;
@@ -557,13 +641,19 @@ export class LianQi extends Component {
 			}
 		}
 		return false;
+	}
+	public  getHaveTryPlayChess() : boolean{
+		return this._tryPlaceChess != null;
     }
 	private endTurn(){
 		nGame.GameData.changeTurn();
+		this.removeAllDeadChess();
+	}
+	private removeAllDeadChess() : void{
 		//删除所有死掉的棋子
 		let dco : Array<GameChess> = [];
 		for(let co of this._chessList) {
-			if (co.getHealth() <= 0) {
+			if (!co.getIsAlive()) {
 				dco.push(co);
 			}
 		}
@@ -573,4 +663,85 @@ export class LianQi extends Component {
 			co.node.destroy();
 		}
 	}
+	private findAllChessCanMove() : boolean{
+		let hasCanMove = false;
+		//更新已经死亡的棋子
+		for(let co of this._chessList){
+			if (co.getHealth() <= 0){
+				co.updateChessDead();
+			}
+		}
+		//把所有的棋子都设为不可移动
+		for(let chess of this._chessList){
+			chess.setCanMove(false);
+		}
+		//获得尝试结束的结果
+		this._movedChessList = [];
+		let scl : Array<nLianQiLogic.ISpecialChessLink> | null = nGame.GameData.tryEndAction();
+		//当返回为空、或者没有可当前攻击的棋子时，结束回合；反之，进行移动棋子
+		if (scl != null){
+			let cos : Array<GameChess> = [];
+			//查看所有能攻击的棋子
+			for(let item of scl){
+				let c : GameChess | null = this.findGameChess(item.fromIdm);
+				//当可以攻击的棋子存在并且是当前回合的玩家时
+				if (c != null && c.getOwner() == nGame.GameData.currentTurn){
+					let atc : GameChess | null = this.findGameChess(item.toIdm);
+					if (atc == null){
+						//内部错误
+						this.showDialog("抱歉～游戏算法逻辑出现出错，可能会导致过程出错！");
+						continue;
+					}
+					//设置这个棋子可以移动
+					c.setForward(atc.node.position, atc.getChessPos(), item.toIdm);
+					cos.push(c);
+				}
+			}
+
+			if (cos.length > 0){
+				//当有足够的可攻击棋子存在时，去除所有的死亡棋子
+				nGame.GameData.washOut();
+				hasCanMove = true;
+				//this.updateBoard(nGame.GameData.chessBoard!.chesses);
+			}
+			else {
+				//当没有足够可攻击棋子存在时，也就是结束回合
+				nGame.GameData.washOut();
+				hasCanMove = false;
+			}
+		}
+		//当返回为空时,也就是没有合理棋子指着这里
+		else {
+			//结束回合
+			nGame.GameData.washOut();
+			hasCanMove = false;
+		}
+
+		return hasCanMove;
+	}
+	public findGameChess(idm : number) : GameChess | null{
+        for(let co of this._chessList){
+            if (co.getChessIdentityNumber() == idm) {
+                return co;
+            }
+        }
+        return null;
+	}
+	private getGameChessByPos(x : number,y : number) : GameChess | null{
+		for(let chess of this._chessList){
+			//应该不需要加上 方向、seat判断是否完全一致，原则上不一样出现的时候，客户端、服务端数据已经不一致了
+			if(chess.getChessPos().x == x && chess.getChessPos().y == y){
+				return chess;
+			}
+		}
+		return null;
+	}
+	private findChessByMoveToIdm(ti : number) : GameChess | null{
+        for(let co of this._movedChessList) {
+            if (co.getToIDM() == ti) {
+                return co;
+            }
+        }
+        return null;
+    }
 }

@@ -141,8 +141,9 @@ export namespace nLianQiLogic{
         public places : Array<IPlaceMemory> = [];
         private identityNumberNow : number = 0;
         public roundNum: number = 0;
+        public banDirNum : number = 0;//0 为不开启禁方向，其他数字为开启禁几个
 
-        public constructor(level : number) {
+        public constructor(level : number,banDir : number = 2) {
             this.boardSize = level;
             this.chesses = [];
             this.places = [];
@@ -151,6 +152,7 @@ export namespace nLianQiLogic{
             this.skills = [];
             this.identityNumberNow = 0;
             this.roundNum = 0;
+            this.banDirNum = banDir;//禁手为0的时候，places记录不起作用
         }
 
         //根据位置找棋子
@@ -264,7 +266,7 @@ export namespace nLianQiLogic{
                 chessDir : dir
             };
             this.places.push(pm);
-            if (this.places.length > 2)
+            if (this.places.length > this.banDirNum)
             {
                 this.places.splice(0,1);
             }
@@ -279,7 +281,7 @@ export namespace nLianQiLogic{
                 chessDir : dir
             };
             this.places.push(pm);
-            if (this.places.length > 2)
+            if (this.places.length > this.banDirNum)
             {
                 this.places.splice(0,1);
             }
@@ -310,7 +312,7 @@ export namespace nLianQiLogic{
                 chessDir : dir
             };
             this.places.push(pm);
-            if (this.places.length > 2)
+            if (this.places.length > this.banDirNum)
             {
                 this.places.splice(0,1);
             }
@@ -320,26 +322,27 @@ export namespace nLianQiLogic{
         }
 
         public endAction(np : number) : void{
-            let ss : number = this.places.length;
-            let pm : IPlaceMemory = {
-                placeOwnner : -1,
-                chessID : -1,
-                chessDir : -1
-            };
-            if (ss == 0) {
-                this.places.push(pm);
-            }
-            else if (ss == 1 && np != this.places[0].placeOwnner) {
-                this.places.push(pm);
-            }
-            else if (ss == 2 && np != this.places[1].placeOwnner) {
-                this.places.push(pm);
-                this.places.splice(0,1);
-            }
+            //空操作，即没有落子，直接结束回合的，不记录方向
+            // let ss : number = this.places.length;
+            // let pm : IPlaceMemory = {
+            //     placeOwnner : -1,
+            //     chessID : -1,
+            //     chessDir : -1
+            // };
+            // if (ss == 0) {
+            //     this.places.push(pm);
+            // }
+            // else if (ss == 1 && np != this.places[0].placeOwnner) {
+            //     this.places.push(pm);
+            // }
+            // else if (ss == 2 && np != this.places[1].placeOwnner) {
+            //     this.places.push(pm);
+            //     this.places.splice(0,1);
+            // }
             this.roundNum++;
         }
         public getCopy() : ChessBoard{
-            let lcb : ChessBoard = new ChessBoard(this.boardSize);
+            let lcb : ChessBoard = new ChessBoard(this.boardSize,this.banDirNum);
             lcb.identityNumberNow = this.identityNumberNow;
             for(let lc of this.chesses) {
                 lcb.chesses.push(lc.getCopy());
