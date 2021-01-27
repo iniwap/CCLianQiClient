@@ -16,6 +16,7 @@ export namespace GameEvent{
 		ACTION_FAIL,//操作失败，响应
 		CLOCK,
 
+		SHOW_DIR_CHESS,//方向盘棋子
 		SHOW_OP_TIPS,//显示下拉框提示
 		SHOW_GAME_START,//对局开始
 		SHOW_FLAG,//

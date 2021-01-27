@@ -35,7 +35,6 @@ export class LianQi extends Component {
 	private _chessList : Array<GameChess> = [];       //棋子
 	private _movedChessList : Array<GameChess> = [];    //移动棋子的列表
 	private _tryPlaceChess : GameChess | null = null;
-	
     start () {
 		// Your initialization goes here.
     }
@@ -53,8 +52,6 @@ export class LianQi extends Component {
 		//界面消息
 		Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.PLACE_CHESS],
 			this.onEventPlaceChess.bind(this),this);
-		Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.CHANGE_CHESS_DIR],
-			this.onEventChangeChessDir.bind(this),this);
 		Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.MOVE_CHESS],
 			this.onEventMoveChess.bind(this),this);
     }
@@ -67,8 +64,6 @@ export class LianQi extends Component {
 		//界面消息
 		Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.PLACE_CHESS],
 			this.onEventPlaceChess.bind(this),this);
-		Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.CHANGE_CHESS_DIR],
-			this.onEventChangeChessDir.bind(this),this);
 		Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.MOVE_CHESS],
 			this.onEventMoveChess.bind(this),this);
 			
@@ -161,7 +156,7 @@ export class LianQi extends Component {
 		return true;
     }
     public onActionBanDir(ban : boolean,dir : number) : void{
-		//游戏逻辑自己维护禁用方向，这里不使用服务器的，一般不会出错。也可以优化为用服务器的重置本地禁用方向
+		//来自服务端的方向禁用列表，本地逻辑会进行二次校验，但事实上应该一致
     }
 	//自己点结束回合的响应
     public  onLQShowPass(local : number) : void{
@@ -281,8 +276,12 @@ export class LianQi extends Component {
 		//try chess id 为落到的棋格id，不需要去查找，确定落子的时候赋值为实际id
 		let banDirs : Array<ProtocolDefine.nGame.nLianQi.eLianQiDirectionType> = nGame.GameData.getUsableDirection();
 		this._tryPlaceChess = this.tryPlaceChess(true,pos.x,pos.y,banDirs[0],nRoom.RoomData.selfSeat);
+
+		if(this._tryPlaceChess != null){
+			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_DIR_CHESS],banDirs[0]);
+		}
 	}
-	public onEventChangeChessDir(dir : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType) : void{
+	public onEventChangeChessDir(dir : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType) : boolean{
 		if(!this.checkSelfTurn()){
 			let op : GameEvent.IShowOpTips = {
 				show : true,
@@ -290,14 +289,15 @@ export class LianQi extends Component {
 				content : "当前不是你的回合，无法调整棋子方向。"
 			};
 			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],op);
-			return;
+			return false;
 		}
 		if(this._tryPlaceChess == null){
 			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
 				{show : true,autoHide : true,content : "请先点击空白棋格落子，再调整攻击方向。"});
-			return;
+			return false;
 		}
-		this.changeChessDir(this._tryPlaceChess,dir);
+
+		return this.changeChessDir(this._tryPlaceChess,dir);
 	}
 	//尝试移动棋子
 	public onEventMoveChess(chess : GameChess) : void{
@@ -556,22 +556,14 @@ export class LianQi extends Component {
 		//此处可以自己记录值，也可以通过接口获取
 		for(let lc of this._chessList) {
 			if(lc.getOwner() != nRoom.eSeatType.INVILID){
-				count[lc.getOwner()]++;
+				count[nRoom.RoomData.getLocalBySeat(lc.getOwner())]++;
 			}
 		}
 
         //更新界面
         Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.TO_GAMEVEIW_UPDATE_SCORE],count);
 	}
-		
-	private getLocalByPlayID(playerId: number) : number{
-
-		return nRoom.RoomData.getLocalBySeat((nGame.GameData.firstHandSeat + playerId)%nGame.GameData.playerNum);
-	}
-
-	private getPlayerIDByLocal(local : number) : number{
-		return (nGame.GameData.firstHandSeat + nRoom.RoomData.getSeatByLocal(local))%nGame.GameData.playerNum;
-	}
+	
 	private getPosByGridLevel(x : number,y : number,gridLevel : number) : Vec3{
 		let pos : Vec3 = new Vec3(0,0,0); 
 
@@ -633,6 +625,10 @@ export class LianQi extends Component {
 			return true;
 		}
 		return false;
+	}
+	public getTryChessDir() : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType{
+		let banDirs : Array<ProtocolDefine.nGame.nLianQi.eLianQiDirectionType> = nGame.GameData.getUsableDirection();
+		return banDirs[0];
 	}
 	public  getHaveMoveChess() : boolean{
 		for(let chess of this._chessList){

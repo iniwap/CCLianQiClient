@@ -50,7 +50,6 @@ export namespace CommonDefine{
   
       export const LQ_DIRECTION_INFOBG : string = "Game/GameLianQi/DirInfoBg";
       export const LQ_DIRECTION_DIRECT : string = "Game/GameLianQi/Dir";
-      export const LQ_DIRECTION_DIRECT_WITHE : string = "Game/GameLianQi/NotBanDir";
       export const LQ_DIRECTION_DIR_BG_1 : string = "Game/GameLianQi/DirBanBg1";
       export const LQ_DIRECTION_DIR_BG_2 : string = "Game/GameLianQi/DirBanBg2";// 最深
       export const LQ_PASS_BTN : string = "Game/GameLianQi/Pass";
