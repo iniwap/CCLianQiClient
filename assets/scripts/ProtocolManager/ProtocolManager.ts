@@ -3,7 +3,6 @@
 //
 
 import {resources,log,JsonAsset} from 'cc';
-import { Utils } from '../Utils/Utils';
 import { ProtocolDefine } from "../Define/ProtocolDefine";
 //import ROUTE_CONFIG from "../../resources/Config/RouteConfig.json";  //资源会被处理，这里无法访问到，需要cocos-api
 

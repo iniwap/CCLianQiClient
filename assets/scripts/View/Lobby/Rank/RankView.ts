@@ -6,9 +6,9 @@
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
 import { _decorator, Component, Node, Label, Sprite, Prefab, UITransform, instantiate } from 'cc';
-import { Account } from '../../../Model/Account';
+import { nAccount } from '../../../Model/Account';
 import { LobbyEvent } from '../../../Event/LobbyEvent';
-import { Lobby } from '../../../Model/Lobby';
+import { nLobby } from '../../../Model/Lobby';
 import { Utils } from '../../../Utils/Utils';
 import { RankItem } from './RankItem';
 import { ProtocolDefine } from '../../../Define/ProtocolDefine';
@@ -75,7 +75,7 @@ export class RankView extends Component {
     public OnClickCloseBtn() : void{
 		this.node.active = false;
 	}
-    public OnUpdateRank(rankList : Array<Lobby.Rank>){        
+    public OnUpdateRank(rankList : Array<nLobby.Rank>){        
         let content : UITransform = this.rankRoot.getComponent(UITransform)!;
         if(content) content.setContentSize(content.width,rankList.length*66 + 36);
         
@@ -108,7 +108,7 @@ export class RankView extends Component {
 			this._rankList.push(this.createRankItem(i+1,rankList[i].name,score));
 
             //是否有自己，有自己则设置自己的排名
-			if(Account.getSelfData().userID == rankList[i].userID){
+			if(nAccount.Account.getSelfData().userID == rankList[i].userID){
 				this.myRank.string = "你的排名："+(i+1);
 			}
 		}

@@ -5,7 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Component, Node } from 'cc';
+import { _decorator, Component } from 'cc';
 import { LobbyEvent } from '../../Event/LobbyEvent';
 import { Utils } from '../../Utils/Utils';
 import { LobbyView } from './LobbyView';

@@ -6,7 +6,7 @@
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
 import { _decorator, Component, RichText } from 'cc';
-import { Lobby } from '../../../Model/Lobby';
+import { nLobby } from '../../../Model/Lobby';
 const { ccclass, property } = _decorator;
 
 @ccclass('TalentCostItem')
@@ -16,7 +16,7 @@ export class TalentCostItem extends Component {
     @property(RichText)
     public costNum! : RichText;
     
-	private _talent : Lobby.eTalentType = Lobby.eTalentType.TALENT_NONE;
+	private _talent : nLobby.eTalentType = nLobby.eTalentType.TALENT_NONE;
 
     start () {
         // Your initialization goes here.
@@ -25,11 +25,11 @@ export class TalentCostItem extends Component {
     // update (deltaTime: number) {
     //     // Your update function goes here.
     // }
-    public updateTalentItem(talent : Lobby.eTalentType,talentName : string,cost : number) : void{
+    public updateTalentItem(talent : nLobby.eTalentType,talentName : string,cost : number) : void{
 
 		this._talent = talent;
 
-		if (talent > Lobby.eTalentType.TALENT_B2) {
+		if (talent > nLobby.eTalentType.TALENT_B2) {
 			this.costName.string = "<color=#FFE8AEFF>高级天赋 " + talentName +"</color>";
 			this.costNum.string = "<color=#FFE8AEFF>消耗+" + cost+"</color>";
 		} else {
@@ -38,7 +38,7 @@ export class TalentCostItem extends Component {
 		}
 	}
 
-	public getTalentType() : Lobby.eTalentType {
+	public getTalentType() : nLobby.eTalentType {
 		return this._talent;
 	}
 }

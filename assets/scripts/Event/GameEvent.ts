@@ -1,5 +1,5 @@
 import { ProtocolDefine } from "../Define/ProtocolDefine";
-import { Lobby } from "../Model/Lobby";
+import { nLobby } from "../Model/Lobby";
 
 export namespace GameEvent{
     export enum EVENT{
@@ -72,7 +72,7 @@ export namespace GameEvent{
 	}
 	export interface IShowGameResult{
 		roomType : ProtocolDefine.nRoom.eCreateRoomType;//用于是否显示房主标志,只有房间模式显示
-		level : Lobby.ePlazaLevelType;
+		level : nLobby.ePlazaLevelType;
 		baseScore : number;
 		poolGold : number;//实际的奖池积分
 		gameResult : Array<IGameResult>;//根据积分 顺序

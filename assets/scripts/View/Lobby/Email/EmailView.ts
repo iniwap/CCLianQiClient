@@ -6,11 +6,11 @@
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
 import { _decorator, Component, Label, Sprite, Button ,Node, Prefab, UITransform, instantiate} from 'cc';
-import { Dialog, eDialogBtnType, eDialogEventType, IDialog } from '../../../Common/Dialog';
+import { eDialogBtnType, eDialogEventType, IDialog } from '../../../Common/Dialog';
 import { ProtocolDefine } from '../../../Define/ProtocolDefine';
 import { CommonEvent } from '../../../Event/CommonEvent';
 import { LobbyEvent } from '../../../Event/LobbyEvent';
-import { Lobby } from '../../../Model/Lobby';
+import { nLobby } from '../../../Model/Lobby';
 import { Utils } from '../../../Utils/Utils';
 import { EmailTitleItem } from './EmailTitleItem';
 const { ccclass, property } = _decorator;
@@ -136,19 +136,19 @@ export class EmailView extends Component {
 		// 设置左侧 滑动范围大小
 		//Lobby.Lobby.privateMsgList
 		let content : UITransform = this.emailRoot.getComponent(UITransform)!;
-		if(content) content.setContentSize(content.width,Lobby.LobbyData.privateMsgList.length * 160);
+		if(content) content.setContentSize(content.width,nLobby.Lobby.privateMsgList.length * 160);
 
 		this.removeAllEmail ();
-		for (var i = 0; i < Lobby.LobbyData.privateMsgList.length; i++) {
+		for (var i = 0; i < nLobby.Lobby.privateMsgList.length; i++) {
 			//生成保存信息
-			let date = new Date(Lobby.LobbyData.privateMsgList[i].send_time);//.format("yyyy/MM/dd");
+			let date = new Date(nLobby.Lobby.privateMsgList[i].send_time);//.format("yyyy/MM/dd");
 			let time : string = date.getFullYear() + '/' + date.getMonth() + "/" + date.getDate();
-			this._emailList.push(this.createEmailItem(i,Lobby.LobbyData.privateMsgList[i].id,
-				Lobby.LobbyData.privateMsgList[i].author,
-				JSON.parse( Lobby.LobbyData.privateMsgList[i].content),
-				Lobby.LobbyData.privateMsgList[i].has_read != 0,
+			this._emailList.push(this.createEmailItem(i,nLobby.Lobby.privateMsgList[i].id,
+				nLobby.Lobby.privateMsgList[i].author,
+				JSON.parse( nLobby.Lobby.privateMsgList[i].content),
+				nLobby.Lobby.privateMsgList[i].has_read != 0,
 				time,
-				Lobby.LobbyData.privateMsgList[i].title));
+				nLobby.Lobby.privateMsgList[i].title));
 		}
 
 		this.checkAllAwardBtnCanShow ();
@@ -185,11 +185,11 @@ export class EmailView extends Component {
 
 		} else if (type == ProtocolDefine.nLobby.nSysOrPrivateMsg.eUpdateEmailType.GET_AWARD) {
 			//恭喜获得xx 提示
-			let  content : Lobby.EmailContent = this._emailList[index].getContent();
+			let  content : nLobby.EmailContent = this._emailList[index].getContent();
 			let tip : string = "";
-			if (content.type == Lobby.eAwardType.GOLD) {
+			if (content.type == nLobby.eAwardType.GOLD) {
 				tip = "恭喜获得" + content.awardCnt + "积分！祝您游戏愉快～";	
-			} else if (this._emailList [index].getContent ().type == Lobby.eAwardType.PROP) {
+			} else if (this._emailList [index].getContent ().type == nLobby.eAwardType.PROP) {
 				tip = "恭喜获得永久皮肤" + "吃遍天下" + "x" + content.awardCnt + "！祝您游戏愉快～";	
 			}
 			let dlg : IDialog = {
@@ -247,7 +247,7 @@ export class EmailView extends Component {
 		}
 
 		//右侧信息刷新
-		let content : Lobby.EmailContent = this._emailList[id].getContent();
+		let content : nLobby.EmailContent = this._emailList[id].getContent();
 		this.emailContent.string = content.content;
 		this.emailAuthor.string = this._emailList[id].getAuthor();
 		this.emailTime.string = this._emailList[id].getDate();
@@ -267,11 +267,11 @@ export class EmailView extends Component {
 				this.awardBtn.getComponentInChildren(Label)!.string = "领取奖励";
 			}
 
-			if (content.type == Lobby.eAwardType.GOLD) {
+			if (content.type == nLobby.eAwardType.GOLD) {
 				this.awardCnt.node.active = true;
 				this.awardTotal.node.active = false;
 				this.awardCnt.string = ""+content.awardCnt;
-			} else if (content.type == Lobby.eAwardType.PROP) {
+			} else if (content.type == nLobby.eAwardType.PROP) {
 				this.awardCnt.node.active = false;
 				this.awardTotal.node.active = true;
 				this.awardTotal.string = "x"+content.awardCnt;
@@ -283,7 +283,7 @@ export class EmailView extends Component {
 			this.awardPanel.active = false;
 		}
 	}
-	public createEmailItem(index : number,id : number,author : string,content : Lobby.EmailContent,
+	public createEmailItem(index : number,id : number,author : string,content : nLobby.EmailContent,
 		hasRead : boolean,date : string,title : string) : EmailTitleItem{
 
 		let ei : Node = instantiate(this.emailTitleItemPrefab);
@@ -304,7 +304,7 @@ export class EmailView extends Component {
 
 		let hasAward : boolean = false;
 		for (var i = 0; i < this._emailList.length; i++) {
-			let content : Lobby.EmailContent = this._emailList[i].getContent();
+			let content : nLobby.EmailContent = this._emailList[i].getContent();
 			if(content.hasAward){
 				hasAward = true;
 				break;
@@ -321,7 +321,7 @@ export class EmailView extends Component {
 		let hasAllGotten : boolean = true;
 
 		for (var i = 0; i < this._emailList.length; i++) {
-			let content : Lobby.EmailContent = this._emailList[i].getContent();
+			let content : nLobby.EmailContent = this._emailList[i].getContent();
 			if(content.hasAward && !content.hasGottenAward){
 				hasAllGotten = false;
 				break;

@@ -5,7 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator ,Node,director, Button} from 'cc';
+import { _decorator ,Node,director } from 'cc';
 import { ProtocolDefine } from '../../Define/ProtocolDefine';
 import { AccountEvent } from '../../Event/AccountEvent';
 import { Utils } from '../../Utils/Utils';

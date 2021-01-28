@@ -5,12 +5,12 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Component, Node, Label, Sprite, Button, Prefab, UITransform, resources, SpriteFrame, instantiate, Vec2, JsonAsset } from 'cc';
+import { _decorator, Node, Label, Sprite, Button, Prefab, UITransform, resources, SpriteFrame, instantiate, JsonAsset } from 'cc';
 import { CommonDefine } from '../../../Define/CommonDefine';
 import { ProtocolDefine } from '../../../Define/ProtocolDefine';
 import { LobbyEvent } from '../../../Event/LobbyEvent';
-import { Account, SelfData } from '../../../Model/Account';
-import { Lobby } from '../../../Model/Lobby';
+import { nAccount } from '../../../Model/Account';
+import { nLobby } from '../../../Model/Lobby';
 import { NetworkState } from '../../../Utils/NetworkState';
 import { Utils } from '../../../Utils/Utils';
 import { TalentCostItem } from './TalentCostItem';
@@ -19,7 +19,7 @@ const { ccclass, property } = _decorator;
 
 //只是保存天赋数据
 interface ITalentData{
-	talentType : Lobby.eTalentType;
+	talentType : nLobby.eTalentType;
 	tname : string;
 	des : string;
 	cost : number;// 装备增加消耗
@@ -27,9 +27,9 @@ interface ITalentData{
 
 //用来保存可配置天赋槽
 interface ITalentSlot{
-	talentType : Lobby.eTalentType;
+	talentType : nLobby.eTalentType;
 	tid : number;
-	btnState : Lobby.eTalentSlotState;
+	btnState : nLobby.eTalentSlotState;
 }
 
 @ccclass('TalentView')
@@ -47,8 +47,8 @@ export class TalentView extends NetworkState {
 	@property(Label)
 	public currentTalentDes! : Label;
 
-	private _talentType : Lobby.eTalentType = Lobby.eTalentType.TALENT_NONE;
-	private _prevTalentType : Lobby.eTalentType = Lobby.eTalentType.TALENT_NONE;
+	private _talentType : nLobby.eTalentType = nLobby.eTalentType.TALENT_NONE;
+	private _prevTalentType : nLobby.eTalentType = nLobby.eTalentType.TALENT_NONE;
 	private _isBaseSelected : boolean = false;
 
 	@property(Button)
@@ -137,14 +137,14 @@ export class TalentView extends NetworkState {
 			return;
 		}
 
-		this._talentType = Lobby.eTalentType.TALENT_A1;//每次进来默认显示A1
+		this._talentType = nLobby.eTalentType.TALENT_A1;//每次进来默认显示A1
 		this._prevTalentType = this._talentType;
 
 		this._isBaseSelected = true;
 
 		//基础天赋，不显示高亮按钮
 
-		this.currentAndTotal.string = this._talentType + "/" + (Lobby.eTalentType.TALENT_B2 - Lobby.eTalentType.TALENT_A1 + 1);
+		this.currentAndTotal.string = this._talentType + "/" + (nLobby.eTalentType.TALENT_B2 - nLobby.eTalentType.TALENT_A1 + 1);
 
 		this.installBtn.node.active =  false;
 		this.uninstallBtn.node.active = false;
@@ -155,14 +155,14 @@ export class TalentView extends NetworkState {
 		this.removeAllTalent();
 
 		let rt : UITransform = this.talentItemRoot.getComponent(UITransform)!;
-		rt.setContentSize(rt.width,(Lobby.eTalentType.TALENT_B3 - Lobby.eTalentType.TALENT_A1 )*this.talentInteral);
+		rt.setContentSize(rt.width,(nLobby.eTalentType.TALENT_B3 - nLobby.eTalentType.TALENT_A1 )*this.talentInteral);
 		//根据_talentList 生成界面
-		for(var i = Lobby.eTalentType.TALENT_A1;i < Lobby.eTalentType.TALENT_B3;i++){
+		for(var i = nLobby.eTalentType.TALENT_A1;i < nLobby.eTalentType.TALENT_B3;i++){
 			this._talentItemList.push(this.createTalentItem(this._talentList[i - 1].talentType,
 				i - 1,
 				this._talentList[i - 1].tname,
 				this._talentList[i - 1].des,
-				Lobby.eTalentSlotState.TALENT_INSTALLED));
+				nLobby.eTalentSlotState.TALENT_INSTALLED));
 
 		}
 
@@ -175,7 +175,7 @@ export class TalentView extends NetworkState {
 			return;
 		}
 
-		this._talentType = Lobby.eTalentType.TALENT_B3;//每次进来默认显示b3
+		this._talentType = nLobby.eTalentType.TALENT_B3;//每次进来默认显示b3
 		this._prevTalentType = this._talentType;
 		this._canInstallId = -1;
 
@@ -186,7 +186,7 @@ export class TalentView extends NetworkState {
 		this.toLeftSwitchBtn.interactable = false;
 		this.toRightSwitchBtn.interactable = true;
 
-		this.currentAndTotal.string = (this._talentType - Lobby.eTalentType.TALENT_B3 + 1) + "/" + (Lobby.eTalentType.TALENT_C1 - Lobby.eTalentType.TALENT_B3 + 1);
+		this.currentAndTotal.string = (this._talentType - nLobby.eTalentType.TALENT_B3 + 1) + "/" + (nLobby.eTalentType.TALENT_C1 - nLobby.eTalentType.TALENT_B3 + 1);
 
 		if(!this._isBaseSelected && this.getIfSlotInstalled(this._talentType)){
 			this.uninstallBtn.node.active =  true;
@@ -195,14 +195,14 @@ export class TalentView extends NetworkState {
 		this.removeAllTalent ();
 
 		let rt : UITransform = this.talentItemRoot.getComponent(UITransform)!;
-		rt.setContentSize(rt.width,(Lobby.eTalentType.TALENT_C1 - Lobby.eTalentType.TALENT_B3 )*this.talentInteral);
+		rt.setContentSize(rt.width,(nLobby.eTalentType.TALENT_C1 - nLobby.eTalentType.TALENT_B3 )*this.talentInteral);
 
 		//_talentSlotList 生成界面
 		for (var i = 0;i < this._talentSlotList.length;i++) {
-			let ttp : Lobby.eTalentType = this._talentSlotList[i].talentType;
+			let ttp : nLobby.eTalentType = this._talentSlotList[i].talentType;
 			let tname = "";
 			let des = "";
-			if (ttp != Lobby.eTalentType.TALENT_NONE) {
+			if (ttp != nLobby.eTalentType.TALENT_NONE) {
 				tname = this._talentList[ttp - 1].tname;
 				des = this._talentList[ttp - 1].des;
 			}
@@ -236,15 +236,15 @@ export class TalentView extends NetworkState {
 				if (this._canInstallId == -1)
 					return;
 
-				if (this._talentSlotList[this._canInstallId].talentType == Lobby.eTalentType.TALENT_NONE
-					&& this._talentSlotList [this._canInstallId].btnState == Lobby.eTalentSlotState.TALENT_CAN_INSTALL ) {
+				if (this._talentSlotList[this._canInstallId].talentType == nLobby.eTalentType.TALENT_NONE
+					&& this._talentSlotList [this._canInstallId].btnState == nLobby.eTalentSlotState.TALENT_CAN_INSTALL ) {
 
 
 					let tst : ITalentSlot= this._talentSlotList[this._canInstallId];
 
 					tst.talentType = this._talentType;
 					tst.tid = this._canInstallId;
-					tst.btnState = Lobby.eTalentSlotState.TALENT_INSTALLED;
+					tst.btnState = nLobby.eTalentSlotState.TALENT_INSTALLED;
 					this._talentSlotList[this._canInstallId] = tst;
 
 					this._talentItemList[this._canInstallId].updateTalentItem(
@@ -252,7 +252,7 @@ export class TalentView extends NetworkState {
 						this._canInstallId,
 						this._talentList[this._talentType - 1].tname,
 						this._talentList[this._talentType - 1].des,
-						Lobby.eTalentSlotState.TALENT_INSTALLED,
+						nLobby.eTalentSlotState.TALENT_INSTALLED,
 						this.onTalentBtnClick.bind(this));
 
 					this.saveTalentCfg(true);
@@ -266,19 +266,19 @@ export class TalentView extends NetworkState {
 			//卸载
 			for(var i = 0;i < this._talentSlotList.length;i++){
 				if (this._talentSlotList[i].talentType == this._talentType
-				   && this._talentSlotList[i].btnState == Lobby.eTalentSlotState.TALENT_INSTALLED) {
+				   && this._talentSlotList[i].btnState == nLobby.eTalentSlotState.TALENT_INSTALLED) {
 					//卸载这个天赋
 					let tst : ITalentSlot = this._talentSlotList[i];
-					tst.btnState = Lobby.eTalentSlotState.TALENT_CAN_INSTALL;
-					tst.talentType = Lobby.eTalentType.TALENT_NONE;
+					tst.btnState = nLobby.eTalentSlotState.TALENT_CAN_INSTALL;
+					tst.talentType = nLobby.eTalentType.TALENT_NONE;
 					this._talentSlotList[i] = tst;
 
 					this._talentItemList[this._talentSlotList[i].tid].updateTalentItem(
-						Lobby.eTalentType.TALENT_NONE,
+						nLobby.eTalentType.TALENT_NONE,
 						i,
 						"",
 						"",
-						Lobby.eTalentSlotState.TALENT_CAN_INSTALL,
+						nLobby.eTalentSlotState.TALENT_CAN_INSTALL,
 						this.onTalentBtnClick.bind(this));
 
 					this.installBtn.node.active = false;
@@ -304,7 +304,7 @@ export class TalentView extends NetworkState {
 		//装备当前选中的天赋
 		if (this.getIfSlotInstalled(this._talentType)) {
 			// 此处需要切换
-			for (var i = Lobby.eTalentType.TALENT_B3; i <= Lobby.eTalentType.TALENT_C1; i++) {
+			for (var i = nLobby.eTalentType.TALENT_B3; i <= nLobby.eTalentType.TALENT_C1; i++) {
 				if (!this.getIfSlotInstalled(this._talentList[i - 1].talentType)) {
 
 					//切换到这个
@@ -351,49 +351,49 @@ export class TalentView extends NetworkState {
 		this.onUpdateSelectTalent();
 	}
 	public OnClickHightlightBtn(index : number) : void{
-		this._talentType =  (index + Lobby.eTalentType.TALENT_B3) as Lobby.eTalentType;
+		this._talentType =  (index + nLobby.eTalentType.TALENT_B3) as nLobby.eTalentType;
 		this.onUpdateSelectTalent();
 	}
 	public OnClickSwitchTalentBtn(event : any,left : string) : void{
 
 		if (left == "1") {
 			if (this._isBaseSelected) {
-				if (this._talentType == Lobby.eTalentType.TALENT_A1) {
+				if (this._talentType == nLobby.eTalentType.TALENT_A1) {
 					this.toLeftSwitchBtn.interactable = false;
 					this.toRightSwitchBtn.interactable = true;
 				} else {
-					this._talentType = (this._talentType - 1) as Lobby.eTalentType;
+					this._talentType = (this._talentType - 1) as nLobby.eTalentType;
 					this.toLeftSwitchBtn.interactable = true;
 					this.toRightSwitchBtn.interactable = true;
 				}
 			} else {
 				//
-				if (this._talentType == Lobby.eTalentType.TALENT_B3) {
+				if (this._talentType == nLobby.eTalentType.TALENT_B3) {
 					this.toLeftSwitchBtn.interactable = false;
 					this.toRightSwitchBtn.interactable = true;
 				} else {
-					this._talentType = (this._talentType - 1) as Lobby.eTalentType;
+					this._talentType = (this._talentType - 1) as nLobby.eTalentType;
 					this.toLeftSwitchBtn.interactable = true;
 					this.toRightSwitchBtn.interactable = true;
 				}
 			}
 		} else {
 			if (this._isBaseSelected) {
-				if (this._talentType == Lobby.eTalentType.TALENT_B2) {
+				if (this._talentType == nLobby.eTalentType.TALENT_B2) {
 					this.toLeftSwitchBtn.interactable = true;
 					this.toRightSwitchBtn.interactable = false;
 				} else {
-					this._talentType = (this._talentType + 1) as Lobby.eTalentType;
+					this._talentType = (this._talentType + 1) as nLobby.eTalentType;
 					this.toLeftSwitchBtn.interactable = true;
 					this.toRightSwitchBtn.interactable = true;
 				}
 			} else {
 				//
-				if (this._talentType == Lobby.eTalentType.TALENT_C1) {
+				if (this._talentType == nLobby.eTalentType.TALENT_C1) {
 					this.toLeftSwitchBtn.interactable = true;
 					this.toRightSwitchBtn.interactable = false;
 				} else {
-					this._talentType = (this._talentType + 1) as Lobby.eTalentType;
+					this._talentType = (this._talentType + 1) as nLobby.eTalentType;
 					this.toLeftSwitchBtn.interactable = true;
 					this.toRightSwitchBtn.interactable = true;
 				}
@@ -414,7 +414,7 @@ export class TalentView extends NetworkState {
 	//--------------------------以下网络数据更新界面------------------------------
     public onUpdateUserInfo() : void{
 		//假设这里传递了整个account信息，实际上没有必要，也可以另外定义，其他均为相同做法
-		let self : SelfData = Account.getSelfData();
+		let self : nAccount.SelfData = nAccount.Account.getSelfData();
 
 		// 刷新所有用户相关的信息
 		//比如金币显示，昵称，头像等等
@@ -431,12 +431,12 @@ export class TalentView extends NetworkState {
 
 		if (utfos.ret == ProtocolDefine.nLobby.nTalent.eOpenTalentslotResultType.OPEN_SUCCESS) {
 			//开槽成功
-			Account.setUserGold (utfos.gold);
-			Account.setUserDiamond (utfos.diamond);
+			nAccount.Account.setUserGold (utfos.gold);
+			nAccount.Account.setUserDiamond (utfos.diamond);
 
 			//开槽成功
 			let tst : ITalentSlot = this._talentSlotList[this._openSlotId];
-			tst.btnState = Lobby.eTalentSlotState.TALENT_CAN_INSTALL;
+			tst.btnState = nLobby.eTalentSlotState.TALENT_CAN_INSTALL;
 			this._talentSlotList[this._openSlotId] = tst;
 
 			this.saveTalentCfg(false);
@@ -445,11 +445,11 @@ export class TalentView extends NetworkState {
 			this.userDiamond.string = "" + utfos.diamond;
 			//utfos.currentTalentNum
 
-			this._talentItemList[this._openSlotId].updateTalentItem(Lobby.eTalentType.TALENT_NONE,
+			this._talentItemList[this._openSlotId].updateTalentItem(nLobby.eTalentType.TALENT_NONE,
 				this._openSlotId,
 				"",
 				"",
-				Lobby.eTalentSlotState.TALENT_CAN_INSTALL,
+				nLobby.eTalentSlotState.TALENT_CAN_INSTALL,
 				this.onTalentBtnClick.bind(this));
 
 			//此处失去选中焦点
@@ -488,11 +488,11 @@ export class TalentView extends NetworkState {
 		let totalCost : number = 0;
 		//基础天赋消耗
 		let rt : UITransform = this.baseTalentCostInfoRoot.getComponent(UITransform)!;
-		rt.setContentSize(rt.width,(Lobby.eTalentType.TALENT_B3 - Lobby.eTalentType.TALENT_A1 )*this.talentCostInteral);
+		rt.setContentSize(rt.width,(nLobby.eTalentType.TALENT_B3 - nLobby.eTalentType.TALENT_A1 )*this.talentCostInteral);
 
-		for(var i = Lobby.eTalentType.TALENT_A1;i <= Lobby.eTalentType.TALENT_B2;i++){
+		for(var i = nLobby.eTalentType.TALENT_A1;i <= nLobby.eTalentType.TALENT_B2;i++){
 			this._talentCostItemList.push(this.createTalentCostItem(this.baseTalentCostInfoRoot,
-				i as Lobby.eTalentType,
+				i as nLobby.eTalentType,
 				i-1,
 				this._talentList[i - 1].tname,
 				this._talentList[i - 1].cost));
@@ -501,11 +501,11 @@ export class TalentView extends NetworkState {
 
 		//高级天赋消耗
 		let rt2 : UITransform = this.highTalentCostInfoRoot.getComponent(UITransform)!;
-		rt2.setContentSize(rt.width,(Lobby.eTalentType.TALENT_C1 - Lobby.eTalentType.TALENT_B3 )*this.talentCostInteral);
+		rt2.setContentSize(rt.width,(nLobby.eTalentType.TALENT_C1 - nLobby.eTalentType.TALENT_B3 )*this.talentCostInteral);
 
 		let offset : number = 0;
 		for (i = 0; i < this._talentSlotList.length; i++) {
-			if (this._talentSlotList[i].btnState == Lobby.eTalentSlotState.TALENT_INSTALLED) {
+			if (this._talentSlotList[i].btnState == nLobby.eTalentSlotState.TALENT_INSTALLED) {
 				//
 				this._talentCostItemList.push(this.createTalentCostItem(this.highTalentCostInfoRoot,
 					this._talentSlotList[i].talentType,
@@ -539,8 +539,8 @@ export class TalentView extends NetworkState {
 		}
 		this._talentCostItemList = [];
 	}
-	public createTalentItem(type : Lobby.eTalentType,tid : number,tname : string,
-		des : string,btnState : Lobby.eTalentSlotState) :TalentItem{
+	public createTalentItem(type : nLobby.eTalentType,tid : number,tname : string,
+		des : string,btnState : nLobby.eTalentSlotState) :TalentItem{
 
 		let n : Node = instantiate(this.talentPrefab);
 		let talentItem : TalentItem = n.getComponent(TalentItem)!;
@@ -553,7 +553,7 @@ export class TalentView extends NetworkState {
 		return talentItem;
 	}
 
-	public createTalentCostItem(root : Node,type : Lobby.eTalentType,tid : number,
+	public createTalentCostItem(root : Node,type : nLobby.eTalentType,tid : number,
 		tname : string,cost : number) : TalentCostItem{
 
 		let n : Node = instantiate(this.talentCostPrefab);
@@ -566,15 +566,15 @@ export class TalentView extends NetworkState {
 	}
 	public hightlightSelect() : void{
 		if (this._isBaseSelected) {
-			this.currentAndTotal.string = "" + this._talentType + "/" + (Lobby.eTalentType.TALENT_B2 - Lobby.eTalentType.TALENT_A1 + 1);
+			this.currentAndTotal.string = "" + this._talentType + "/" + (nLobby.eTalentType.TALENT_B2 - nLobby.eTalentType.TALENT_A1 + 1);
 		} else {
-			this.currentAndTotal.string = "" + (this._talentType - Lobby.eTalentType.TALENT_B3 + 1) + "/" + (Lobby.eTalentType.TALENT_C1 - Lobby.eTalentType.TALENT_B3 + 1);
+			this.currentAndTotal.string = "" + (this._talentType - nLobby.eTalentType.TALENT_B3 + 1) + "/" + (nLobby.eTalentType.TALENT_C1 - nLobby.eTalentType.TALENT_B3 + 1);
 		}
 	}
-	public getIfSlotInstalled(ttp : Lobby.eTalentType) : boolean{
+	public getIfSlotInstalled(ttp : nLobby.eTalentType) : boolean{
 		for(var i = 0;i < this._talentSlotList.length;i++ ){
 			if(this._talentSlotList[i].talentType == ttp ){
-				if (this._talentSlotList[i].btnState == Lobby.eTalentSlotState.TALENT_INSTALLED) {
+				if (this._talentSlotList[i].btnState == nLobby.eTalentSlotState.TALENT_INSTALLED) {
 					return true;
 				}
 				return false;
@@ -587,20 +587,20 @@ export class TalentView extends NetworkState {
 		this.toLeftSwitchBtn.interactable = true;
 		this.toRightSwitchBtn.interactable = true;
 
-		if (this._talentType == Lobby.eTalentType.TALENT_A1) {
+		if (this._talentType == nLobby.eTalentType.TALENT_A1) {
 			this.toLeftSwitchBtn.interactable = false;
-		} else if (this._talentType == Lobby.eTalentType.TALENT_B3) {
+		} else if (this._talentType == nLobby.eTalentType.TALENT_B3) {
 			this.toLeftSwitchBtn.interactable = false;
-		} else if (this._talentType == Lobby.eTalentType.TALENT_B2) {
+		} else if (this._talentType == nLobby.eTalentType.TALENT_B2) {
 			this.toRightSwitchBtn.interactable = false;
-		} else if (this._talentType == Lobby.eTalentType.TALENT_C1) {
+		} else if (this._talentType == nLobby.eTalentType.TALENT_C1) {
 			this.toRightSwitchBtn.interactable = false;
 		}
 	}
 	public checkTalentSlotNum(num : number){
 		let cnt : number = 0;
 		for(var i = 0;i< this._talentSlotList.length;i++){
-			if(this._talentSlotList[i].btnState != Lobby.eTalentSlotState.TALENT_LOCK){
+			if(this._talentSlotList[i].btnState != nLobby.eTalentSlotState.TALENT_LOCK){
 				cnt++;
 			}
 		}
@@ -618,34 +618,34 @@ export class TalentView extends NetworkState {
 
 		//简单处理，全部重置，需要重新配置
 		this._talentSlotList = [];
-		for (i = Lobby.eTalentType.TALENT_B3; i <= Lobby.eTalentType.TALENT_C1; i++) {
-			let btnState = Lobby.eTalentSlotState.TALENT_LOCK;
+		for (i = nLobby.eTalentType.TALENT_B3; i <= nLobby.eTalentType.TALENT_C1; i++) {
+			let btnState = nLobby.eTalentSlotState.TALENT_LOCK;
 			if (cnt > 0) {
-				btnState = Lobby.eTalentSlotState.TALENT_CAN_INSTALL;
+				btnState = nLobby.eTalentSlotState.TALENT_CAN_INSTALL;
 				cnt--;
 			} else {
-				btnState = Lobby.eTalentSlotState.TALENT_LOCK;
+				btnState = nLobby.eTalentSlotState.TALENT_LOCK;
 			}
 
 			let ts : ITalentSlot = {
-				talentType : Lobby.eTalentType.TALENT_NONE,
-				tid : i - Lobby.eTalentType.TALENT_B3,
+				talentType : nLobby.eTalentType.TALENT_NONE,
+				tid : i - nLobby.eTalentType.TALENT_B3,
 				btnState : btnState
 			};
 			this._talentSlotList.push(ts);
 		}
 	}
-	public onTalentBtnClick(btnState : Lobby.eTalentSlotState,tid : number) : void{
+	public onTalentBtnClick(btnState : nLobby.eTalentSlotState,tid : number) : void{
 		switch(btnState){
-			case Lobby.eTalentSlotState.TALENT_LOCK:
+			case nLobby.eTalentSlotState.TALENT_LOCK:
 				this.OnClickTalentLockBtn(tid);
 				break;
 	
-			case Lobby.eTalentSlotState.TALENT_CAN_INSTALL:
+			case nLobby.eTalentSlotState.TALENT_CAN_INSTALL:
 				this.OnClickTalentCanInstallBtn(tid);
 				break;
 	
-			case Lobby.eTalentSlotState.TALENT_INSTALLED:
+			case nLobby.eTalentSlotState.TALENT_INSTALLED:
 				this.OnClickTalentHasInstallBtn(tid);
 				break;
 		}
@@ -664,10 +664,10 @@ export class TalentView extends NetworkState {
 	}
 	private initTalentConfig(talentJsonCfg : any){
 		this._talentList = [];
-		for(var i = Lobby.eTalentType.TALENT_A1;i <= Lobby.eTalentType.TALENT_C1;i++){
+		for(var i = nLobby.eTalentType.TALENT_A1;i <= nLobby.eTalentType.TALENT_C1;i++){
 			if(talentJsonCfg[""+i] != undefined && talentJsonCfg[""+i] != null){	
 				let td : ITalentData = {
-					talentType : i as Lobby.eTalentType,
+					talentType : i as nLobby.eTalentType,
 					cost : Number(talentJsonCfg[""+i]['cost']),
 					des : talentJsonCfg[""+i]['des'],
 					tname : talentJsonCfg[""+i]['name']
@@ -678,11 +678,11 @@ export class TalentView extends NetworkState {
 		
 		//加载配置信息
 		this._talentSlotList = [];
-		for (var i = Lobby.eTalentType.TALENT_B3; i <= Lobby.eTalentType.TALENT_C1; i++) {
+		for (var i = nLobby.eTalentType.TALENT_B3; i <= nLobby.eTalentType.TALENT_C1; i++) {
 			let ts : ITalentSlot = {
-				talentType : Lobby.eTalentType.TALENT_NONE,
-				tid : i - Lobby.eTalentType.TALENT_B3,
-				btnState : Lobby.eTalentSlotState.TALENT_LOCK
+				talentType : nLobby.eTalentType.TALENT_NONE,
+				tid : i - nLobby.eTalentType.TALENT_B3,
+				btnState : nLobby.eTalentSlotState.TALENT_LOCK
 			};
 			this._talentSlotList.push(ts);
 		}
@@ -695,8 +695,8 @@ export class TalentView extends NetworkState {
 				for(i = 0;i < this._talentSlotList.length;i++){
 					if (this._talentSlotList[i].tid == Number(data[1])) {
 						let tst : ITalentSlot = this._talentSlotList[i];
-						tst.talentType = Number(data[0]) as Lobby.eTalentType;
-						tst.btnState = Number(data[2]) as Lobby.eTalentSlotState;
+						tst.talentType = Number(data[0]) as nLobby.eTalentType;
+						tst.btnState = Number(data[2]) as nLobby.eTalentSlotState;
 						this._talentSlotList[i] = tst;
 					}
 				}
@@ -719,14 +719,14 @@ export class TalentView extends NetworkState {
 		Utils.setPlayerPrefs(CommonDefine.CONST.TALENT_SLOT_STATE,cfg);
 
 		if (sholudRefreshUserTalent) {
-			let tl : Array<Lobby.eTalentType> = [];
+			let tl : Array<nLobby.eTalentType> = [];
 
 			for (var i = 0; i < this._talentSlotList.length; i++) {
-				if (this._talentSlotList[i].btnState == Lobby.eTalentSlotState.TALENT_INSTALLED) {
+				if (this._talentSlotList[i].btnState == nLobby.eTalentSlotState.TALENT_INSTALLED) {
 					tl.push(this._talentSlotList[i].talentType);
 				}
 			}
-			Account.updateUserTalent (tl);
+			nAccount.Account.updateUserTalent (tl);
 		}
 	}
 }

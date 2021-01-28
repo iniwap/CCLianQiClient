@@ -4,7 +4,7 @@ import { nRule } from "../GameLogic/Rule";
 import { GameChess } from "../View/Game/GameChess";
 
 export namespace nGame{
-	export class GameData{
+	export class Game{
 		public static firstHandSeat : number = 255; //先手玩家
 		public static currentTurn : number = 255;
 		public static chessBoard : nLianQiLogic.ChessBoard | null = null;// 棋盘数据

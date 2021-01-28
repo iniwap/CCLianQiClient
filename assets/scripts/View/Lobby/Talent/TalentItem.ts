@@ -5,9 +5,9 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Component, Node, Button, resources, SpriteFrame, Sprite } from 'cc';
+import { _decorator, Component, Button, resources, SpriteFrame, Sprite } from 'cc';
 import { CommonDefine } from '../../../Define/CommonDefine';
-import { Lobby } from '../../../Model/Lobby';
+import { nLobby } from '../../../Model/Lobby';
 const { ccclass, property } = _decorator;
 
 @ccclass('TalentItem')
@@ -19,13 +19,13 @@ export class TalentItem extends Component {
     @property(Button)
 	public talentHasInstalledBtn! : Button;
 
-	private _btnState : Lobby.eTalentSlotState = Lobby.eTalentSlotState.TALENT_LOCK;
-	private _talent : Lobby.eTalentType = Lobby.eTalentType.TALENT_NONE;
+	private _btnState : nLobby.eTalentSlotState = nLobby.eTalentSlotState.TALENT_LOCK;
+	private _talent : nLobby.eTalentType = nLobby.eTalentType.TALENT_NONE;
 	private _tid : number = 0;
 	private _tname : string = '';
     private _des : string = '';
     
-    private _ClickTalentBtn! : (btnState :Lobby.eTalentSlotState,tid : number)=> void;
+    private _ClickTalentBtn! : (btnState : nLobby.eTalentSlotState,tid : number)=> void;
 
     start () {
         // Your initialization goes here.
@@ -35,9 +35,9 @@ export class TalentItem extends Component {
     //     // Your update function goes here.
     // }
 
-    public updateTalentItem(type : Lobby.eTalentType,tid : number,tname : string,
-        des : string,btnState : Lobby.eTalentSlotState,
-        tcb : (btnState :Lobby.eTalentSlotState,tid : number)=> void){
+    public updateTalentItem(type : nLobby.eTalentType,tid : number,tname : string,
+        des : string,btnState : nLobby.eTalentSlotState,
+        tcb : (btnState : nLobby.eTalentSlotState,tid : number)=> void){
 
 		this._talent = type;
 		this._tid = tid;
@@ -47,12 +47,12 @@ export class TalentItem extends Component {
 	
 		this.updateBtnState(btnState);
     }
-    public updateBtnState(btnState : Lobby.eTalentSlotState) : void{
+    public updateBtnState(btnState : nLobby.eTalentSlotState) : void{
 
 		this._btnState = btnState;
 
 		switch (btnState) {
-		case Lobby.eTalentSlotState.TALENT_LOCK:
+		case nLobby.eTalentSlotState.TALENT_LOCK:
 			this.talentLockBtn.node.active = true;
 			this.talentCanInstallBtn.node.active = false;
             this.talentHasInstalledBtn.node.active = false;
@@ -61,7 +61,7 @@ export class TalentItem extends Component {
                 //spriteFrame.addRef();
             });
 			break;
-		case Lobby.eTalentSlotState.TALENT_CAN_INSTALL:
+		case nLobby.eTalentSlotState.TALENT_CAN_INSTALL:
 			this.talentLockBtn.node.active =  false;
 			this.talentCanInstallBtn.node.active = true;
             this.talentHasInstalledBtn.node.active = false;
@@ -70,7 +70,7 @@ export class TalentItem extends Component {
                 //spriteFrame.addRef();
             });
 			break;
-		case Lobby.eTalentSlotState.TALENT_INSTALLED:
+		case nLobby.eTalentSlotState.TALENT_INSTALLED:
 			this.talentLockBtn.node.active = false;
 			this.talentCanInstallBtn.node.active = false;
 			this.talentHasInstalledBtn.node.active = true;
@@ -89,7 +89,7 @@ export class TalentItem extends Component {
         this._ClickTalentBtn(this._btnState,this._tid);
     }
 
-    public getTalentType() : Lobby.eTalentType{
+    public getTalentType() : nLobby.eTalentType{
         return this._talent;
     }
 
@@ -105,7 +105,7 @@ export class TalentItem extends Component {
         return this._tid;
     }
 
-    public getTalentBtnState() : Lobby.eTalentSlotState{
+    public getTalentBtnState() : nLobby.eTalentSlotState{
         return this._btnState;
     }
 }

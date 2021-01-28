@@ -6,7 +6,7 @@
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
 import { _decorator, Component, RichText } from 'cc';
-import { Lobby } from '../Model/Lobby';
+import { nLobby } from '../Model/Lobby';
 const { ccclass, property } = _decorator;
 
 @ccclass('Lamp')
@@ -22,7 +22,7 @@ export class Lamp extends Component {
 
 	_speed : number = 2;
 	_currentLamp : number = 0;
-	_lampStrList : Array<Lobby.SysBroadCast> = [];
+	_lampStrList : Array<nLobby.SysBroadCast> = [];
 	_timeCnt : number = 0;
     _currentPlayCnt : number = 0;
     
@@ -65,7 +65,7 @@ export class Lamp extends Component {
 		}
     }
 
-	public addLamp(lamp : Lobby.SysBroadCast) : void{
+	public addLamp(lamp : nLobby.SysBroadCast) : void{
 		this._lampStrList.push(lamp);
 	}
 

@@ -1,15 +1,10 @@
 
-import { director } from "cc";
 import { eDialogEventType, IDialog } from "../Common/Dialog";
-import { CommonDefine } from "../Define/CommonDefine";
 import { ProtocolDefine } from "../Define/ProtocolDefine";
 import { CommonEvent } from "../Event/CommonEvent";
 import { GameEvent } from "../Event/GameEvent";
-import { LobbyEvent } from "../Event/LobbyEvent";
-import { RoomEvent } from "../Event/RoomEvent";
-import { Account, SelfData } from "../Model/Account";
+import { nAccount } from "../Model/Account";
 import { nGame } from "../Model/Game";
-import { Lobby } from "../Model/Lobby";
 import { nRoom } from "../Model/Room";
 import { ProtocolManager } from "../ProtocolManager/ProtocolManager";
 import { Utils } from "../Utils/Utils";
@@ -99,7 +94,7 @@ export class GameController{
 			return;
 		}
 
-		if(nRoom.RoomData.getHasAbandon()){
+		if(nRoom.Room.getHasAbandon()){
 			//已经投降了，不能操作
 			this.showDialog ("您已经投降过了～");
 			return;
@@ -107,7 +102,7 @@ export class GameController{
         
 		let rplay : ProtocolDefine.nGame.nLianQi.msgLianQiReqPlay = {
             direction : play.direction,
-            seat : nRoom.RoomData.selfSeat,
+            seat : nRoom.Room.selfSeat,
             x : play.x,
             y : play.y
         };
@@ -123,13 +118,13 @@ export class GameController{
 			return;
 		}
 
-		if(nRoom.RoomData.getHasAbandon()){
+		if(nRoom.Room.getHasAbandon()){
 			//已经投降了，不能操作
 			return;
 		}
 
         let rmove : ProtocolDefine.nGame.nLianQi.msgLianQiReqMove = {
-            seat : nRoom.RoomData.selfSeat,
+            seat : nRoom.Room.selfSeat,
             moveList : move.moveList
         };
 
@@ -142,13 +137,13 @@ export class GameController{
 			this.showDialog ("当前不是您的回合阶段哟～");
 			return;
 		}
-		if(nRoom.RoomData.getHasAbandon()){
+		if(nRoom.Room.getHasAbandon()){
 			//已经投降了，不能操作
 			return;
 		}
 
         let rpass : ProtocolDefine.nGame.nLianQi.msgLianQiReqPass = {
-            seat : nRoom.RoomData.selfSeat
+            seat : nRoom.Room.selfSeat
         };
 
         ProtocolManager.getInstance().SendMsg(ProtocolDefine.GameLianQiProtocol.P_GAME_LIANQI_REQ_PASS,
@@ -161,13 +156,13 @@ export class GameController{
 			return;
 		}
 
-		if(nRoom.RoomData.getHasAbandon()){
+		if(nRoom.Room.getHasAbandon()){
 			//已经投降了，不能操作
 			return;
 		}
 
         let msg : ProtocolDefine.nGame.nLianQi.msgLianQiReqAbandon = {
-            seat : nRoom.RoomData.selfSeat
+            seat : nRoom.Room.selfSeat
         };
 
         ProtocolManager.getInstance().SendMsg(ProtocolDefine.GameLianQiProtocol.P_GAME_LIANQI_REQ_ABANDON,
@@ -180,13 +175,13 @@ export class GameController{
 			return;
 		}
 
-		if(nRoom.RoomData.getHasAbandon()){
+		if(nRoom.Room.getHasAbandon()){
 			//已经投降了，不能操作
 			return;
 		}
 
         let msg : ProtocolDefine.nGame.nLianQi.msgLianQiReqDraw = {
-            seat : nRoom.RoomData.selfSeat
+            seat : nRoom.Room.selfSeat
         };
 
         ProtocolManager.getInstance().SendMsg(ProtocolDefine.GameLianQiProtocol.P_GAME_LIANQI_REQ_DRAW,
@@ -211,7 +206,7 @@ export class GameController{
 		//联棋游戏开始 -播放相关动画
 		let resp : ProtocolDefine.nGame.nLianQi.msgLianQiStart = msg;
 		if (resp.flag == 0) {
-            nGame.GameData.firstHandSeat = resp.firstHandSeat;
+            nGame.Game.firstHandSeat = resp.firstHandSeat;
             
             // 通知界面，因为要切换，这里似乎没有意义
             Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_GAME_START],resp.firstHandSeat);
@@ -246,14 +241,14 @@ export class GameController{
 		if (resp.type == ProtocolDefine.nGame.nLianQi.eReqRespType.REQ) {
 			//别的玩家请求和棋，向大家显示请求和棋的提示
             Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_DRAW],
-                nRoom.RoomData.getLocalBySeat(resp.seat),
-                nRoom.RoomData.getPlayerNameBySeat(resp.seat));
+                nRoom.Room.getLocalBySeat(resp.seat),
+                nRoom.Room.getPlayerNameBySeat(resp.seat));
 
 		}else if(resp.type == ProtocolDefine.nGame.nLianQi.eReqRespType.REQ_RESP){
 			//收到别人是否同意的和棋
             Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_DRAW_RESULT],
-                nRoom.RoomData.getLocalBySeat(resp.seat),
-                nRoom.RoomData.getPlayerNameBySeat(resp.seat));
+                nRoom.Room.getLocalBySeat(resp.seat),
+                nRoom.Room.getPlayerNameBySeat(resp.seat));
 
 		}else if(resp.type == ProtocolDefine.nGame.nLianQi.eReqRespType.RESP){
 			// 自己请求或者响应请求的 响应，无需处理
@@ -263,9 +258,9 @@ export class GameController{
 		//请求过
 		let resp : ProtocolDefine.nGame.nLianQi.msgLianQiRespPass = msg;
 		if (resp.flag == 0) {
-			nGame.GameData.currentTurn = resp.turn;
+			nGame.Game.currentTurn = resp.turn;
             Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_PASS],
-                nRoom.RoomData.getLocalBySeat(resp.turn));
+                nRoom.Room.getLocalBySeat(resp.turn));
 
 		} else {
             Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.ACTION_FAIL],GameEvent.EVENT.PASS);
@@ -293,7 +288,7 @@ export class GameController{
         chessList.push(chees);
 		let pm : GameEvent.IPlayOrMove = {
             isMove : false,
-            local : nRoom.RoomData.getLocalBySeat(resp.seat),
+            local : nRoom.Room.getLocalBySeat(resp.seat),
             chessList : chessList
         }
 
@@ -312,7 +307,7 @@ export class GameController{
 
 		let pm : GameEvent.IPlayOrMove = {
             isMove : true,
-            local : nRoom.RoomData.getLocalBySeat(resp.seat),
+            local : nRoom.Room.getLocalBySeat(resp.seat),
             chessList : resp.moveList
         }
 
@@ -325,7 +320,7 @@ export class GameController{
 
         let gameResult : Array<GameEvent.IGameResult> = [];
 		for (var i = 0; i < resp.result.length; i++) {
-			let player : nRoom.Player | null = nRoom.RoomData.getPlayerBySeat(resp.result[i].seat);
+			let player : nRoom.Player | null = nRoom.Room.getPlayerBySeat(resp.result[i].seat);
 
 			if (player == null)
 				//error
@@ -345,16 +340,16 @@ export class GameController{
 			gameResult.push(gr);
 
 			//暂时在此处进行修改用户金币信息，后续新增更新用户基本信息消息
-			if (gr.seat == nRoom.RoomData.selfSeat) {
-				Account.updateUserGold( gr.score - nRoom.RoomData.baseScore * resp.result[i].multi);
+			if (gr.seat == nRoom.Room.selfSeat) {
+				nAccount.Account.updateUserGold( gr.score - nRoom.Room.baseScore * resp.result[i].multi);
 			}
         }
         
 		//游戏结果，较为复杂，待实现
 		let result : GameEvent.IShowGameResult = {
-            roomType : nRoom.RoomData.roomType,
-            level : nRoom.RoomData.roomLevel,
-            baseScore : nRoom.RoomData.baseScore,
+            roomType : nRoom.Room.roomType,
+            level : nRoom.Room.roomLevel,
+            baseScore : nRoom.Room.baseScore,
             poolGold : resp.poolGold,
             gameResult : gameResult
         };
@@ -365,7 +360,7 @@ export class GameController{
 		//该谁落子
 		let resp : ProtocolDefine.nGame.nLianQi.msgLianQiTurn = msg;
 
-		nGame.GameData.currentTurn = resp.seat;
+		nGame.Game.currentTurn = resp.seat;
 
         let banDirList : Array<number> = [];
 		for (var i = 0; i < resp.lmt.length; i++) {
@@ -376,7 +371,7 @@ export class GameController{
             isPassTurn : resp.isPassTurn,
             isTimeOut : resp.isTimeOut,
             round : resp.round,
-            local : nRoom.RoomData.getLocalBySeat (resp.seat),
+            local : nRoom.Room.getLocalBySeat (resp.seat),
             banDirList : banDirList
         }
 
@@ -386,16 +381,16 @@ export class GameController{
 		let resp : ProtocolDefine.nGame.nLianQi.msgLianQiAbandonPass = msg;
 
         Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_ABANDON_PASS],
-            nRoom.RoomData.getLocalBySeat(resp.seat));
+            nRoom.Room.getLocalBySeat(resp.seat));
 	}
 	public OnLQAbandon(msg : any) : void{
 		let resp : ProtocolDefine.nGame.nLianQi.msgLianQiRespAbandon = msg;
-		if (resp.seat != nRoom.RoomData.selfSeat) {
+		if (resp.seat != nRoom.Room.selfSeat) {
             Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_ABANDON],
-                nRoom.RoomData.getLocalBySeat(resp.seat));
+                nRoom.Room.getLocalBySeat(resp.seat));
 		} else {
 			//自己投降的响应
-			nRoom.RoomData.setHasAbandon();
+			nRoom.Room.setHasAbandon();
         }
     }
 
@@ -416,6 +411,6 @@ export class GameController{
 		Utils.getGlobalController()?.Emit(CommonEvent.EVENT[CommonEvent.EVENT.SHOW_DIALOG],dlg);
     }
     private checkSelfTurn() : boolean{
-		return nGame.GameData.currentTurn == nRoom.RoomData.selfSeat;
+		return nGame.Game.currentTurn == nRoom.Room.selfSeat;
     }
 }

@@ -1,6 +1,6 @@
 import { ProtocolDefine } from "../Define/ProtocolDefine";
 
-export namespace Lobby{
+export namespace nLobby{
     //以下定义大多与协议内容一样，但是这里是界面使用，是处理过的数据，恰好一样，并非重复定义
     export enum ePlazaLevelType{
 		PLAZA_LEVEL_LOW = 1,
@@ -167,7 +167,7 @@ export namespace Lobby{
       TALENT_INSTALLED,
     };
     
-    export class LobbyData {
+    export class Lobby {
         public static plazaList : Array<Plaza>;
 
         public static storeList : Array<Store>;
@@ -181,28 +181,28 @@ export namespace Lobby{
         public static luckDrawData : LuckDrawData;
     
         public static getPlazaById(plazaID : number) : Plaza | null{
-            for (var i = 0; i < LobbyData.plazaList.length; i++) {
-                if (LobbyData.plazaList[i].plazaid == plazaID) {
-                    return LobbyData.plazaList[i];
+            for (var i = 0; i < Lobby.plazaList.length; i++) {
+                if (Lobby.plazaList[i].plazaid == plazaID) {
+                    return Lobby.plazaList[i];
                 }
             }
             return null;
         }
         
 		public static initData() : void {
-            LobbyData.plazaList = [];
-            LobbyData.storeList = [];
-            LobbyData.propList = [];
-            LobbyData.packageList = [];
-            LobbyData.privateMsgList = [];
-            LobbyData.friendList = [];
-            LobbyData.rankList = [];
-            LobbyData.signInData = {		
+            Lobby.plazaList = [];
+            Lobby.storeList = [];
+            Lobby.propList = [];
+            Lobby.packageList = [];
+            Lobby.privateMsgList = [];
+            Lobby.friendList = [];
+            Lobby.rankList = [];
+            Lobby.signInData = {		
                 hasSigned : false,
                 currentSignDay : 0,
                 signInList : []
             };
-            LobbyData.luckDrawData = {
+            Lobby.luckDrawData = {
                 hasDrawed : false,
                 luckDrawList : []
             };

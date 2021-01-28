@@ -1,4 +1,4 @@
-import { sys,find as CCFind, Vec2 } from "cc";
+import { sys,find as CCFind } from "cc";
 import { ProtocolDefine } from "../Define/ProtocolDefine";
 import { GlobalController } from "./GlobalController";
 

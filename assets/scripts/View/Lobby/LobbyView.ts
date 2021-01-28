@@ -6,14 +6,14 @@
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
 import { _decorator, Sprite, Label, Button, resources  as Res, SpriteFrame, assetManager, ImageAsset} from 'cc';
-import { Account,SelfData} from '../../Model/Account';
+import { nAccount } from '../../Model/Account';
 import { EmailView } from './Email/EmailView';
 import { FeedbackView } from './FeedbackView';
 import { RankView } from './Rank/RankView';
 import { SettingView } from './SettingView';
 import { ProtocolDefine } from '../../Define/ProtocolDefine';
 import { Utils } from '../../Utils/Utils';
-import { Lobby } from '../../Model/Lobby';
+import { nLobby } from '../../Model/Lobby';
 import { LobbyEvent } from '../../Event/LobbyEvent';
 import { Lamp } from '../../Common/Lamp';
 import { RoomEvent } from '../../Event/RoomEvent';
@@ -134,7 +134,7 @@ export class LobbyView extends NetworkState {
 			this.OnShowHasUnReadEmailMark.bind(this),this);
 
 		Utils.getGlobalController()?.On(LobbyEvent.EVENT[LobbyEvent.EVENT.RECEIVE_ALL_LOBBY_DATA],
-			this.OnReceiveAllLobbyData.bind(this),this);
+			this.OnReceiveAllLobby.bind(this),this);
 	}
 	private removeAllEvent() : void{
 		Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.UPDATE_SYSMSG],
@@ -150,7 +150,7 @@ export class LobbyView extends NetworkState {
 			this.OnShowHasUnReadEmailMark.bind(this),this);
 
 			Utils.getGlobalController()?.Off(LobbyEvent.EVENT[LobbyEvent.EVENT.RECEIVE_ALL_LOBBY_DATA],
-				this.OnReceiveAllLobbyData.bind(this),this);
+				this.OnReceiveAllLobby.bind(this),this);
 	}
 	//#endregion
 
@@ -163,7 +163,7 @@ export class LobbyView extends NetworkState {
 		//刷新ui，主要用于
 	}
 	public OnUpdateUserInfo() : void{
-		let self : SelfData = Account.getSelfData();
+		let self : nAccount.SelfData = nAccount.Account.getSelfData();
 		// 刷新所有用户相关的信息
 		//比如金币显示，昵称，头像等等
 		//设置头像
@@ -205,8 +205,8 @@ export class LobbyView extends NetworkState {
 		this.UserDiamond.string = self.diamond.toString();
 	}
 
-	public OnReceiveAllLobbyData() : void{
-		if (Account.inRoomId == 0) {
+	public OnReceiveAllLobby() : void{
+		if (nAccount.Account.inRoomId == 0) {
 			//这里假设这是最后一条收到，可以隐藏loading
 			this.showLoading(false);
 		} else {
@@ -216,7 +216,7 @@ export class LobbyView extends NetworkState {
 				gridLevel : 0,
 				plazaID : 0,
 				pwd : "",
-				roomId : Account.inRoomId,
+				roomId : nAccount.Account.inRoomId,
 				tagId : -1,
 				plazaName : ""
 			}
@@ -227,14 +227,14 @@ export class LobbyView extends NetworkState {
 
 	@property(Lamp)
 	public SysLamp! : Lamp;
-	public OnUpdateSysMsg(sysMsgList : Array<Lobby.SysMsg>) : void{		
+	public OnUpdateSysMsg(sysMsgList : Array<nLobby.SysMsg>) : void{		
 		if (sysMsgList.length == 0) {
 			this.SysLamp.node.active = false;
 		} else {
 			this.SysLamp.node.active = true;
 			this.SysLamp.resetLamp ();
 			for (var i = 0; i < sysMsgList.length; i++) {
-				let lamp : Lobby.SysBroadCast = JSON.parse(sysMsgList[i].content);
+				let lamp : nLobby.SysBroadCast = JSON.parse(sysMsgList[i].content);
 				this.SysLamp.addLamp (lamp);//这里原则上也可以实现内容携带其他信息，诸如图标
 
 				this.SysLamp.showLampById(0);
@@ -248,7 +248,7 @@ export class LobbyView extends NetworkState {
 	private OnShowSysMsg(content : string) : void{
 		this.SysLamp.node.active = true;
 
-		let lamp : Lobby.SysBroadCast = JSON.parse(content);
+		let lamp : nLobby.SysBroadCast = JSON.parse(content);
 		this.SysLamp.addLamp (lamp);//这里原则上也可以实现内容携带其他信息，诸如图标
 
 		this.SysLamp.showLampById (this.SysLamp.getTotal() - 1);

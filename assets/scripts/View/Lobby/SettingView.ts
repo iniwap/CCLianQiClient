@@ -7,7 +7,6 @@
 
 import { _decorator, Component, Node, Sprite, Label} from 'cc';
 import { CommonDefine } from '../../Define/CommonDefine';
-import { LobbyEvent } from '../../Event/LobbyEvent';
 import { Utils } from '../../Utils/Utils';
 const { ccclass, property } = _decorator;
 

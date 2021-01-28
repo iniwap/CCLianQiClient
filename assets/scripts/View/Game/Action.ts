@@ -5,14 +5,13 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Component, Node, Label, Button, SpriteFrame, resources, Sprite, Game, math, tween, Vec3, Vec2 } from 'cc';
+import { _decorator, Component, Node, Label, Button, SpriteFrame, resources, Sprite, math, tween, Vec3 } from 'cc';
 import { nRoom } from '../../Model/Room';
 import { GameEvent } from '../../Event/GameEvent';
 import { RoomEvent } from '../../Event/RoomEvent';
 import { Utils } from '../../Utils/Utils';
 import { CommonDefine } from '../../Define/CommonDefine';
 import { LianQi } from './LianQi';
-import { nGame } from '../../Model/Game';
 import { ProtocolDefine } from '../../Define/ProtocolDefine';
 const { ccclass, property } = _decorator;
 
@@ -106,7 +105,7 @@ export class Action extends Component {
 
 	//----------------------------界面事件发出----------------------------
     public  OnStepBtn(event : any) : void{
-		if(nRoom.RoomData.getHasAbandon()){
+		if(nRoom.Room.getHasAbandon()){
 			//已经投降了，不能操作，原则上这个按钮不应该可以点击
 			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
 				{show : true,autoHide : true,content : "你已经投降了，不能执行该操作。"});
@@ -189,7 +188,7 @@ export class Action extends Component {
 			dir.getChildByName("DirSelected")!.active = false;
 			dir.getChildByName("Dir")!.active = false;//用来展示当前切换到到方向
 			dir.getChildByName("BanDir")!.active = true;//用来展示禁用-未禁用
-			resources.load(CommonDefine.ResPath.LQ_DIRECTION_DIRECT + nRoom.RoomData.getSeatByLocal(nRoom.RoomData.selfSeat) + "/spriteFrame",
+			resources.load(CommonDefine.ResPath.LQ_DIRECTION_DIRECT + nRoom.Room.getSeatByLocal(nRoom.Room.selfSeat) + "/spriteFrame",
 			SpriteFrame, (err, spriteFrame) => {
 				dir.getChildByName("Dir")!.getComponent(Sprite)!.spriteFrame = spriteFrame!;
 				//spriteFrame.addRef();
@@ -297,7 +296,7 @@ export class Action extends Component {
 
 	public onUpdateFirstHandSeat(seat : number) : void{
 		//开局所有方向可用
-		let firstHand : number = nRoom.RoomData.getLocalBySeat(seat);
+		let firstHand : number = nRoom.Room.getLocalBySeat(seat);
 		this._banDirs = [];
 		for (var i = 0; i < 6; i++) {
 			this.banDir(false,i);
@@ -370,7 +369,7 @@ export class Action extends Component {
 			}
 		}
 
-		let seat : number = nRoom.RoomData.getSeatByLocal(st.local);
+		let seat : number = nRoom.Room.getSeatByLocal(st.local);
         //设置按钮图为对应的出手方
         resources.load(CommonDefine.ResPath.LQ_PASS_BTN + seat + "/spriteFrame",
             SpriteFrame, (err, spriteFrame) => {
@@ -411,12 +410,12 @@ export class Action extends Component {
     }
     private updateDirs(changeTurn : boolean) : void{
 		if(changeTurn){
-			resources.load(CommonDefine.ResPath.LQ_DIRECTION_INFOBG + nRoom.RoomData.selfSeat + "/spriteFrame",
+			resources.load(CommonDefine.ResPath.LQ_DIRECTION_INFOBG + nRoom.Room.selfSeat + "/spriteFrame",
 				SpriteFrame, (err, spriteFrame) => {
 					this.seatBG.spriteFrame = spriteFrame!;
 					//spriteFrame.addRef();
 			});
-			resources.load(CommonDefine.ResPath.CHESS + nRoom.RoomData.selfSeat + "/spriteFrame",
+			resources.load(CommonDefine.ResPath.CHESS + nRoom.Room.selfSeat + "/spriteFrame",
 				SpriteFrame, (err, spriteFrame) => {
 					this.qiZi.spriteFrame = spriteFrame!;
 					//spriteFrame.addRef();

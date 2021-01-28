@@ -12137,7 +12137,7 @@
       "y": 0,
       "z": 0
     },
-    "_id": "780ShSMQNMgYPP20SKkDRm"
+    "_id": "b7rnGRjNdFipwnfPtd1d1M"
   },
   {
     "__type__": "cc.UITransform",
@@ -12159,7 +12159,7 @@
       "x": 0,
       "y": 0
     },
-    "_id": "03yLy6WtRMR7ZpF6zBW7sb"
+    "_id": "a3b69UFJJAKLEy1uaIYYW7"
   },
   {
     "__type__": "cc.Label",
@@ -12197,7 +12197,7 @@
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
-    "_id": "dbKl5ExNlL8rqo1bVnrY6r"
+    "_id": "ee5QpAaOJL7KxRueMq6mSi"
   },
   {
     "__type__": "cc.UITransform",

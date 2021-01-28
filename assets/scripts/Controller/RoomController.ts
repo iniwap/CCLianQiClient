@@ -9,8 +9,8 @@ import { ProtocolDefine } from "../Define/ProtocolDefine";
 import { CommonEvent } from "../Event/CommonEvent";
 import { LobbyEvent } from "../Event/LobbyEvent";
 import { RoomEvent } from "../Event/RoomEvent";
-import { Account, SelfData } from "../Model/Account";
-import { Lobby } from "../Model/Lobby";
+import { nAccount } from "../Model/Account";
+import { nLobby } from "../Model/Lobby";
 import { nRoom } from "../Model/Room";
 import { ProtocolManager } from "../ProtocolManager/ProtocolManager";
 import { Utils } from "../Utils/Utils";
@@ -113,17 +113,17 @@ export class RoomController{
         Utils.getGlobalController()?.Emit(CommonEvent.EVENT[CommonEvent.EVENT.SHOW_LOADING],show);
     }
 	//------------------------界面消息事件-----------------------------
-	public onEventCreateRoom(roomData : RoomEvent.IReqCreateRoom) : void{
+	public onEventCreateRoom(Room : RoomEvent.IReqCreateRoom) : void{
 		
 		let cr : ProtocolDefine.nRoom.msgReqCreateRoom = {
 			game :  ProtocolDefine.GameType.GAME_LIANQI,
-			roomType : roomData.roomType,
-			baseScore : roomData.baseScore,
-			minScore : roomData.minScore,
-			maxScore : roomData.maxScore,
-			roomName : Account.getSelfData().name,
-			roomPassword : roomData.roomPassword,
-			rule : roomData.rule
+			roomType : Room.roomType,
+			baseScore : Room.baseScore,
+			minScore : Room.minScore,
+			maxScore : Room.maxScore,
+			roomName : nAccount.Account.getSelfData().name,
+			roomPassword : Room.roomPassword,
+			rule : Room.rule
 		};
 
 		ProtocolManager.getInstance().SendMsg(ProtocolDefine.GameProtocol.P_GAME_REQ_CREATEROOM,
@@ -146,19 +146,19 @@ export class RoomController{
 		//如果plazaid和roomid同时为0 则认为是经典快速开始模式
 		if(data.plazaID == 0 && data.roomId == 0){
 			//需要从plazalist查找plazaid
-			for (var i = 0; i < Lobby.LobbyData.plazaList.length; i++) {
-				let roomRule : nRoom.RoomRule = JSON.parse(Lobby.LobbyData.plazaList[i].rule);
+			for (var i = 0; i < nLobby.Lobby.plazaList.length; i++) {
+				let roomRule : nRoom.RoomRule = JSON.parse(nLobby.Lobby.plazaList[i].rule);
 
-				if(Lobby.LobbyData.plazaList[i].roomType ==  ProtocolDefine.nRoom.eCreateRoomType.ROOM_CLASSIC_PLAZA
+				if(nLobby.Lobby.plazaList[i].roomType ==  ProtocolDefine.nRoom.eCreateRoomType.ROOM_CLASSIC_PLAZA
 					&& roomRule.playerNum == data.playerNum
 					&& roomRule.gridLevel == data.gridLevel){
-					jr.plazaID = Lobby.LobbyData.plazaList[i].plazaid;
+					jr.plazaID = nLobby.Lobby.plazaList[i].plazaid;
 					jr.roomId = 0;
 				}
 			}
 		}
 		//保存下如果是场模式的信息
-		nRoom.RoomData.setPlazaData(data.plazaName,data.tagId);
+		nRoom.Room.setPlazaData(data.plazaName,data.tagId);
 
 		ProtocolManager.getInstance().SendMsg(ProtocolDefine.GameProtocol.P_GAME_REQ_JOINROOM,
 			Utils.encodeMsg(jr),this.OnRespJoinRoom.bind(this));
@@ -170,7 +170,7 @@ export class RoomController{
 	public onEventLeaveRoom(mustLeave : boolean) : void{
 		if (mustLeave) {
 			// 这种是游戏结束的时候的离开
-			nRoom.RoomData.reset ();
+			nRoom.Room.reset ();
 			director.loadScene(CommonDefine.eSceneType[CommonDefine.eSceneType.Lobby],(err, scene)=>{});
 		} else {
 			let lr : ProtocolDefine.nRoom.msgReqLeaveRoom = {game : ProtocolDefine.GameType.GAME_LIANQI};
@@ -180,11 +180,11 @@ export class RoomController{
 	}
 	public onEventStartGame(isEnterRoomFinsh : boolean) : void{
 		//只有创建房间模式才有主动触发
-		if (nRoom.RoomData.roomType == ProtocolDefine.nRoom.eCreateRoomType.ROOM_CLASSIC_PLAZA
-			||nRoom.RoomData.roomType == ProtocolDefine.nRoom.eCreateRoomType.ROOM_PLAZA){
+		if (nRoom.Room.roomType == ProtocolDefine.nRoom.eCreateRoomType.ROOM_CLASSIC_PLAZA
+			||nRoom.Room.roomType == ProtocolDefine.nRoom.eCreateRoomType.ROOM_PLAZA){
 				return;
 		}
-		if(!nRoom.RoomData.getIfAllPlayerReady()) return;// 这种是错误情况，所有人准备了才能开始启动
+		if(!nRoom.Room.getIfAllPlayerReady()) return;// 这种是错误情况，所有人准备了才能开始启动
 		//此时可以启动游戏开始
 		//房主点击开始，启动游戏场景
 		director.loadScene(CommonDefine.eSceneType[CommonDefine.eSceneType.Game],(err, scene)=>{
@@ -194,45 +194,45 @@ export class RoomController{
 	public onEnterRoomFinish() : void{
 		//刷新房间规则显示
 		let star : number = 0;
-		if (nRoom.RoomData.plazaid != 0) {
-			star = Lobby.LobbyData.getPlazaById(nRoom.RoomData.plazaid)?.star!;
+		if (nRoom.Room.plazaid != 0) {
+			star = nLobby.Lobby.getPlazaById(nRoom.Room.plazaid)?.star!;
 		}
 		let rr : RoomEvent.IUpdateRoomRule = { 
-			playerNum : nRoom.RoomData.roomRule.playerNum,
-			gameTime : nRoom.RoomData.roomRule.gameTime,
-			gridLevel : nRoom.RoomData.roomRule.gridLevel,
-			rule : nRoom.RoomData.roomRule.rule,
-			lmtRound : nRoom.RoomData.roomRule.lmtRound,
-			lmtTurnTime : nRoom.RoomData.roomRule.lmtTurnTime,
-			roomLevel : nRoom.RoomData.roomLevel,
+			playerNum : nRoom.Room.roomRule.playerNum,
+			gameTime : nRoom.Room.roomRule.gameTime,
+			gridLevel : nRoom.Room.roomRule.gridLevel,
+			rule : nRoom.Room.roomRule.rule,
+			lmtRound : nRoom.Room.roomRule.lmtRound,
+			lmtTurnTime : nRoom.Room.roomRule.lmtTurnTime,
+			roomLevel : nRoom.Room.roomLevel,
 			roomID : 0,
-			plazaName : nRoom.RoomData.plazaName,
-			tag : nRoom.RoomData.tagId,
-			type : nRoom.RoomData.roomType,
+			plazaName : nRoom.Room.plazaName,
+			tag : nRoom.Room.tagId,
+			type : nRoom.Room.roomType,
 			star :star
 		}
 
 		Utils.getGlobalController()?.Emit(RoomEvent.EVENT[RoomEvent.EVENT.UPDATE_ROOMRULE],rr);
 
-		if (nRoom.RoomData.roomType == ProtocolDefine.nRoom.eCreateRoomType.ROOM_CLASSIC_PLAZA
-			||nRoom.RoomData.roomType == ProtocolDefine.nRoom.eCreateRoomType.ROOM_PLAZA
-			|| nRoom.RoomData.isRelink) {
+		if (nRoom.Room.roomType == ProtocolDefine.nRoom.eCreateRoomType.ROOM_CLASSIC_PLAZA
+			||nRoom.Room.roomType == ProtocolDefine.nRoom.eCreateRoomType.ROOM_PLAZA
+			|| nRoom.Room.isRelink) {
 			//完全进入游戏界面后，需要通知服务器可以发用户enter信息了,原则上来说，需要界面真正加载完成后再发,这里暂时直接发送
 			let efmsg : ProtocolDefine.nRoom.msgNotifyEnterRoomFinish = {
-				isRelink : nRoom.RoomData.isRelink
+				isRelink : nRoom.Room.isRelink
 			}
 			ProtocolManager.getInstance().SendMsg(ProtocolDefine.GameProtocol.P_GAME_ENTER_ROOM_FINISH, 
 				Utils.encodeMsg(efmsg));
 		} else {
 			// 因为房间和组队模式，用户相关信息已经下发，所以需要手动驱动相关消息刷新游戏界面
-			for(var i = 0;i < nRoom.RoomData.playerList.length;i++){
+			for(var i = 0;i < nRoom.Room.playerList.length;i++){
 				/////////////////////////////enter/////////////////////////////////
 				Utils.getGlobalController()?.Emit(RoomEvent.EVENT[RoomEvent.EVENT.PLAER_ENTER],
-					nRoom.RoomData.playerList[i]);
+					nRoom.Room.playerList[i]);
 				///////////////////////state/////////////////////////////////
 				let ps : RoomEvent.IUpdatePlayerState = {
-					state : nRoom.RoomData.playerList[i].state,
-					local : nRoom.RoomData.getLocalBySeat(nRoom.RoomData.playerList[i].seat),
+					state : nRoom.Room.playerList[i].state,
+					local : nRoom.Room.getLocalBySeat(nRoom.Room.playerList[i].seat),
 					ifAllReady : true
 				}
 				Utils.getGlobalController()?.Emit(RoomEvent.EVENT[RoomEvent.EVENT.UPDATE_PLAER_STATE],ps);
@@ -240,7 +240,7 @@ export class RoomController{
 		}
 	}
 	public onEventGetRoomList(currentPage : number,perCnt : number){
-		let self : SelfData= Account.getSelfData();
+		let self : nAccount.SelfData = nAccount.Account.getSelfData();
 		let rl : ProtocolDefine.nRoom.msgReqRoomList = {
 			areaID :  self.area,
 			//原则上来说，以后这两个数据需要传过来
@@ -255,14 +255,14 @@ export class RoomController{
 	}
 	public onEventShowRoomList(){
 		Utils.getGlobalController()?.Emit(RoomEvent.EVENT[RoomEvent.EVENT.SHOW_ROOM_LIST],
-			nRoom.RoomData.roomList);
+			nRoom.Room.roomList);
 	}
 	//用户点击准备或者自动准备
 	public onEventPlayerAct(act : ProtocolDefine.nRoom.eActType.ACT_READY){
-		let player : nRoom.Player | null = nRoom.RoomData.getPlayerBySeat(nRoom.RoomData.selfSeat);
+		let player : nRoom.Player | null = nRoom.Room.getPlayerBySeat(nRoom.Room.selfSeat);
 		if(player == null) return;
 		if (player.talentList.length == 0 
-			&& nRoom.RoomData.roomType == ProtocolDefine.nRoom.eCreateRoomType.ROOM_ROOM /*只有房间模式才提示*/) {
+			&& nRoom.Room.roomType == ProtocolDefine.nRoom.eCreateRoomType.ROOM_ROOM /*只有房间模式才提示*/) {
 			//天赋未配置，作出提示，这里可以直接到请求准备到时候提示
 			this.showDialog("您未配置天赋，请配置后再准备");
 			return;
@@ -270,7 +270,7 @@ export class RoomController{
 
 		let pa : ProtocolDefine.nRoom.msgPlayerAct = {
 			act : act,
-			seat : nRoom.RoomData.selfSeat
+			seat : nRoom.Room.selfSeat
 		}
 
 		ProtocolManager.getInstance().SendMsg(ProtocolDefine.GameProtocol.P_GAME_PLAYER_ACT,
@@ -290,7 +290,7 @@ export class RoomController{
 		}
 
 		let ot : ProtocolDefine.nLobby.nTalent.msgTalentList = {
-			seat : nRoom.RoomData.selfSeat,
+			seat : nRoom.Room.selfSeat,
 			talentList : talentList,
 		}
 
@@ -300,7 +300,7 @@ export class RoomController{
 	public onEventPlayerTalk(content : string){
 		let pk : ProtocolDefine.nRoom.msgPlayerTalkMsg = {
 			flag : ProtocolDefine.eFlag.SUCCESS,
-			seat : nRoom.RoomData.selfSeat,
+			seat : nRoom.Room.selfSeat,
 			content : content
 		}
 
@@ -311,19 +311,19 @@ export class RoomController{
 	//---------------------网络消息----------------------
 	public OnTalentList(msg : any){
 		let resp : ProtocolDefine.nLobby.nTalent.msgTalentList = msg;
-		if (resp.seat == nRoom.RoomData.selfSeat) {
+		if (resp.seat == nRoom.Room.selfSeat) {
 			//自己的天赋列表，原则上可以不用刷新了，因为本地知道
 
 			//可刷新缓存，也可以不刷新
 		} else {
 			//别人的天赋列表，刷新别人天赋列表，并记录
-			let player : nRoom.Player | null = nRoom.RoomData.getPlayerBySeat(resp.seat);
+			let player : nRoom.Player | null = nRoom.Room.getPlayerBySeat(resp.seat);
 			if(player == null) return;
 			player.talentList = [];
 			let tl : Array<string> = resp.talentList.split(',');
 
 			for(var i = 0;i < tl.length;i++){
-				player.talentList.push(Number(tl[i]) as Lobby.eTalentType);
+				player.talentList.push(Number(tl[i]) as nLobby.eTalentType);
 			}
 		}
 		//刷新天赋显示界面
@@ -374,34 +374,34 @@ export class RoomController{
 			}
 
 			// 设置相关数据
-            nRoom.RoomData.setRoomData(resp.roomId,resp.levelId,resp.plazaid,
+            nRoom.Room.setRoom(resp.roomId,resp.levelId,resp.plazaid,
                 resp.roomType,resp.owner,resp.rule,resp.baseScore);
-			nRoom.RoomData.isRelink = resp.isRelink;
+			nRoom.Room.isRelink = resp.isRelink;
 
 			//这里需要判断是哪种类型的房间
-			if (nRoom.RoomData.roomType == ProtocolDefine.nRoom.eCreateRoomType.ROOM_ROOM) {
+			if (nRoom.Room.roomType == ProtocolDefine.nRoom.eCreateRoomType.ROOM_ROOM) {
 
 				let efmsg : ProtocolDefine.nRoom.msgNotifyEnterRoomFinish =  {
-                    isRelink : nRoom.RoomData.isRelink
+                    isRelink : nRoom.Room.isRelink
                 }
-				if(!nRoom.RoomData.isRelink){
+				if(!nRoom.Room.isRelink){
                     //刷新房间规则显示
                     let star : number = 0;
-                    if (nRoom.RoomData.plazaid != 0) {
-						star = Lobby.LobbyData.getPlazaById(nRoom.RoomData.plazaid)?.star!;
+                    if (nRoom.Room.plazaid != 0) {
+						star = nLobby.Lobby.getPlazaById(nRoom.Room.plazaid)?.star!;
 					}
 					let rr : RoomEvent.IUpdateRoomRule = { 
-                        playerNum : nRoom.RoomData.roomRule.playerNum,
-                        gameTime : nRoom.RoomData.roomRule.gameTime,
-                        gridLevel : nRoom.RoomData.roomRule.gridLevel,
-                        rule : nRoom.RoomData.roomRule.rule,
-                        lmtRound : nRoom.RoomData.roomRule.lmtRound,
-                        lmtTurnTime : nRoom.RoomData.roomRule.lmtTurnTime,
+                        playerNum : nRoom.Room.roomRule.playerNum,
+                        gameTime : nRoom.Room.roomRule.gameTime,
+                        gridLevel : nRoom.Room.roomRule.gridLevel,
+                        rule : nRoom.Room.roomRule.rule,
+                        lmtRound : nRoom.Room.roomRule.lmtRound,
+                        lmtTurnTime : nRoom.Room.roomRule.lmtTurnTime,
                         roomLevel : resp.levelId,
                         roomID : resp.roomId,
-                        plazaName : nRoom.RoomData.plazaName,
-                        tag : nRoom.RoomData.tagId,
-                        type : nRoom.RoomData.roomType,
+                        plazaName : nRoom.Room.plazaName,
+                        tag : nRoom.Room.tagId,
+                        type : nRoom.Room.roomType,
                         star :star
                     }
 					ProtocolManager.getInstance().SendMsg(ProtocolDefine.GameProtocol.P_GAME_ENTER_ROOM_FINISH,Utils.encodeMsg(efmsg));
@@ -416,7 +416,7 @@ export class RoomController{
 				}
 
 
-			} else if (nRoom.RoomData.roomType == ProtocolDefine.nRoom.eCreateRoomType.ROOM_TEAM) {
+			} else if (nRoom.Room.roomType == ProtocolDefine.nRoom.eCreateRoomType.ROOM_TEAM) {
 				//
 			} else {
 				if(resp.isRelink){
@@ -474,10 +474,10 @@ export class RoomController{
 			//被t了，目前不支持
 		}else if(resp.type == ProtocolDefine.nRoom.eLeaveType.LEAVE_NORMAL){
 			//正常离开，切到大厅界面
-			if (nRoom.RoomData.roomType == ProtocolDefine.nRoom.eCreateRoomType.ROOM_CLASSIC_PLAZA) {
+			if (nRoom.Room.roomType == ProtocolDefine.nRoom.eCreateRoomType.ROOM_CLASSIC_PLAZA) {
 				Utils.getGlobalController()?.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_LOBBY_PANEL],
 					LobbyEvent.eLobbyPanel.LOBBY_LOBBY_PANEL);
-			} else if(nRoom.RoomData.roomType == ProtocolDefine.nRoom.eCreateRoomType.ROOM_PLAZA){
+			} else if(nRoom.Room.roomType == ProtocolDefine.nRoom.eCreateRoomType.ROOM_PLAZA){
 				Utils.getGlobalController()?.Emit(LobbyEvent.EVENT[LobbyEvent.EVENT.SHOW_LOBBY_PANEL],
 					LobbyEvent.eLobbyPanel.LOBBY_PLAZAROOM_PLAZA_PANEL);
 			}else{
@@ -494,16 +494,16 @@ export class RoomController{
 			Utils.getGlobalController()?.Emit(RoomEvent.EVENT[RoomEvent.EVENT.UPDATE_DISSOLVE_ROOM]);
 		}
 
-		nRoom.RoomData.reset();
+		nRoom.Room.reset();
 	}
 	public OnRespRoomList(msg : any)
 	{
 		this.showLoading(false);
 		let resp : ProtocolDefine.nRoom.msgRespRoomList = msg;
 		//
-		nRoom.RoomData.roomList= [];//首先清空
+		nRoom.Room.roomList= [];//首先清空
 		for (var i = 0; i < resp.roomList.length; i++) {
-			let  rd : nRoom.IRoomData = {
+			let  rd : nRoom.IRoom = {
 				isFull : resp.roomList[i].isFull,
 				roomDes : resp.roomList[i].roomDes,
 				roomId : resp.roomList[i].roomId,
@@ -512,7 +512,7 @@ export class RoomController{
 				roomPwd : resp.roomList[i].roomPwd,
 				rule : resp.roomList [i].rule
 			}
-			nRoom.RoomData.roomList.push(rd);
+			nRoom.Room.roomList.push(rd);
 			
 		}
 
@@ -524,23 +524,23 @@ export class RoomController{
 		// 自己只收到一个简单的响应,别人准备收到的是 playerstate
 		//ret:
 		let resp : ProtocolDefine.msgSimpleResp = msg;
-		let self : SelfData = Account.getSelfData();
+		let self : nAccount.SelfData = nAccount.Account.getSelfData();
 
 		if (resp.ret == 0) {
 			//自己准备成功
-			if (nRoom.RoomData.updatePlayerStateByUserID(self.userID,
+			if (nRoom.Room.updatePlayerStateByUserID(self.userID,
 				ProtocolDefine.nRoom.eStateType.STATE_TYPE_ROOMREADY)) {
 
 				let ps : RoomEvent.IUpdatePlayerState = {
 					state : ProtocolDefine.nRoom.eStateType.STATE_TYPE_ROOMREADY,
-					local : nRoom.RoomData.getLocalBySeat(nRoom.RoomData.selfSeat),
-					ifAllReady : nRoom.RoomData.getIfAllPlayerReady ()
+					local : nRoom.Room.getLocalBySeat(nRoom.Room.selfSeat),
+					ifAllReady : nRoom.Room.getIfAllPlayerReady ()
 				}
 
 				Utils.getGlobalController()?.Emit(RoomEvent.EVENT[RoomEvent.EVENT.UPDATE_PLAER_STATE],ps);
 
 				//准备成功，上报天赋列表
-				let player : nRoom.Player | null = nRoom.RoomData.getPlayerBySeat(nRoom.RoomData.selfSeat);
+				let player : nRoom.Player | null = nRoom.Room.getPlayerBySeat(nRoom.Room.selfSeat);
 				if(player == null) return;
 				let ptl : RoomEvent.IPlayerTalentList = {
 					local : ps.local,
@@ -571,7 +571,7 @@ export class RoomController{
 		let resp : ProtocolDefine.nRoom.msgPlayerTalkMsg = msg;
 		if (resp.flag == ProtocolDefine.eFlag.SUCCESS) {
 			Utils.getGlobalController()?.Emit(RoomEvent.EVENT[RoomEvent.EVENT.SHOW_TALK_MSG],
-				nRoom.RoomData.getLocalBySeat(resp.seat),
+				nRoom.Room.getLocalBySeat(resp.seat),
 				resp.content);
 		}
 	}
@@ -586,14 +586,14 @@ export class RoomController{
 	{
 		let resp : ProtocolDefine.nRoom.msgPlayerInfo = msg;
 
-		let self : SelfData= Account.getSelfData();
-		if(resp.userID != self.userID && nRoom.RoomData.playerList.length == 0){
+		let self : nAccount.SelfData = nAccount.Account.getSelfData();
+		if(resp.userID != self.userID && nRoom.Room.playerList.length == 0){
 			console.log("第一个进来的玩家不是自己，这会导致座位错误，无法处理，出错！");
 			return;
 		}
 
 		//将数据写入游戏房间数据
-		let talentList : Array<Lobby.eTalentType> = [];
+		let talentList : Array<nLobby.eTalentType> = [];
 		//进来的如果是自己，则初始化天赋列表
 		//从自己的数据中获取
 		if(resp.userID == self.userID){
@@ -616,11 +616,11 @@ export class RoomController{
 			state : ProtocolDefine.nRoom.eStateType.STATE_TYPE_SITDOWN,// 默认坐下状态，接下来要准备
 			userID : resp.userID,
 			win : resp.win,
-			isOwner : nRoom.RoomData.owner == resp.userID,
+			isOwner : nRoom.Room.owner == resp.userID,
 			talentList : talentList
 		};
 		//原则上来说，第一个进入的必须是自己，否则不应该处理
-		nRoom.RoomData.addPlayer(player);
+		nRoom.Room.addPlayer(player);
 
 		//显示用户， 此处需要将seat转为local
 		Utils.getGlobalController()?.Emit(RoomEvent.EVENT[RoomEvent.EVENT.PLAER_ENTER],player);
@@ -629,14 +629,14 @@ export class RoomController{
 	public OnPlayerState(msg : any)
 	{
 		let resp : ProtocolDefine.nRoom.msgPlayerState = msg;
-		if (nRoom.RoomData.updatePlayerStateByUserID(resp.userID,resp.state)) {
+		if (nRoom.Room.updatePlayerStateByUserID(resp.userID,resp.state)) {
 			//用户存在，则通知更新用户状态
 			//诸如已准备、离线等
 			//纯界面数据定义，请定义在roomevent里
 			let ps : RoomEvent.IUpdatePlayerState = {
 				state : resp.state,
-				local : nRoom.RoomData.getLocalBySeat(resp.seat),
-				ifAllReady : nRoom.RoomData.getIfAllPlayerReady()
+				local : nRoom.Room.getLocalBySeat(resp.seat),
+				ifAllReady : nRoom.Room.getIfAllPlayerReady()
 			}
 
 			Utils.getGlobalController()?.Emit(RoomEvent.EVENT[RoomEvent.EVENT.UPDATE_PLAER_STATE],ps);
@@ -649,11 +649,11 @@ export class RoomController{
 		//目前不支持t人，所以自己一般不会收到这个消息
 		let resp : ProtocolDefine.nRoom.msgPlayerLeave = msg;
 
-		let self : SelfData= Account.getSelfData();
+		let self : nAccount.SelfData= nAccount.Account.getSelfData();
 		if (resp.userID == self.userID) {
 			if (resp.type == ProtocolDefine.nRoom.ePlayerLeaveRoomType.LEAVE_ROOM_GAMEEND) {
 				//此时清空房间缓存数据
-				nRoom.RoomData.reset();
+				nRoom.Room.reset();
 			
 			}else if(resp.type == ProtocolDefine.nRoom.ePlayerLeaveRoomType.LEAVE_ROOM_REMOVED){
 				//
@@ -664,12 +664,12 @@ export class RoomController{
 				//解散房间 相当于自己退出
 				////切换面板
 				Utils.getGlobalController()?.Emit(RoomEvent.EVENT[RoomEvent.EVENT.UPDATE_DISSOLVE_ROOM]);
-				nRoom.RoomData.reset();
+				nRoom.Room.reset();
 			}else{
 				//别人退出
-				if (nRoom.RoomData.removePlayerBySeat(resp.seat)) {
+				if (nRoom.Room.removePlayerBySeat(resp.seat)) {
 					Utils.getGlobalController()?.Emit(RoomEvent.EVENT[RoomEvent.EVENT.UPDATE_LEAVE_ROOM],
-						nRoom.RoomData.getLocalBySeat(resp.seat));
+						nRoom.Room.getLocalBySeat(resp.seat));
 				}
 			}
 		}
@@ -682,7 +682,7 @@ export class RoomController{
 	}
 	public OnRoomStateChange(msg : any){
 		let resp : ProtocolDefine.nRoom.msgRoomStateChange = msg;
-		let rd : nRoom.IRoomData = {
+		let rd : nRoom.IRoom = {
 			roomId : resp.roomId,
 			roomDes : "",
 			isFull : 0,
@@ -700,16 +700,16 @@ export class RoomController{
 			rd.roomPwd = resp.roomPassword;
 			rd.roomDes = "add";
 
-			nRoom.RoomData.addRoomListByRoomID(resp.roomId,rd);
+			nRoom.Room.addRoomListByRoomID(resp.roomId,rd);
 		} else if (resp.type == ProtocolDefine.nRoom.eRooStateChangeType.ROOMSTATE_REMOVE) {
-			nRoom.RoomData.removeRoomListByRoomID(resp.roomId);
+			nRoom.Room.removeRoomListByRoomID(resp.roomId);
 			rd.roomDes = "remove";
-			nRoom.RoomData.addRoomListByRoomID(resp.roomId,rd);
+			nRoom.Room.addRoomListByRoomID(resp.roomId,rd);
 		} else if (resp.type == ProtocolDefine.nRoom.eRooStateChangeType.ROOMSTATE_UPDATE) {
 			rd.roomDes = "update";
 			rd.roomPersonCnt = resp.personCnt;
 
-			nRoom.RoomData.updateRoomListByRoomID(resp.roomId,resp.personCnt);
+			nRoom.Room.updateRoomListByRoomID(resp.roomId,resp.personCnt);
 		}
 
 		// 更新房间列表信息，只有显示房间列表界面的时候才有用

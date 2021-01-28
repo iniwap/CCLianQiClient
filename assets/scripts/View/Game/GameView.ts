@@ -5,21 +5,19 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Component, Node, ScrollView, Prefab, AudioSource, AudioClip, resources, Label, Vec3, UITransform, Game, Button, instantiate, RichText, Vec2, tween } from 'cc';
+import { _decorator, Node, ScrollView, Prefab, AudioSource, AudioClip, resources, Label, Vec3, UITransform, Button, instantiate, RichText, tween } from 'cc';
 import { eDialogBtnType, eDialogEventType, IDialog } from '../../Common/Dialog';
 import { CommonDefine } from '../../Define/CommonDefine';
 import { ProtocolDefine } from '../../Define/ProtocolDefine';
 import { GameEvent } from '../../Event/GameEvent';
 import { RoomEvent } from '../../Event/RoomEvent';
-import { nGame } from '../../Model/Game';
-import { Lobby } from '../../Model/Lobby';
+import { nLobby } from '../../Model/Lobby';
 import { nRoom } from '../../Model/Room';
 import { NetworkState } from '../../Utils/NetworkState';
 import { Utils } from '../../Utils/Utils';
 import { Action } from './Action';
 import { GamePlayer } from './GamePlayer';
 import { GameResult } from './GameResult';
-import { LianQi } from './LianQi';
 const { ccclass, property } = _decorator;
 
 @ccclass('GameView')
@@ -215,29 +213,29 @@ export class GameView extends NetworkState {
         this.opTips.position = new Vec3(0,100,0);
 
         let star : number = 0;
-		if (nRoom.RoomData.plazaid != 0) {
-			star = Lobby.LobbyData.getPlazaById(nRoom.RoomData.plazaid)?.star!;
+		if (nRoom.Room.plazaid != 0) {
+			star = nLobby.Lobby.getPlazaById(nRoom.Room.plazaid)?.star!;
 		}
         let rr : RoomEvent.IUpdateRoomRule = { 
-			playerNum : nRoom.RoomData.roomRule.playerNum,
-			gameTime : nRoom.RoomData.roomRule.gameTime,
-			gridLevel : nRoom.RoomData.roomRule.gridLevel,
-			rule : nRoom.RoomData.roomRule.rule,
-			lmtRound : nRoom.RoomData.roomRule.lmtRound,
-			lmtTurnTime : nRoom.RoomData.roomRule.lmtTurnTime,
-			roomLevel : nRoom.RoomData.roomLevel,
+			playerNum : nRoom.Room.roomRule.playerNum,
+			gameTime : nRoom.Room.roomRule.gameTime,
+			gridLevel : nRoom.Room.roomRule.gridLevel,
+			rule : nRoom.Room.roomRule.rule,
+			lmtRound : nRoom.Room.roomRule.lmtRound,
+			lmtTurnTime : nRoom.Room.roomRule.lmtTurnTime,
+			roomLevel : nRoom.Room.roomLevel,
 			roomID : 0,
-			plazaName : nRoom.RoomData.plazaName,
-			tag : nRoom.RoomData.tagId,
-			type : nRoom.RoomData.roomType,
+			plazaName : nRoom.Room.plazaName,
+			tag : nRoom.Room.tagId,
+			type : nRoom.Room.roomType,
 			star :star
 		}
         this.onUpdateRoomRule(rr);
-        let players : Array<nRoom.Player> = nRoom.RoomData.getAllPlayers();
+        let players : Array<nRoom.Player> = nRoom.Room.getAllPlayers();
         for(var i = 0;i < players.length;i++){
             this.onPlayerEnter(players[i]);
             //所有人设置为游戏中
-            this.onPlayerState(nRoom.RoomData.getLocalBySeat(players[i].seat),players[i].state);
+            this.onPlayerState(nRoom.Room.getLocalBySeat(players[i].seat),players[i].state);
         }
     }
     public onUpdateRoomRule(rr : RoomEvent.IUpdateRoomRule){
@@ -263,7 +261,7 @@ export class GameView extends NetworkState {
 		this.action.onInit(this._roomRule);
     }
     public onPlayerEnter(player : nRoom.Player) : void{
-		let local : number = nRoom.RoomData.getLocalBySeat(player.seat) ;
+		let local : number = nRoom.Room.getLocalBySeat(player.seat) ;
 		if (this._players[local] != null) {
 			this._players[local]!.node.destroy();
 			this._players[local] = null;
@@ -380,14 +378,14 @@ export class GameView extends NetworkState {
 		}
 	}
 	public createPlayer(data : nRoom.Player) : GamePlayer{
-        let local : number = nRoom.RoomData.getLocalBySeat(data.seat);
+        let local : number = nRoom.Room.getLocalBySeat(data.seat);
 
 		let n : Node = instantiate(this.gamePlayerPrefab);
 		let player : GamePlayer = n.getComponent(GamePlayer)!;
 
         player.node.setParent(this.playerInfoPanel);
 
-		let self : boolean = nRoom.RoomData.getLocalBySeat(data.seat) == nRoom.eSeatType.SELF;
+		let self : boolean = nRoom.Room.getLocalBySeat(data.seat) == nRoom.eSeatType.SELF;
         player.updatePlayer(self,data.isOwner,data.seat,data.head,data.sex,data.name);
         player.node.setPosition(this.playerRoot[local].position);
 

@@ -5,8 +5,8 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Component, Node, Sprite, Label } from 'cc';
-import { Lobby } from '../../../Model/Lobby';
+import { _decorator, Component, Sprite, Label } from 'cc';
+import { nLobby } from '../../../Model/Lobby';
 const { ccclass, property } = _decorator;
 
 @ccclass('EmailTitleItem')
@@ -19,7 +19,7 @@ export class EmailTitleItem extends Component {
     // serializableDummy = 0;
 	private _emailID : number = -1;
 	private _isSelect : boolean = false;
-	private _content!: Lobby.EmailContent; // 这里存放解析出来的内容
+	private _content!: nLobby.EmailContent; // 这里存放解析出来的内容
 	private _author : string = "";
 	private _hasRead : boolean = false;
 
@@ -58,7 +58,7 @@ export class EmailTitleItem extends Component {
 
 	//-------------------------------一些接口--------------------------
 	public updateEmailTitleItem(clickCallback : any,id : number,author : string,
-		content : Lobby.EmailContent,title : string,date : string,hasRead : boolean) : void{
+		content : nLobby.EmailContent,title : string,date : string,hasRead : boolean) : void{
         this._clickCallback = clickCallback;
 		this._emailID = id;
 		this.title.string = title;
@@ -74,7 +74,7 @@ export class EmailTitleItem extends Component {
 		this.notRead.node.active = false;
 		this._hasRead = true;
 	}
-	public updateContent(content : Lobby.EmailContent) : void{
+	public updateContent(content : nLobby.EmailContent) : void{
 		this._content = content;
 	}
 	public unselectItem() : void{
@@ -94,7 +94,7 @@ export class EmailTitleItem extends Component {
 	public getEmailID() : number{
 		return this._emailID;
 	}
-	public getContent() : Lobby.EmailContent{
+	public getContent() : nLobby.EmailContent{
 		return this._content;
 	}
 	public getAuthor() : string{

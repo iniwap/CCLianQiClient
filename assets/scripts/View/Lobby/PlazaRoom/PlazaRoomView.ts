@@ -11,7 +11,7 @@ import { CommonDefine } from '../../../Define/CommonDefine';
 import { ProtocolDefine } from '../../../Define/ProtocolDefine';
 import { LobbyEvent } from '../../../Event/LobbyEvent';
 import { RoomEvent } from '../../../Event/RoomEvent';
-import { Lobby } from '../../../Model/Lobby';
+import { nLobby } from '../../../Model/Lobby';
 import { nRoom } from '../../../Model/Room';
 import { NetworkState } from '../../../Utils/NetworkState';
 import { Utils } from '../../../Utils/Utils';
@@ -90,7 +90,7 @@ export class PlazaRoomView extends NetworkState {
 	@property(Number)
 	public baseScoreList : Array<number> = [];
 
-	private _currentPlazaLevel : Lobby.ePlazaLevelType = Lobby.ePlazaLevelType.PLAZA_LEVEL_MIDDLE;
+	private _currentPlazaLevel : nLobby.ePlazaLevelType = nLobby.ePlazaLevelType.PLAZA_LEVEL_MIDDLE;
 	private _currentPlayerNum : number = 2;
 	private _currentGridLevel : number = 4;
 
@@ -337,8 +337,8 @@ export class PlazaRoomView extends NetworkState {
 			if (level == 1) {
 				return;
 			}
-			this._currentPlazaLevel = (--level) as Lobby.ePlazaLevelType;
-			if (this._currentPlazaLevel == Lobby.ePlazaLevelType.PLAZA_LEVEL_LOW) {
+			this._currentPlazaLevel = (--level) as nLobby.ePlazaLevelType;
+			if (this._currentPlazaLevel == nLobby.ePlazaLevelType.PLAZA_LEVEL_LOW) {
 				this.switchPlazaLBtn.interactable = false;
 			} else {
 				this.switchPlazaLBtn.interactable = true;
@@ -350,8 +350,8 @@ export class PlazaRoomView extends NetworkState {
 			if (level == 3) {
 				return;
 			}
-			this._currentPlazaLevel = (++level) as Lobby.ePlazaLevelType;
-			if (this._currentPlazaLevel == Lobby.ePlazaLevelType.PLAZA_LEVEL_HIGH) {
+			this._currentPlazaLevel = (++level) as nLobby.ePlazaLevelType;
+			if (this._currentPlazaLevel == nLobby.ePlazaLevelType.PLAZA_LEVEL_HIGH) {
 				this.switchPlazaRBtn.interactable = false;
 			} else {
 				this.switchPlazaRBtn.interactable = true;
@@ -474,10 +474,10 @@ export class PlazaRoomView extends NetworkState {
 	}
 	//---------------网络消息-------------------
     private OnUpdatePlaza() : void{
-		let plazaList : Array<Lobby.Plaza> = [];
-		for (var i = 0; i < Lobby.LobbyData.plazaList.length; i++) {
-			if(Lobby.LobbyData.plazaList[i].roomType == ProtocolDefine.nRoom.eCreateRoomType.ROOM_PLAZA){
-				plazaList.push(Lobby.LobbyData.plazaList[i]);
+		let plazaList : Array<nLobby.Plaza> = [];
+		for (var i = 0; i < nLobby.Lobby.plazaList.length; i++) {
+			if(nLobby.Lobby.plazaList[i].roomType == ProtocolDefine.nRoom.eCreateRoomType.ROOM_PLAZA){
+				plazaList.push(nLobby.Lobby.plazaList[i]);
 			}
         }
 		
@@ -541,7 +541,7 @@ export class PlazaRoomView extends NetworkState {
 		if(this.startBtn.interactable) this.startBtn.interactable = false;
 	}
 	public OnPlayerEnter(player : nRoom.Player){
-		let local : number = nRoom.RoomData.getLocalBySeat(player.seat) ;
+		let local : number = nRoom.Room.getLocalBySeat(player.seat) ;
 
 		//这种算法只适合上下左右布局的座位排布，不适合直线排布的，需要优化 //实际上，直线排列简单很多
 		if(this._realPlayer[local] != null) this._realPlayer[local]?.node.destroy();//首先需要释放
@@ -558,7 +558,7 @@ export class PlazaRoomView extends NetworkState {
 			}
 
 			for (var i = 0; i < this._inRoomGridLevel; i++) {
-				this.showWaitImg(true, nRoom.RoomData.getLocalBySeat(i));
+				this.showWaitImg(true, nRoom.Room.getLocalBySeat(i));
 			}
 		}
 	}
@@ -651,7 +651,7 @@ export class PlazaRoomView extends NetworkState {
 
 		this._realPlaza = [];
 	}
-	public createPlaza(index : number,data : Lobby.Plaza) : Plaza{
+	public createPlaza(index : number,data : nLobby.Plaza) : Plaza{
 
 		let n : Node = instantiate(this.plazaPrefab);
 		let plazaItem : Plaza = n.getComponent(Plaza)!;
@@ -717,11 +717,11 @@ export class PlazaRoomView extends NetworkState {
 	}
 	public getBaseScore() : number{
 		let baseScore : number = 50;
-		if (this._currentPlazaLevel == Lobby.ePlazaLevelType.PLAZA_LEVEL_LOW) {
+		if (this._currentPlazaLevel == nLobby.ePlazaLevelType.PLAZA_LEVEL_LOW) {
 			baseScore = 50;
-		}else if(this._currentPlazaLevel == Lobby.ePlazaLevelType.PLAZA_LEVEL_MIDDLE){
+		}else if(this._currentPlazaLevel == nLobby.ePlazaLevelType.PLAZA_LEVEL_MIDDLE){
 			baseScore = 500;
-		}else if(this._currentPlazaLevel == Lobby.ePlazaLevelType.PLAZA_LEVEL_HIGH){
+		}else if(this._currentPlazaLevel == nLobby.ePlazaLevelType.PLAZA_LEVEL_HIGH){
 			baseScore = 5000;
 		}
 
@@ -761,7 +761,7 @@ export class PlazaRoomView extends NetworkState {
 	}
 	public createPlayer(data : nRoom.Player ) : RoomPlayer{
 
-		let local : number = nRoom.RoomData.getLocalBySeat(data.seat);
+		let local : number = nRoom.Room.getLocalBySeat(data.seat);
 
 		let n : Node = instantiate(this.roomPlayerPrefab);
 		let player : RoomPlayer = n.getComponent(RoomPlayer)!;

@@ -1,4 +1,3 @@
-import { CommonDefine } from "../Define/CommonDefine";
 import { ProtocolDefine } from "../Define/ProtocolDefine";
 
 //原则上这些事件也是直接大厅界面访问到相应节点，直接操作使用

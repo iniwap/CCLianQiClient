@@ -2,8 +2,8 @@
 import { CommonDefine } from "../Define/CommonDefine";
 import { ProtocolDefine } from "../Define/ProtocolDefine";
 import { AccountEvent } from "../Event/AccountEvent";
-import { Account, NowAccount, SelfData } from "../Model/Account";
-import { Lobby } from "../Model/Lobby";
+import { nAccount } from "../Model/Account";
+import { nLobby } from "../Model/Lobby";
 import { ProtocolManager } from "../ProtocolManager/ProtocolManager";
 import { Utils } from "../Utils/Utils";
 import { LobbyController } from "./LobbyController";
@@ -57,7 +57,7 @@ export class LoginController{
                 this._autoLogin = false;
 
                 //重新登陆
-                let nc : NowAccount = Account.getNowAccount ();
+                let nc : nAccount.NowAccount = nAccount.Account.getNowAccount ();
                 this.loginServer (nc.userID, nc.openid, nc.pwd, nc.lastLoginType, nc.area);
 
             } else {
@@ -78,14 +78,14 @@ export class LoginController{
         this._loginType =  lt;
 
         //首先获取本地保存的数据
-        if (Account.loadNowAccout ()) {
+        if (nAccount.Account.loadNowAccout ()) {
             //已经登陆过
-            let nc : NowAccount = Account.getNowAccount ();
+            let nc : nAccount.NowAccount = nAccount.Account.getNowAccount ();
             if (nc.lastLoginType == this._loginType) {
 
                 //需要保存
-                Account.thirdOpenID = nc.openid;
-                Account.thirdToken = nc.token;
+                nAccount.Account.thirdOpenID = nc.openid;
+                nAccount.Account.thirdToken = nc.token;
 
                 //不必启动第三方
                 this.loginServer (nc.userID, nc.openid, nc.pwd, nc.lastLoginType, nc.area);
@@ -163,7 +163,7 @@ export class LoginController{
         let userData : ProtocolDefine.MsgUserData.msgUserData =  msg;//JSON.parse(msg); 
         if (userData.flag == ProtocolDefine.MsgUserData.eLoginResultFlag.LOGIN_SUCCESS) {
             //登陆成功
-            let selfData : SelfData = {
+            let selfData : nAccount.SelfData = {
                 adult : userData.adult,
                 area : userData.area,
                 charm : userData.charm,
@@ -196,11 +196,11 @@ export class LoginController{
                 let btnStates : Array<string> = btnStateStr.split (',');
                 for (var st in btnStates) {
                     let data : Array<string> = st.split ('#');
-                    let ttp : Lobby.eTalentType = Lobby.eTalentType.TALENT_NONE;
+                    let ttp : nLobby.eTalentType = nLobby.eTalentType.TALENT_NONE;
 
-                    if (Number(data[2]) == Lobby.eTalentSlotState.TALENT_INSTALLED.valueOf()) {
+                    if (Number(data[2]) == nLobby.eTalentSlotState.TALENT_INSTALLED.valueOf()) {
                         //已配置
-                        ttp = Number(data [0] ) as Lobby.eTalentType;
+                        ttp = Number(data [0] ) as nLobby.eTalentType;
                     }
 
                     selfData.talentList.push (ttp);
@@ -208,24 +208,24 @@ export class LoginController{
             } else {
                 //如果还没有配置，则默认不配
                 for (var i = 0; i < CommonDefine.MAX_TALENT_CFG_NUM; i++) {
-                    selfData.talentList.push (Lobby.eTalentType.TALENT_NONE);
+                    selfData.talentList.push (nLobby.eTalentType.TALENT_NONE);
                 }
             }
 
             //设置用户数据
-            Account.onLoginSuccess(selfData,this._loginType);
-            Account.inRoomId = userData.room_id;
+            nAccount.Account.onLoginSuccess(selfData,this._loginType);
+            nAccount.Account.inRoomId = userData.room_id;
 
             //切换界面并通知 登陆成功
             Utils.getGlobalController()?.Emit(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN_SUCCESS],true,
-                this.reqLobbyDataAfterLoadedLobby.bind(this));
+                this.reqLobbyAfterLoadedLobby.bind(this));
 
         } else {
             Utils.getGlobalController()?.Emit(AccountEvent.EVENT[AccountEvent.EVENT.LOGIN_SUCCESS],false);
         }
     }
-    public reqLobbyDataAfterLoadedLobby() : void{
+    public reqLobbyAfterLoadedLobby() : void{
         //请求大厅数据 -- 这里需要判断是否是重连，重连可以不请求？
-        LobbyController.getInstance().reqLobbyData();
+        LobbyController.getInstance().reqLobby();
     }
 }

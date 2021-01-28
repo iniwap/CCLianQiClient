@@ -5,7 +5,6 @@
 import { _decorator, Node, Sprite, Label, Prefab, resources, SpriteFrame, instantiate} from 'cc';
 import { CommonDefine } from '../../Define/CommonDefine';
 import { ProtocolDefine } from '../../Define/ProtocolDefine';
-import { GameEvent } from '../../Event/GameEvent';
 import { RoomEvent } from '../../Event/RoomEvent';
 import { nRoom } from '../../Model/Room';
 import { NetworkState } from '../../Utils/NetworkState';
@@ -165,7 +164,7 @@ export class RoomWaitMatchView extends NetworkState {
 			this.OnPlayerClickReadyBtn ();
 		}
         
-		let local : number = nRoom.RoomData.getLocalBySeat(player.seat) ;
+		let local : number = nRoom.Room.getLocalBySeat(player.seat) ;
 
 		//ADD PLAYER
 		this._realPlayer[local] = this.createPlayer(player);
@@ -244,7 +243,7 @@ export class RoomWaitMatchView extends NetworkState {
     
     public createPlayer(data : nRoom.Player ) : RoomPlayer{
 
-		let local : number = nRoom.RoomData.getLocalBySeat(data.seat);
+		let local : number = nRoom.Room.getLocalBySeat(data.seat);
 
 		let n : Node = instantiate(this.roomPlayerPrefab);
 		let player : RoomPlayer = n.getComponent(RoomPlayer)!;

@@ -5,7 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Component, Node ,Button,Sprite,Label ,Prefab, RichText} from 'cc';
+import { _decorator, Component ,Button,Label, RichText} from 'cc';
 const { ccclass, property } = _decorator;
 
 //弹窗定义
@@ -60,7 +60,7 @@ export class Dialog extends Component {
     public CancelLabel! : Label ;//确定按钮，即同意
 
     @property(RichText)
-    public Tip : RichText = null;//显示的内容
+    public Tip! : RichText;//显示的内容
     
     _eventType : eDialogEventType = eDialogEventType.SIMPLE;
     

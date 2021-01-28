@@ -5,8 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Component, Node, Vec2, Game, EventTouch, Button } from 'cc';
-import { ProtocolDefine } from '../../Define/ProtocolDefine';
+import { _decorator, Component, Vec2, Button } from 'cc';
 import { GameEvent } from '../../Event/GameEvent';
 import { nGame } from '../../Model/Game';
 import { Utils } from '../../Utils/Utils';
@@ -33,7 +32,7 @@ export class GameGrid extends Component {
         this._gridID = gid;
     }
     public OnGridClick(event : any) : void {
-        if (!nGame.GameData.isThisGridEmpty(this._pos.x, this._pos.y)){
+        if (!nGame.Game.isThisGridEmpty(this._pos.x, this._pos.y)){
             return;
         }
         Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.PLACE_CHESS],this._pos,this._gridID);

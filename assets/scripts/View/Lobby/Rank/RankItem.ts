@@ -5,7 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Component, Node, Sprite, Label, resources, SpriteFrame } from 'cc';
+import { _decorator, Component, Sprite, Label, resources, SpriteFrame } from 'cc';
 import { CommonDefine } from '../../../Define/CommonDefine';
 const { ccclass, property } = _decorator;
 

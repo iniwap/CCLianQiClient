@@ -76,7 +76,7 @@ export class LianQi extends Component {
         this._ifOpenHint = true;//默认开启，该类设置信息，需要后续根据用户习惯，从本地读取配置
 		//生成棋盘，并执行动画 
 		this.generateGridBoard(rr.gridLevel);
-		nGame.GameData.startGame(rr.playerNum,rr.gridLevel,rr.rule.indexOf("bandir3")!=-1?3:2);
+		nGame.Game.startGame(rr.playerNum,rr.gridLevel,rr.rule.indexOf("bandir3")!=-1?3:2);
     }
 	// 切换显示棋子信息提示
 	public onSwitchHint() : void{
@@ -113,13 +113,13 @@ export class LianQi extends Component {
 		//这里是移动所有用户点击了移动的棋子
 
 		//检查棋子能否移动，因为移动后可能死掉，不能则撤回
-	 	let lcb : nLianQiLogic.ChessBoard | null = nGame.GameData.chessBoard!.getCopy();
+	 	let lcb : nLianQiLogic.ChessBoard | null = nGame.Game.chessBoard!.getCopy();
 		let ids : Array<number> = [];
 		for(let mc of this._movedChessList){
 			ids.push(mc.getChessIdentityNumber());
 		}
 		let allMovedOk = true;
-		lcb = nGame.GameData.getTryMovesMultiChessBoard(ids, lcb);
+		lcb = nGame.Game.getTryMovesMultiChessBoard(ids, lcb);
 		let dcoes : Array<GameChess> = [];
 		for(let co of this._movedChessList) {
 			if (lcb!.findChessByIdnum(co.getChessIdentityNumber())!.health<=0) {
@@ -137,7 +137,7 @@ export class LianQi extends Component {
 		let moveList : Array<ProtocolDefine.nGame.nLianQi.Chess> = [];
 		for(let chess of this._movedChessList){
 			if(chess.getHasMove()){
-				if(chess.getOwner() != nRoom.RoomData.selfSeat){
+				if(chess.getOwner() != nRoom.Room.selfSeat){
 					//此棋子非自己的棋子，属于错误，不加入移动列表
 					continue;
 				}
@@ -204,7 +204,7 @@ export class LianQi extends Component {
 		}
 		//别人落子，刷新棋盘
 		let chess : GameChess | null = this.tryPlaceChess(false,pm.chessList[0].x,
-			pm.chessList[0].y,pm.chessList[0].direction,nRoom.RoomData.getSeatByLocal(pm.local));
+			pm.chessList[0].y,pm.chessList[0].direction,nRoom.Room.getSeatByLocal(pm.local));
 		if(chess != null){
 			if(chess.getHealth() <= 0){
 				chess.node.destroy();
@@ -224,19 +224,19 @@ export class LianQi extends Component {
 		let hasCanMove = false;
 		//move list
 		this.removeAllDeadChess();
-		nGame.GameData.washOut();
+		nGame.Game.washOut();
 		for(let co of pm.chessList) {
 			let chess : GameChess | null = this.getGameChessByPos(co.x,co.y);
 			if(chess == null){
 				//出错了，找不到对应的棋子
 				continue;
 			}
-			nGame.GameData.moveChess(chess);
+			nGame.Game.moveChess(chess);
 		}
-		this.updateBoard(nGame.GameData.chessBoard!.chesses);
+		this.updateBoard(nGame.Game.chessBoard!.chesses);
 		this._movedChessList = [];
 		//加个是否有棋子死亡判断？
-		if (nGame.GameData.chessBoard!.deads.length > 0)
+		if (nGame.Game.chessBoard!.deads.length > 0)
 			hasCanMove = this.findAllChessCanMove();//查找继续
 		return hasCanMove;
 	}
@@ -274,8 +274,8 @@ export class LianQi extends Component {
 		}
 		//需要查找一个可用的方向
 		//try chess id 为落到的棋格id，不需要去查找，确定落子的时候赋值为实际id
-		let banDirs : Array<ProtocolDefine.nGame.nLianQi.eLianQiDirectionType> = nGame.GameData.getUsableDirection();
-		this._tryPlaceChess = this.tryPlaceChess(true,pos.x,pos.y,banDirs[0],nRoom.RoomData.selfSeat);
+		let banDirs : Array<ProtocolDefine.nGame.nLianQi.eLianQiDirectionType> = nGame.Game.getUsableDirection();
+		this._tryPlaceChess = this.tryPlaceChess(true,pos.x,pos.y,banDirs[0],nRoom.Room.selfSeat);
 
 		if(this._tryPlaceChess != null){
 			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_DIR_CHESS],banDirs[0]);
@@ -323,12 +323,12 @@ export class LianQi extends Component {
             this._movedChessList.push(chess);
         }
 
-		let lcb : nLianQiLogic.ChessBoard | null = nGame.GameData.chessBoard!.getCopy();
+		let lcb : nLianQiLogic.ChessBoard | null = nGame.Game.chessBoard!.getCopy();
 		let ids : Array<number> = [];
 		for(let mc of this._movedChessList){
 			ids.push(mc.getChessIdentityNumber());
 		}
-		lcb = nGame.GameData.getTryMovesMultiChessBoard(ids, lcb);
+		lcb = nGame.Game.getTryMovesMultiChessBoard(ids, lcb);
 		if(lcb != null){
 			this.updateBoard(lcb.chesses);
 		}else{
@@ -389,7 +389,7 @@ export class LianQi extends Component {
 	private doGridBordAni(){
 		for(let grid of this._gridList){
 			tween(grid.node)
-			.to(2, { position : this.getPosByGridLevel(grid.getGridPos().x,grid.getGridPos().y,nGame.GameData.boardLevel)}, 
+			.to(2, { position : this.getPosByGridLevel(grid.getGridPos().x,grid.getGridPos().y,nGame.Game.boardLevel)}, 
 				{ easing: 'bounceOut',onComplete: (target?: object) => {
 					grid.enableGrid(true);
 				}})
@@ -403,7 +403,7 @@ export class LianQi extends Component {
 		grid.node.setParent(this.gridRoot);
 		grid.updateGameGrid(x,y,gid);
 		grid.node.setPosition(0,0);
-		n.setScale(this.getScaleByGridLevel(nGame.GameData.boardLevel));
+		n.setScale(this.getScaleByGridLevel(nGame.Game.boardLevel));
 		return grid;
 	}
 	public createChess(x : number,y : number,cid : number,
@@ -414,8 +414,8 @@ export class LianQi extends Component {
 		let chess : GameChess = n.getComponent(GameChess)!;
 		chess.node.setParent(this.chessRoot);
 		chess.updateChess(x,y,cid,dir,gid,ownner);
-		n.setScale(this.getScaleByGridLevel(nGame.GameData.boardLevel));
-		chess.node.setPosition(this.getPosByGridLevel(x,y,nGame.GameData.boardLevel));// 此处需要放置到实际位置
+		n.setScale(this.getScaleByGridLevel(nGame.Game.boardLevel));
+		chess.node.setPosition(this.getPosByGridLevel(x,y,nGame.Game.boardLevel));// 此处需要放置到实际位置
 		return chess;
 	}
 	public updateBoard(chesses : Array<nLianQiLogic.Chess>,chess : GameChess | null = null) : void{
@@ -445,8 +445,8 @@ export class LianQi extends Component {
 		//落子成功，原则上一定是成功的，需要以服务端为准
 		//如果可以下棋，则下棋一个
 		this._chessList.push(chess);
-		nGame.GameData.placeChess(chess.getChessPos().x,chess.getChessPos().y,chess.getChessDir());
-		if (nGame.GameData.chessBoard!.deads.length > 0){
+		nGame.Game.placeChess(chess.getChessPos().x,chess.getChessPos().y,chess.getChessDir());
+		if (nGame.Game.chessBoard!.deads.length > 0){
 			//可以移动 -- 对于自己来说，别人进入移动阶段
 			hasCanMove = this.findAllChessCanMove();
 			if(hasCanMove){
@@ -486,10 +486,10 @@ export class LianQi extends Component {
 	}
 	public changeChessDir(chess : GameChess,dir : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType) : boolean{
 		chess.updateDir(dir);
-		let banDirs: Array<ProtocolDefine.nGame.nLianQi.eLianQiDirectionType> = nGame.GameData.getUsableDirection();
+		let banDirs: Array<ProtocolDefine.nGame.nLianQi.eLianQiDirectionType> = nGame.Game.getUsableDirection();
 		//如果这个方向不禁手
 		if (banDirs.indexOf(dir) != -1) {
-			let lcb : nLianQiLogic.ChessBoard | null = nGame.GameData.tryToPlace(chess.getChessPos().x, 
+			let lcb : nLianQiLogic.ChessBoard | null = nGame.Game.tryToPlace(chess.getChessPos().x, 
 				chess.getChessPos().y, chess.getChessDir());
 			if (lcb == null){
 				return false;
@@ -521,7 +521,7 @@ export class LianQi extends Component {
 			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
 				{show : false,autoHide : false,content : ""});
 			chess.setCantPlace();
-			this.updateBoard(nGame.GameData.chessBoard!.chesses,chess);
+			this.updateBoard(nGame.Game.chessBoard!.chesses,chess);
 		}
 
 		return true;
@@ -556,7 +556,7 @@ export class LianQi extends Component {
 		//此处可以自己记录值，也可以通过接口获取
 		for(let lc of this._chessList) {
 			if(lc.getOwner() != nRoom.eSeatType.INVILID){
-				count[nRoom.RoomData.getLocalBySeat(lc.getOwner())]++;
+				count[nRoom.Room.getLocalBySeat(lc.getOwner())]++;
 			}
 		}
 
@@ -578,7 +578,7 @@ export class LianQi extends Component {
 		return new Vec3(s,s,1);
 	}
 	private checkSelfTurn() : boolean{
-		return nGame.GameData.currentTurn == nRoom.RoomData.selfSeat;
+		return nGame.Game.currentTurn == nRoom.Room.selfSeat;
 	}
 	private getGridIDByPos(x : number,y : number){
 		for(let grid of this._gridList){
@@ -627,7 +627,7 @@ export class LianQi extends Component {
 		return false;
 	}
 	public getTryChessDir() : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType{
-		let banDirs : Array<ProtocolDefine.nGame.nLianQi.eLianQiDirectionType> = nGame.GameData.getUsableDirection();
+		let banDirs : Array<ProtocolDefine.nGame.nLianQi.eLianQiDirectionType> = nGame.Game.getUsableDirection();
 		return banDirs[0];
 	}
 	public  getHaveMoveChess() : boolean{
@@ -642,7 +642,7 @@ export class LianQi extends Component {
 		return this._tryPlaceChess != null;
     }
 	private endTurn(){
-		nGame.GameData.changeTurn();
+		nGame.Game.changeTurn();
 		this.removeAllDeadChess();
 	}
 	private removeAllDeadChess() : void{
@@ -673,7 +673,7 @@ export class LianQi extends Component {
 		}
 		//获得尝试结束的结果
 		this._movedChessList = [];
-		let scl : Array<nLianQiLogic.ISpecialChessLink> | null = nGame.GameData.tryEndAction();
+		let scl : Array<nLianQiLogic.ISpecialChessLink> | null = nGame.Game.tryEndAction();
 		//当返回为空、或者没有可当前攻击的棋子时，结束回合；反之，进行移动棋子
 		if (scl != null){
 			let cos : Array<GameChess> = [];
@@ -681,7 +681,7 @@ export class LianQi extends Component {
 			for(let item of scl){
 				let c : GameChess | null = this.findGameChess(item.fromIdm);
 				//当可以攻击的棋子存在并且是当前回合的玩家时
-				if (c != null && c.getOwner() == nGame.GameData.currentTurn){
+				if (c != null && c.getOwner() == nGame.Game.currentTurn){
 					let atc : GameChess | null = this.findGameChess(item.toIdm);
 					if (atc == null){
 						//内部错误
@@ -696,20 +696,20 @@ export class LianQi extends Component {
 
 			if (cos.length > 0){
 				//当有足够的可攻击棋子存在时，去除所有的死亡棋子
-				nGame.GameData.washOut();
+				nGame.Game.washOut();
 				hasCanMove = true;
-				//this.updateBoard(nGame.GameData.chessBoard!.chesses);
+				//this.updateBoard(nGame.Game.chessBoard!.chesses);
 			}
 			else {
 				//当没有足够可攻击棋子存在时，也就是结束回合
-				nGame.GameData.washOut();
+				nGame.Game.washOut();
 				hasCanMove = false;
 			}
 		}
 		//当返回为空时,也就是没有合理棋子指着这里
 		else {
 			//结束回合
-			nGame.GameData.washOut();
+			nGame.Game.washOut();
 			hasCanMove = false;
 		}
 

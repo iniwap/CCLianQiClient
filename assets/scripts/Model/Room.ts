@@ -3,8 +3,8 @@
 //
 
 import { ProtocolDefine } from "../Define/ProtocolDefine";
-import { Account } from "./Account";
-import { Lobby } from "./Lobby";
+import { nAccount } from "./Account";
+import { nLobby } from "./Lobby";
 
 export namespace nRoom{
 
@@ -36,10 +36,10 @@ export namespace nRoom{
 		gold : number;//金币,主要消耗货币类型
 		score : number;
 
-		talentList : Array<Lobby.eTalentType>;
+		talentList : Array<nLobby.eTalentType>;
     };
     
-    export interface IRoomData{
+    export interface IRoom{
 		roomId : number;
 		isFull : number;
 		roomName : string;
@@ -67,7 +67,7 @@ export namespace nRoom{
 		LEFT = 3,
 		INVILID = 255,
 	};
-    export class RoomData{
+    export class Room{
 		public static roomID : number;
 		public static rule : string;
 		public static roomRule : RoomRule;
@@ -85,7 +85,7 @@ export namespace nRoom{
 		public static hasAbandon : boolean;// 自己是否已经投降了
 
 		public static playerList : Array<Player> = [];//存储对局玩家	
-		public static roomList : Array<IRoomData> = [];//此条不随具体对局变化，是静态数据，只有再次收到才清空
+		public static roomList : Array<IRoom> = [];//此条不随具体对局变化，是静态数据，只有再次收到才清空
 
 		public static reset() : void{
 			this.roomType = ProtocolDefine.nRoom.eCreateRoomType.ROOM_CLASSIC_PLAZA;
@@ -103,7 +103,7 @@ export namespace nRoom{
 			this.baseScore = 0;
 			this.hasAbandon = false;
 
-			Account.inRoomId = 0;//清除
+			nAccount.Account.inRoomId = 0;//清除
 		}
 		public static getAllPlayers() : Array<Player>{
 			return this.playerList;
@@ -112,7 +112,7 @@ export namespace nRoom{
 			this.tagId = tag;
 			this.plazaName = name;
 		}
-        public static setRoomData(roomid : number,levelId : number,plazaID : number,
+        public static setRoom(roomid : number,levelId : number,plazaID : number,
             roomtype : number,roomOwner : number,ruleStr : string,bs : number){
 			this.roomID = roomid;
 			this.rule = ruleStr;
@@ -157,7 +157,7 @@ export namespace nRoom{
 			}
 
 			//设置自己的座位
-			if (player.userID == Account.getSelfData().userID) {
+			if (player.userID == nAccount.Account.getSelfData().userID) {
 				this.selfSeat = player.seat;
 			}
 
@@ -299,7 +299,7 @@ export namespace nRoom{
 		public static updateRoomListByRoomID(roomid : number,pcnt : number) : boolean{
 			for (var i = 0; i < this.roomList.length; i++) {
 				if (roomid == this.roomList[i].roomId) {
-					let rd : IRoomData = this.roomList[i];
+					let rd : IRoom = this.roomList[i];
 					rd.roomPersonCnt = pcnt;
 					this.roomList[i] = rd;
 					return true;
@@ -317,11 +317,11 @@ export namespace nRoom{
 			}
 			return false;
 		}
-		public static addRoomListByRoomID(roomid : number,data :IRoomData) : void{
+		public static addRoomListByRoomID(roomid : number,data :IRoom) : void{
 			for (var i = 0; i < this.roomList.length; i++) {
 				if (roomid == this.roomList[i].roomId) {
 					//更新
-					let rd : IRoomData = this.roomList[i];
+					let rd : IRoom = this.roomList[i];
 					rd.isFull = data.isFull;
 					rd.roomDes = data.roomDes;
 					rd.roomId = data.roomId;

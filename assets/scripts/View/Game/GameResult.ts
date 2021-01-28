@@ -10,7 +10,7 @@ import { CommonDefine } from '../../Define/CommonDefine';
 import { ProtocolDefine } from '../../Define/ProtocolDefine';
 import { GameEvent } from '../../Event/GameEvent';
 import { RoomEvent } from '../../Event/RoomEvent';
-import { Lobby } from '../../Model/Lobby';
+import { nLobby } from '../../Model/Lobby';
 import { nRoom } from '../../Model/Room';
 import { Utils } from '../../Utils/Utils';
 import { PlayerScore } from './PlayerScore';
@@ -19,22 +19,22 @@ const { ccclass, property } = _decorator;
 @ccclass('GameResult')
 export class GameResult extends Component {
     @property(Sprite)
-    public levelIcon : Sprite = null;
+    public levelIcon! : Sprite;
     @property(Label)
-    public levelText : Label = null;
+    public levelText! : Label;
     @property(Label)
-    public baseScoreText : Label = null;
+    public baseScoreText! : Label;
     @property(Sprite)
-    public titleImg : Sprite = null;
+    public titleImg!: Sprite ;
     @property(Label)
-    public poolScore : Label = null;
+    public poolScore! : Label;
     @property(Label)
-	public abandonScore : Label = null;
+	public abandonScore! : Label;
 
     @property(Prefab)
-    public playerScorePrefab : Prefab = null;
+    public playerScorePrefab! : Prefab;
     @property(Node)
-	public playerContainer : Node = null;
+	public playerContainer! : Node;
 	private _playerScore : Array<PlayerScore | null> = [];
 
     start () {
@@ -85,7 +85,7 @@ export class GameResult extends Component {
 			this._playerScore.push(this.createPlayerScore(i,result.roomType,result.gameResult[i]));
 
             let path : string = "";
-			if (nRoom.RoomData.getLocalBySeat(result.gameResult [i].seat) == nRoom.eSeatType.SELF) {
+			if (nRoom.Room.getLocalBySeat(result.gameResult [i].seat) == nRoom.eSeatType.SELF) {
 				if (result.gameResult [i].score > 0) {
 					path = CommonDefine.ResPath.GAME_RESULT_TITLE_WIN;
 				} else if (result.gameResult [i].score < 0) {
@@ -129,7 +129,7 @@ export class GameResult extends Component {
 
 		playerScore.node.setPosition(0,150 - index * 100);
 
-		let self : boolean = nRoom.RoomData.getLocalBySeat(rst.seat) == nRoom.eSeatType.SELF;
+		let self : boolean = nRoom.Room.getLocalBySeat(rst.seat) == nRoom.eSeatType.SELF;
 		let showOwner : boolean = false;
 		if (roomType == ProtocolDefine.nRoom.eCreateRoomType.ROOM_ROOM 
 			|| roomType ==  ProtocolDefine.nRoom.eCreateRoomType.ROOM_TEAM) {
@@ -146,13 +146,13 @@ export class GameResult extends Component {
 
 		return playerScore;
 	}
-	private updateLevel(level : Lobby.ePlazaLevelType,baseScore : number){
+	private updateLevel(level : nLobby.ePlazaLevelType,baseScore : number){
 		let pname : string = "新手场";
-		if(level == Lobby.ePlazaLevelType.PLAZA_LEVEL_LOW){
+		if(level == nLobby.ePlazaLevelType.PLAZA_LEVEL_LOW){
 			pname = "新手场";
-		}else if(level == Lobby.ePlazaLevelType.PLAZA_LEVEL_MIDDLE){
+		}else if(level == nLobby.ePlazaLevelType.PLAZA_LEVEL_MIDDLE){
 			pname = "进阶场";
-		}else if(level == Lobby.ePlazaLevelType.PLAZA_LEVEL_HIGH){
+		}else if(level == nLobby.ePlazaLevelType.PLAZA_LEVEL_HIGH){
 			pname = "高手场";
 		}
 		this.levelText.string = pname;

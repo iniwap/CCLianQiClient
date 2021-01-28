@@ -1,5 +1,3 @@
-import { EXPORT_TO_GLOBAL } from "cce.env";
-
 //协议定义
 export namespace ProtocolDefine{
 

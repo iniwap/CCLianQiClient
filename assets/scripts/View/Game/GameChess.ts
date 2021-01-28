@@ -5,7 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Component, Node, Vec2, EventTouch, Label, Sprite, resources, math, Vec3, tween, SpriteFrame } from 'cc';
+import { _decorator, Component, Node, Vec2, EventTouch, Label, Sprite, resources, Vec3, tween, SpriteFrame } from 'cc';
 import { CommonDefine } from '../../Define/CommonDefine';
 import { ProtocolDefine } from '../../Define/ProtocolDefine';
 import { GameEvent } from '../../Event/GameEvent';

@@ -80,7 +80,7 @@ export class RoomPlayer extends Component {
 		this._local = local;
         this.nameText.string = name;
         
-        resources.load(CommonDefine.ResPath.ROOM_HEAD_BG + nRoom.RoomData.getSeatByLocal(local) + "/spriteFrame",
+        resources.load(CommonDefine.ResPath.ROOM_HEAD_BG + nRoom.Room.getSeatByLocal(local) + "/spriteFrame",
             SpriteFrame,(err, spriteFrame) => {
                 try{
                     this.headBg.spriteFrame = spriteFrame!;
@@ -134,7 +134,7 @@ export class RoomPlayer extends Component {
 		return this._isOwner;
 	}
 	public updatePlayerReady() : void{        
-        resources.load(CommonDefine.ResPath.ROOM_READY_HEAD_BG + nRoom.RoomData.getSeatByLocal(this._local) + "/spriteFrame",
+        resources.load(CommonDefine.ResPath.ROOM_READY_HEAD_BG + nRoom.Room.getSeatByLocal(this._local) + "/spriteFrame",
             SpriteFrame, (err, spriteFrame) => {
                 this.headBg.spriteFrame = spriteFrame!;
                 //spriteFrame.addRef();

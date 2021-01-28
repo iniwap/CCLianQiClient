@@ -1,5 +1,4 @@
 import { ProtocolDefine } from "../Define/ProtocolDefine";
-import { nRoom } from "../Model/Room";
 
 export namespace RoomEvent{
     export enum EVENT{
