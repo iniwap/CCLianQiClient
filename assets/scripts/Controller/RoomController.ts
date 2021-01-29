@@ -10,6 +10,7 @@ import { CommonEvent } from "../Event/CommonEvent";
 import { LobbyEvent } from "../Event/LobbyEvent";
 import { RoomEvent } from "../Event/RoomEvent";
 import { nAccount } from "../Model/Account";
+import { nGame } from "../Model/Game";
 import { nLobby } from "../Model/Lobby";
 import { nRoom } from "../Model/Room";
 import { ProtocolManager } from "../ProtocolManager/ProtocolManager";
@@ -171,6 +172,7 @@ export class RoomController{
 		if (mustLeave) {
 			// 这种是游戏结束的时候的离开
 			nRoom.Room.reset ();
+			nGame.Game.reset();
 			director.loadScene(CommonDefine.eSceneType[CommonDefine.eSceneType.Lobby],(err, scene)=>{});
 		} else {
 			let lr : ProtocolDefine.nRoom.msgReqLeaveRoom = {game : ProtocolDefine.GameType.GAME_LIANQI};

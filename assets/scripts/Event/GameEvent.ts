@@ -9,12 +9,14 @@ export namespace GameEvent{
 		CHANGE_CHESS_DIR,//改变棋子方向
 		MOVE_CHESS,//尝试移动棋子
 		PLAY,//落子
+		AI_PLAY,//AI落子
 		MOVE,//移动
 		PASS,//过，回合结束
 		ABANDON,//投降
 		DRAW,//请和
 		ACTION_FAIL,//操作失败，响应
 		CLOCK,
+		//AI_END,//AI
 
 		SHOW_DIR_CHESS,//方向盘棋子
 		SHOW_OP_TIPS,//显示下拉框提示
@@ -55,6 +57,7 @@ export namespace GameEvent{
 		banDirList : Array<number>;
 	}
 	export interface IPlayOrMove{
+		isAI : boolean;
 		isMove : boolean;
 		local : number;
 		chessList : Array<ProtocolDefine.nGame.nLianQi.Chess>

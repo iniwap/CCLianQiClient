@@ -149,7 +149,7 @@ export class GameChess extends Component {
     public onTouchEndCallback(event : any) : void{
         if(this._isTryChess){
             Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
-                {show : true,autoHide : true,content : "调整方向结束后，点击[Play]按钮，确认落子。"});
+                {show : true,autoHide : true,content : "调整方向结束后，点击[确定落子]按钮。"});
         }else if(this._canMove){
             //移动阶段
         }

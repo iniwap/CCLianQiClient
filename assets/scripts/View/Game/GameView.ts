@@ -11,6 +11,7 @@ import { CommonDefine } from '../../Define/CommonDefine';
 import { ProtocolDefine } from '../../Define/ProtocolDefine';
 import { GameEvent } from '../../Event/GameEvent';
 import { RoomEvent } from '../../Event/RoomEvent';
+import { nGame } from '../../Model/Game';
 import { nLobby } from '../../Model/Lobby';
 import { nRoom } from '../../Model/Room';
 import { NetworkState } from '../../Utils/NetworkState';
@@ -144,6 +145,10 @@ export class GameView extends NetworkState {
     }
 
     //----------------------------以下是界面事件发送-----------------------------
+    public OnAICloseBtnClick() : void{
+        //退出返回大厅，显示结算？不需要似乎
+        Utils.getGlobalController()?.Emit(RoomEvent.EVENT[RoomEvent.EVENT.LEAVE_ROOM],true);
+    }
 	public OnDrawBtn() : void{
         Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.DRAW]);
 	}
@@ -237,14 +242,21 @@ export class GameView extends NetworkState {
             //所有人设置为游戏中
             this.onPlayerState(nRoom.Room.getLocalBySeat(players[i].seat),players[i].state);
         }
+
+        let topBtns : Array<Button> = this.topMenu.getComponentsInChildren(Button);
+        for(let btn of topBtns){
+            if (btn.name.indexOf("HintBtn") != -1
+                || btn.name.indexOf("AbandonBtn") != -1
+                || btn.name.indexOf("ChatBtn") != -1) {
+                btn.node.active = !nGame.Game.isAI;
+            }else if(btn.name.indexOf("BackBtn") != -1){
+                btn.node.active = nGame.Game.isAI;
+            }
+        }
     }
     public onUpdateRoomRule(rr : RoomEvent.IUpdateRoomRule){
 		this._roomRule = rr;
 		let rule : Label = this.gameRule.getComponentInChildren(Label)!;
-
-		let text : string = "";
-		text += this._roomRule.playerNum + "人 ";
-        text += this._roomRule.gridLevel + "阶 ";
         let modeStr : string = Utils.getModeStr(this._roomRule.type,this._roomRule.playerNum,this._roomRule.gridLevel);
 
 		if (this._roomRule.type == ProtocolDefine.nRoom.eCreateRoomType.ROOM_CLASSIC_PLAZA) {
@@ -255,6 +267,8 @@ export class GameView extends NetworkState {
 			rule.string = modeStr + " 房间模式";
 		}else if (this._roomRule.type == ProtocolDefine.nRoom.eCreateRoomType.ROOM_TEAM){
 			rule.string = modeStr + " 组队模式";
+        }else{
+            rule.string = modeStr + " 单机模式";
         }
         
 		//初始化联棋界面
@@ -371,8 +385,9 @@ export class GameView extends NetworkState {
     public enableTopBarButton(enable : boolean) : void{
 		let btns : Array<Button> = this.topMenu.getComponentsInChildren(Button);
 		for (var i = 0; i < btns.length; i++) {
-			if (btns[i].name == "HintBtn"
-				|| btns[i].name == "AbandonBtn") {
+			if (btns[i].name.indexOf("HintBtn") != -1
+                || btns[i].name.indexOf("AbandonBtn") != -1
+                || btns[i].name.indexOf("ChatBtn") != -1) {
 				btns[i].interactable = enable;
 			}
 		}

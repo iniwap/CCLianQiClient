@@ -341,6 +341,9 @@ export namespace nLianQiLogic{
             // }
             this.roundNum++;
         }
+        public getRoundNum() : number{
+            return this.roundNum;
+        }
         public getCopy() : ChessBoard{
             let lcb : ChessBoard = new ChessBoard(this.boardSize,this.banDirNum);
             lcb.identityNumberNow = this.identityNumberNow;

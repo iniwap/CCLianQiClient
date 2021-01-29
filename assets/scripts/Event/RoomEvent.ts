@@ -19,6 +19,7 @@ export namespace RoomEvent{
         PLAER_ENTER,//用户进入
         UPDATE_PLAER_STATE,//用户状态发生变化
         START_GAME,//点击开局
+        START_AI_GAME,//开始单机模式
     };
 
     export interface JoinRoom{

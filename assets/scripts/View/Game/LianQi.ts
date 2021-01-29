@@ -50,8 +50,6 @@ export class LianQi extends Component {
 			this.onShowLianQi.bind(this),this);
 		
 		//界面消息
-		Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.PLACE_CHESS],
-			this.onEventPlaceChess.bind(this),this);
 		Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.MOVE_CHESS],
 			this.onEventMoveChess.bind(this),this);
     }
@@ -62,8 +60,6 @@ export class LianQi extends Component {
 		Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.SHOW_LIANQI],
 			this.onShowLianQi.bind(this),this);
 		//界面消息
-		Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.PLACE_CHESS],
-			this.onEventPlaceChess.bind(this),this);
 		Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.MOVE_CHESS],
 			this.onEventMoveChess.bind(this),this);
 			
@@ -263,6 +259,8 @@ export class LianQi extends Component {
 			return;
 		}
 
+		//此处还需要检测是否是落子阶段，不然不允许尝试落子
+
 		let prevGridID = -1;
 		if(this._tryPlaceChess != null){
 			prevGridID = this._tryPlaceChess.getGridID();
@@ -455,7 +453,7 @@ export class LianQi extends Component {
 					tip =  "有可移动棋子，请<b>点击棋子</b>移动(可多选)或直接点击<b>确定移动</b>跳过。";
 				}
 				Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
-					{show : true,autoHide : false,content : tip});
+					{show : true,autoHide : true,content : tip});
 			}
 		}else{
 			//不能移动棋子，等待对方结束回合
@@ -465,7 +463,7 @@ export class LianQi extends Component {
 				chess.endPlaceChess();
 			}
 			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
-				{show : true,autoHide : false,content : tip});
+				{show : true,autoHide : true,content : tip});
 		}
 		chess.updateWhosChess();
 		return hasCanMove;
@@ -655,6 +653,7 @@ export class LianQi extends Component {
 		}
 
 		for(let co of dco) {
+			this._gridList[co.getGridID()].enableGrid(true);//格子重新可以占据
 			this._chessList.splice(this._chessList.indexOf(co),1);
 			co.node.destroy();
 		}

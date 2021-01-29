@@ -5,7 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Component, Node, Label, Button, SpriteFrame, resources, Sprite, math, tween, Vec3 } from 'cc';
+import { _decorator, Component, Node, Label, Button, SpriteFrame, resources, Sprite, math, tween, Vec3, Vec2 } from 'cc';
 import { nRoom } from '../../Model/Room';
 import { GameEvent } from '../../Event/GameEvent';
 import { RoomEvent } from '../../Event/RoomEvent';
@@ -13,6 +13,7 @@ import { Utils } from '../../Utils/Utils';
 import { CommonDefine } from '../../Define/CommonDefine';
 import { LianQi } from './LianQi';
 import { ProtocolDefine } from '../../Define/ProtocolDefine';
+import { nGame } from '../../Model/Game';
 const { ccclass, property } = _decorator;
 
 export enum eActionStep{
@@ -43,7 +44,6 @@ export class Action extends Component {
 	public directionPanel! : Node;
 	@property(Node)
 	public dirs : Array<Node> = [];
-	private _banDirs : Array<ProtocolDefine.nGame.nLianQi.eLianQiDirectionType> = [];
 
 	@property(Sprite)
 	public seatBG !: Sprite;
@@ -75,6 +75,8 @@ export class Action extends Component {
 		//棋子改变方向，通过actionpanel 处理
 		Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.CHANGE_CHESS_DIR],
 			this.onEventChangeChessDir.bind(this),this);
+		Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.PLACE_CHESS],
+			this.onEventPlaceChess.bind(this),this);
     }
 
     onDisable(){
@@ -96,8 +98,8 @@ export class Action extends Component {
 			this.onEventChangeChessDir.bind(this),this);
 		Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.SHOW_DIR_CHESS],
 			this.onEventShowDirChess.bind(this),this);
-		this._banDirs = [];
-
+		Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.PLACE_CHESS],
+			this.onEventPlaceChess.bind(this),this);
     }
     // update (deltaTime: number) {
     //     // Your update function goes here.
@@ -157,7 +159,7 @@ export class Action extends Component {
 	}
 	public onEventChangeChessDir(dir : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType) : void{
 		//原则上只需判断棋子调整时的方向，至于服务器落子时一定是可用的，没必要加这个判断
-		if(this._banDirs.indexOf(dir) != -1){
+		if(nGame.Game.banDirs.indexOf(dir) != -1){
 			//该方向当前为禁用方向
 			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
 				{show : true,autoHide : false,content : "该方向为禁用方向，请继续调整其他可用方向。"});
@@ -174,6 +176,14 @@ export class Action extends Component {
 		this.qiZi.node.active = true;
 		this.updateDirChessDir(dir);
 	}
+	public onEventPlaceChess(pos : Vec2,gid : number) : void{
+		if(this._currentStep != eActionStep.STEP_PLAY){
+			Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_OP_TIPS],
+				{show : true,autoHide : true,content : "当前非落子阶段，无法尝试落子。"});
+		}else{
+			this.lianQi.onEventPlaceChess(pos,gid);
+		}
+	}
     //-----------------------------接收消息处理------------------------
 	public onInit(rr : RoomEvent.IUpdateRoomRule) : void{
 		this.lianQi.node.active = true;
@@ -182,7 +192,6 @@ export class Action extends Component {
 		this.round.string = "回合 1" + "/" + rr.lmtRound;
 
 		this.round.node.active = false;
-		this._banDirs = [];
 		this.directionPanel.setScale(0,0);
 		for(let dir of this.dirs){
 			dir.getChildByName("DirSelected")!.active = false;
@@ -235,10 +244,22 @@ export class Action extends Component {
 	}
 	//移动棋子成功
 	public onShowMove(pm : GameEvent.IPlayOrMove) : void{
-		this.setCurrentStep(eActionStep.STEP_PASS);
+		if (pm.local == nRoom.eSeatType.SELF) {
+			this.btnPass.interactable = true;
+			//自己落子的响应，原则上不需要更新方向盘
+		}else{
+			this.btnPass.interactable = false;
+		}
+
 		if(this.lianQi.onLQShowMove(pm)){//仍有棋子可以移动
+			if(pm.local == nRoom.eSeatType.SELF){
+				this.setPassBtnTxt("确定移动");
+			}
 			this.setCurrentStep(eActionStep.STEP_MOVE_OR_PASS);
 		}else{
+			if(pm.local == nRoom.eSeatType.SELF){
+				this.setPassBtnTxt("结束回合");
+			}
 			this.setCurrentStep(eActionStep.STEP_PASS);
 		}
 	}
@@ -295,13 +316,6 @@ export class Action extends Component {
 	}
 
 	public onUpdateFirstHandSeat(seat : number) : void{
-		//开局所有方向可用
-		let firstHand : number = nRoom.Room.getLocalBySeat(seat);
-		this._banDirs = [];
-		for (var i = 0; i < 6; i++) {
-			this.banDir(false,i);
-		}
-
 		this.qiZi.node.active = false;
     }
 	//------------------------封装------------------
@@ -333,27 +347,6 @@ export class Action extends Component {
 		}
 	}
 
-	private banDir(ban : boolean,dir : number) : void{
-		let d : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType = dir;
-		let index : number = this._banDirs.indexOf(d);
-		if(index != -1){//存在只能是去禁用
-			if(!ban){
-				//去禁用方向
-				this._banDirs.splice(index,1);
-			}else{
-				//重复操作，donth
-			}
-		}else{  //不存在只能是禁用方向
-			if(ban){
-				this._banDirs.push(d);
-			}else{
-				//多余操作，donth
-			}
-		}
-
-		//事实上游戏逻辑不做处理
-		this.lianQi.onActionBanDir(ban,dir);
-	}
 	private setPassBtnTxt(txt : string) : void {        
         this.btnPass.getComponentInChildren(Label)!.string = txt;
 	}
@@ -377,10 +370,10 @@ export class Action extends Component {
                 //spriteFrame.addRef();
         });
 
-		this._banDirs = [];
 		for (var i = 0; i < st.banDirList.length; i++) {
 			if (st.banDirList[i] != -1) {
-				this.banDir(true, st.banDirList[i]);
+				//事实上游戏逻辑不做处理
+				this.lianQi.onActionBanDir(true,st.banDirList[i]);
 			}
 		}
 		//切换手不显示方向棋子，只有点击尝试落子后才显示
@@ -429,7 +422,7 @@ export class Action extends Component {
 			let c : math.Color = this.dirs[i].getChildByName("BanDir")!.getComponent(Sprite)!.color;
 			this.dirs[i].getChildByName("BanDir")!.getComponent(Sprite)!.color = new math.Color(c.r,c.g,c.b,255);
 		}
-		for(let dir of this._banDirs){
+		for(let dir of nGame.Game.banDirs){
 			let c : math.Color = this.dirs[dir].getChildByName("BanDir")!.getComponent(Sprite)!.color;
 			this.dirs[dir].getChildByName("BanDir")!.getComponent(Sprite)!.color = new math.Color(c.r,c.g,c.b,127);
 		}

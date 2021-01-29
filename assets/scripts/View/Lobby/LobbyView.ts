@@ -5,7 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Sprite, Label, Button, resources  as Res, SpriteFrame, assetManager, ImageAsset} from 'cc';
+import { _decorator, Sprite, Label, Button, resources  as Res, SpriteFrame, assetManager, ImageAsset } from 'cc';
 import { nAccount } from '../../Model/Account';
 import { EmailView } from './Email/EmailView';
 import { FeedbackView } from './FeedbackView';
@@ -24,6 +24,9 @@ import { PackageView } from './PackageView';
 import { PlazaRoomView } from './PlazaRoom/PlazaRoomView';
 import { TalentView } from './Talent/TalentView';
 import { NetworkState } from '../../Utils/NetworkState';
+import { nRoom } from '../../Model/Room';
+import { nGame } from '../../Model/Game';
+import { GameEvent } from '../../Event/GameEvent';
 
 const { ccclass, property } = _decorator;
 
@@ -331,6 +334,7 @@ export class LobbyView extends NetworkState {
 
 	public OnClickOfflineModeBtn() : void{
 		//切换到单机界面
+		Utils.getGlobalController()?.Emit(RoomEvent.EVENT[RoomEvent.EVENT.START_AI_GAME]);
 	}
 	public OnClickOnlineModeBtn() : void{
 		//切换到plaza room 界面

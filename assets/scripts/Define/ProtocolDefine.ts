@@ -680,6 +680,7 @@ export namespace ProtocolDefine{
 			isEnterRoomFinsh : boolean;
 		};
 		export enum eCreateRoomType{
+			ROOM_NONE = -1,//单机模式
 			ROOM_CLASSIC_PLAZA = 0,
 			ROOM_PLAZA = 1,
 			ROOM_ROOM = 2,

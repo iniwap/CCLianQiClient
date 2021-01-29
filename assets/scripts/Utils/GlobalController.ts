@@ -66,6 +66,9 @@ export class GlobalController extends Component {
     public OnNotifyStartGame(enterFinish : boolean) : void{
         GameController.getInstance().onEventStartGame(enterFinish);
     }
+    public DelayCallback(cb : any,delay : number = 2) : void{
+        this.scheduleOnce(cb,delay);
+    }
     //#endregion
 
     // update (deltaTime: number) {

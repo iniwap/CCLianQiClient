@@ -88,7 +88,7 @@ export namespace nRoom{
 		public static roomList : Array<IRoom> = [];//此条不随具体对局变化，是静态数据，只有再次收到才清空
 
 		public static reset() : void{
-			this.roomType = ProtocolDefine.nRoom.eCreateRoomType.ROOM_CLASSIC_PLAZA;
+			this.roomType = ProtocolDefine.nRoom.eCreateRoomType.ROOM_NONE;
 			this.plazaid = 0;
 			this.plazaName = "";
 			this.tagId = -1;
@@ -138,7 +138,7 @@ export namespace nRoom{
 			//存在则更新，不存在则添加
 			for (var i = 0; i < this.playerList.length; i++) {
 				if (this.playerList[i].userID == player.userID) {
-					let p : Player= this.playerList[i];
+					let p : Player = this.playerList[i];
 					p.charm = player.charm;
 					p.draw = player.draw;
 					p.escapse = player.escapse;

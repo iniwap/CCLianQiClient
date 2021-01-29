@@ -1,0 +1,17 @@
+{
+  "ver": "4.0.9",
+  "importer": "typescript",
+  "imported": true,
+  "uuid": "12e4dcf7-6bd2-4932-a28b-bb5f5e7d73ab",
+  "files": [
+    ".js",
+    "editor.js",
+    ".trans"
+  ],
+  "subMetas": {},
+  "userData": {
+    "importAsPlugin": false,
+    "moduleId": "project:///assets/scripts/GameLogic/AI/PlaceMethod.js",
+    "importerSettings": 7
+  }
+}

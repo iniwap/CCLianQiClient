@@ -10,13 +10,16 @@ export namespace nGame{
 		public static chessBoard : nLianQiLogic.ChessBoard | null = null;// 棋盘数据
 		public static playerNum : number = 2;          //玩家人数
 		public static boardLevel : number = 4;         //棋盘阶数
-	
+		public static isAI : boolean = false;
+		public static banDirs : Array<ProtocolDefine.nGame.nLianQi.eLianQiDirectionType> = [];
 		public static reset() : void{
 			this.currentTurn = 255;
 			this.firstHandSeat = 255;
 			this.playerNum = 2;//玩家人数
 			this.boardLevel = 4;//棋盘阶数
 			this.chessBoard = null;
+			this.isAI = false;
+			this.banDirs = [];
 		}
 		public static getUsableDirection() : Array<ProtocolDefine.nGame.nLianQi.eLianQiDirectionType>{
             return nRule.getUsableDirection(this.chessBoard!);
@@ -26,7 +29,6 @@ export namespace nGame{
             return nRule.getTryResult(this.chessBoard!.getCopy(), x, y, dir, this.currentTurn);
 		}
 		public static startGame(pn : number,bl : number,banDirNum : number) : void{
-			this.reset();
 			this.playerNum = pn;
 			this.boardLevel = bl;
             this.chessBoard = new nLianQiLogic.ChessBoard(this.boardLevel,banDirNum);
@@ -42,6 +44,18 @@ export namespace nGame{
 		public static changeTurn() : void{
             this.chessBoard!.endAction(this.currentTurn);
             nRule.cleanAttacks(this.chessBoard!);
+		}
+		public static getRoundNum() : number{
+			return this.chessBoard!.getRoundNum();
+		}
+		public static getPlayerChessNum(playerID : number) : number{
+			let num = 0;
+			for(let chess of this.chessBoard!.chesses){
+				if(chess.ownner == playerID){
+					num++;
+				}
+			}
+			return num;
 		}
 		//落子永远是回合方
 		public static placeChess(x : number, y : number,

@@ -1,8 +1,12 @@
 
+import { director } from "cc";
 import { eDialogEventType, IDialog } from "../Common/Dialog";
+import { CommonDefine } from "../Define/CommonDefine";
 import { ProtocolDefine } from "../Define/ProtocolDefine";
 import { CommonEvent } from "../Event/CommonEvent";
 import { GameEvent } from "../Event/GameEvent";
+import { RoomEvent } from "../Event/RoomEvent";
+import { AILogic } from "../GameLogic/AI/AILogic";
 import { nAccount } from "../Model/Account";
 import { nGame } from "../Model/Game";
 import { nRoom } from "../Model/Room";
@@ -34,6 +38,12 @@ export class GameController{
             this.onEventMove.bind(this),GameController);
         Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.PASS],
             this.onEventPass.bind(this),GameController);
+        
+        //ai落子，只有单机模式才会出现，暂不支持智能提示
+        Utils.getGlobalController()?.On(GameEvent.EVENT[GameEvent.EVENT.AI_PLAY],
+            this.OnAIPlay.bind(this),GameController);
+        Utils.getGlobalController()?.On(RoomEvent.EVENT[RoomEvent.EVENT.START_AI_GAME],
+            this.onEventStartAIGame.bind(this),GameController);
 
         //注册网络消息
         ProtocolManager.getInstance().On(ProtocolDefine.GameProtocol.P_GAME_CLOCK,this.OnPlayerClock.bind(this));//玩家步骤剩余时间
@@ -61,7 +71,10 @@ export class GameController{
             this.onEventMove.bind(this),GameController);
         Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.PASS],
             this.onEventPass.bind(this),GameController);
-
+        Utils.getGlobalController()?.Off(GameEvent.EVENT[GameEvent.EVENT.AI_PLAY],
+            this.OnAIPlay.bind(this),GameController);
+        Utils.getGlobalController()?.Off(RoomEvent.EVENT[RoomEvent.EVENT.START_AI_GAME],
+            this.onEventStartAIGame.bind(this),GameController);
         //注册网络消息
         ProtocolManager.getInstance().Off(ProtocolDefine.GameProtocol.P_GAME_CLOCK,this.OnPlayerClock.bind(this));//玩家步骤剩余时间
         ProtocolManager.getInstance().Off(ProtocolDefine.GameLianQiProtocol.P_GAME_LIANQI_START,this.OnLQStart.bind(this));//联棋游戏开始 -播放相关动画
@@ -78,7 +91,84 @@ export class GameController{
     }
 
     //-----------------界面消息------------------
-    public onEventStartGame(isEnterRoomFinsh : boolean){
+    public onEventStartAIGame() : void{
+        //设置房间数据
+        nRoom.Room.reset();
+        nRoom.Room.selfSeat = 0;
+        nRoom.Room.roomRule = {
+            playerNum : 2,
+            gridLevel : 4,
+            rule : "",
+            gameTime : 0,
+            lmtRound : 100,//限定100回合
+            lmtTurnTime : 0
+        };
+        
+        //塞自己
+        let self : nAccount.SelfData = nAccount.Account.getSelfData();
+        let player : nRoom.Player = { 
+			charm : self.charm,
+			draw : self.draw,
+			escapse : self.escape,
+			vip : 0,
+			gold : self.gold,
+			head : "",
+			lose : self.lose,
+			name : self.name,
+			score : self.score,
+			seat : 0,
+			sex : self.sex,
+			state : ProtocolDefine.nRoom.eStateType.STATE_TYPE_ROOMREADY,
+			userID : self.userID,
+			win : self.win,
+			isOwner : false,
+			talentList : self.talentList
+		};
+		nRoom.Room.addPlayer(player);
+        //塞一个机器人 seat=1
+        AILogic.getInstance().init(1,4);
+        let aiplayer : nRoom.Player = { 
+			charm : 0,
+			draw : 0,
+			escapse : 0,
+			vip : 0,
+			gold : 0,
+			head : "",
+			lose : 0,
+			name : "机器人",
+			score : 0,
+			seat : 1,
+			sex : 1,
+			state : ProtocolDefine.nRoom.eStateType.STATE_TYPE_ROOMREADY,
+			userID : 9527,
+			win : 0,
+			isOwner : false,
+			talentList : []
+        };
+        nRoom.Room.addPlayer(aiplayer);
+        //设置游戏数据
+        nGame.Game.reset();
+        nGame.Game.currentTurn = 0;//先手总是自己
+		nGame.Game.firstHandSeat = 0;
+		nGame.Game.playerNum = 2;//玩家人数
+		nGame.Game.boardLevel = 4;//棋盘阶数
+		nGame.Game.chessBoard = null;
+        nGame.Game.isAI = true;
+        
+        //启动游戏界面
+		director.loadScene(CommonDefine.eSceneType[CommonDefine.eSceneType.Game],(err, scene)=>{
+            //开始游戏
+            nGame.Game.firstHandSeat = 0;//固定自己先手
+            Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_GAME_START],0);
+
+            this.OnLQTurn({seat : nRoom.Room.selfSeat,
+                isPassTurn : false,
+                isTimeOut : false,
+                round : 0,
+                lmt : []});
+		});
+    }
+    public onEventStartGame(isEnterRoomFinsh : boolean) : void{
         let sgmsg : ProtocolDefine.nRoom.msgNotifyStartGame = {
         	game : ProtocolDefine.GameType.GAME_LIANQI,
         	isEnterRoomFinsh : isEnterRoomFinsh
@@ -98,6 +188,25 @@ export class GameController{
 			//已经投降了，不能操作
 			this.showDialog ("您已经投降过了～");
 			return;
+        }
+
+        //如果是单机模式
+        if(nGame.Game.isAI){
+            //直接响应，这里需要异步或延时
+            Utils.getGlobalController()?.DelayCallback(()=>{
+                
+                this.AIBanDir(play.direction);
+
+                this.OnRespPlay({
+                    flag : ProtocolDefine.nGame.nLianQi.eGameOpRespFlag.SUCCESS,
+                    seat : nRoom.Room.selfSeat,
+                    x : play.x,
+                    y : play.y,
+                    direction : play.direction
+                });
+            },0.1);//自己操作速度快点
+            
+            return;
         }
         
 		let rplay : ProtocolDefine.nGame.nLianQi.msgLianQiReqPlay = {
@@ -121,7 +230,19 @@ export class GameController{
 		if(nRoom.Room.getHasAbandon()){
 			//已经投降了，不能操作
 			return;
-		}
+        }
+        
+        if(nGame.Game.isAI){
+            //直接响应
+            Utils.getGlobalController()?.DelayCallback(()=>{
+                this.OnRespMove({
+                    flag : ProtocolDefine.nGame.nLianQi.eGameOpRespFlag.SUCCESS,
+                    seat : nRoom.Room.selfSeat,
+                    moveList : move.moveList
+                });
+            },0.1);
+            return;
+        }
 
         let rmove : ProtocolDefine.nGame.nLianQi.msgLianQiReqMove = {
             seat : nRoom.Room.selfSeat,
@@ -140,7 +261,24 @@ export class GameController{
 		if(nRoom.Room.getHasAbandon()){
 			//已经投降了，不能操作
 			return;
-		}
+        }
+        
+        if(nGame.Game.isAI){
+            //
+            Utils.getGlobalController()?.DelayCallback(()=>{
+                //
+                this.OnRespPass({
+                    flag : ProtocolDefine.nGame.nLianQi.eGameOpRespFlag.SUCCESS,
+                    seat : AILogic.getInstance().getAISeat()
+                });
+                //是否达到最大回合限制
+                if(this.AICheckLmtRoundEndGame()) return;
+                //切换到ai下棋
+                AILogic.getInstance().AIThink(nGame.Game.chessBoard!);
+            },0.1);
+
+            return;
+        }
 
         let rpass : ProtocolDefine.nGame.nLianQi.msgLianQiReqPass = {
             seat : nRoom.Room.selfSeat
@@ -258,7 +396,7 @@ export class GameController{
 		//请求过
 		let resp : ProtocolDefine.nGame.nLianQi.msgLianQiRespPass = msg;
 		if (resp.flag == 0) {
-			nGame.Game.currentTurn = resp.turn;
+            nGame.Game.currentTurn = resp.turn;
             Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_PASS],
                 nRoom.Room.getLocalBySeat(resp.turn));
 
@@ -287,6 +425,7 @@ export class GameController{
         let chessList : Array<ProtocolDefine.nGame.nLianQi.Chess> = [];
         chessList.push(chees);
 		let pm : GameEvent.IPlayOrMove = {
+            isAI : false,
             isMove : false,
             local : nRoom.Room.getLocalBySeat(resp.seat),
             chessList : chessList
@@ -306,6 +445,7 @@ export class GameController{
 		}
 
 		let pm : GameEvent.IPlayOrMove = {
+            isAI : false,
             isMove : true,
             local : nRoom.Room.getLocalBySeat(resp.seat),
             chessList : resp.moveList
@@ -361,7 +501,7 @@ export class GameController{
 		let resp : ProtocolDefine.nGame.nLianQi.msgLianQiTurn = msg;
 
 		nGame.Game.currentTurn = resp.seat;
-
+        this.updateBanDirs(resp.lmt);//添加禁用方向
         let banDirList : Array<number> = [];
 		for (var i = 0; i < resp.lmt.length; i++) {
 			banDirList.push(resp.lmt[i]);
@@ -383,7 +523,7 @@ export class GameController{
         Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_ABANDON_PASS],
             nRoom.Room.getLocalBySeat(resp.seat));
 	}
-	public OnLQAbandon(msg : any) : void{
+	public OnLQAbandon(msg : any) : void {
 		let resp : ProtocolDefine.nGame.nLianQi.msgLianQiRespAbandon = msg;
 		if (resp.seat != nRoom.Room.selfSeat) {
             Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_ABANDON],
@@ -392,6 +532,43 @@ export class GameController{
 			//自己投降的响应
 			nRoom.Room.setHasAbandon();
         }
+    }
+
+    //机器人落子
+    public OnAIPlay(play : GameEvent.IPlay,seat : number) : void{
+        if(!nGame.Game.isAI) return;
+        
+        let chees : ProtocolDefine.nGame.nLianQi.Chess = {
+            x : play.x,
+            y : play.y,
+            direction : play.direction,
+            playerID : seat
+        };
+        let chessList : Array<ProtocolDefine.nGame.nLianQi.Chess> = [];
+        chessList.push(chees);
+		let pm : GameEvent.IPlayOrMove = {
+            isAI : true,
+            isMove : false,
+            local : nRoom.Room.getLocalBySeat(seat),
+            chessList : chessList
+        }
+        //禁用机器人落子方向
+        this.AIBanDir(play.direction);
+
+        Utils.getGlobalController()?.Emit(GameEvent.EVENT[GameEvent.EVENT.SHOW_PLAY],pm);
+
+        //模拟器交互，延时操作
+        Utils.getGlobalController()?.DelayCallback(()=>{
+            //是否达到最大回合数，是则结束游戏
+            if(this.AICheckLmtRoundEndGame()) return;
+            //机器人落子，直接结束回合
+            //也可触发移动操作 -- 这样的话需要增加AI_MOVE
+            this.OnLQTurn({seat : nRoom.Room.selfSeat,
+                isPassTurn : true,
+                isTimeOut : false,
+                round : nGame.Game.getRoundNum(),
+                lmt : nGame.Game.banDirs});
+        });
     }
 
     //---------------------------
@@ -412,5 +589,67 @@ export class GameController{
     }
     private checkSelfTurn() : boolean{
 		return nGame.Game.currentTurn == nRoom.Room.selfSeat;
+    }
+    //
+    private updateBanDirs(banDirList : Array<ProtocolDefine.nGame.nLianQi.eLianQiDirectionType>) : void{
+        nGame.Game.banDirs = [];
+        for (var i = 0; i < banDirList.length; i++) {
+			if (banDirList[i] != -1) {
+                let d : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType = banDirList[i];
+                nGame.Game.banDirs.push(d);
+			}
+		}
+    }
+    //单机模式时，手动添加记录禁用方向--固定为2禁手
+    private AIBanDir(dir : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType){
+		let d : ProtocolDefine.nGame.nLianQi.eLianQiDirectionType = dir;
+		let index : number = nGame.Game.banDirs.indexOf(d);
+        if(index != -1){//存在则先删除
+            nGame.Game.banDirs.splice(index,1);
+		}else{  //不存在只能是禁用方向
+			if(nGame.Game.banDirs.length >= 2){
+                nGame.Game.banDirs.splice(0,1);//删除第一个
+            }
+        }
+        nGame.Game.banDirs.push(d);
+    }
+    public AICheckLmtRoundEndGame() : boolean{
+        if(nGame.Game.getRoundNum() >= nRoom.Room.roomRule.lmtRound){
+            let area0 = nGame.Game.getPlayerChessNum(0);
+            let area1 = nGame.Game.getPlayerChessNum(1);
+            let score0 = 0,score1 = 0;
+            if(area0 > area1){
+                score0 = 1000;
+            }else{
+                score1 = 1000;
+            }
+            //结束游戏
+            let gr0 : ProtocolDefine.nGame.nLianQi.GameResult = {
+                seat : 0,
+                area : area0,//领地
+				kill : 0,//消灭
+				score : score0,//得分
+			  	multi : 1,//倍率
+				hasAbandon : false,//是否投降了
+            };
+            let gr1 : ProtocolDefine.nGame.nLianQi.GameResult = {
+                seat : 1,
+                area : area1,//领地
+				kill : 0,//消灭
+				score : score1,//得分
+			  	multi : 1,//倍率
+				hasAbandon : false,//是否投降了
+            };
+
+            let msg : ProtocolDefine.nGame.nLianQi.msgLianQiResult = {
+                poolGold : 1000,
+                result : [gr0,gr1],
+                type : []
+            };
+            this.OnLQResult(msg);
+            return true;
+        }
+
+        return false;
     }
 }
