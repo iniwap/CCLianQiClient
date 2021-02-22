@@ -97,6 +97,22 @@ export namespace Utils{
         return 0;
     }
 
+    export const getFmtDate = function(time : string) : string{
+        let date = new Date(time);
+        let month : string | number = date.getMonth() + 1;
+        let strDate : string | number = date.getDate();
+        
+        if (month <= 9) {
+            month = "0" + month;
+        }
+        
+        if (strDate <= 9) {
+            strDate = "0" + strDate;
+        }
+        
+        return date.getFullYear() + "/" + month + "/" + strDate;
+    }
+
     // export const copy = function(obj : object,objs : object,deep : boolean) : object {
     //     deep = deep || false; // tue深copy false 浅copy
     //     for(let pro in objs) {

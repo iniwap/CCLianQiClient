@@ -141,13 +141,11 @@ export class EmailView extends Component {
 		this.removeAllEmail ();
 		for (var i = 0; i < nLobby.Lobby.privateMsgList.length; i++) {
 			//生成保存信息
-			let date = new Date(nLobby.Lobby.privateMsgList[i].send_time);//.format("yyyy/MM/dd");
-			let time : string = date.getFullYear() + '/' + date.getMonth() + "/" + date.getDate();
 			this._emailList.push(this.createEmailItem(i,nLobby.Lobby.privateMsgList[i].id,
 				nLobby.Lobby.privateMsgList[i].author,
 				JSON.parse( nLobby.Lobby.privateMsgList[i].content),
 				nLobby.Lobby.privateMsgList[i].has_read != 0,
-				time,
+				Utils.getFmtDate(nLobby.Lobby.privateMsgList[i].send_time),
 				nLobby.Lobby.privateMsgList[i].title));
 		}
 
