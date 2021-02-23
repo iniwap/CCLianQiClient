@@ -159,7 +159,7 @@ export class ProtocolManager  {
     public Off(pID : number,cb : any = null) : void{
         let pKey : string = "P" + pID;
         let route = this.ROUTE_CONFIG[pKey];
-        this._connection.off(event, (msg : any) => {
+        this._connection.off(route, (msg : any) => {
             //取消监听
         });
     }
