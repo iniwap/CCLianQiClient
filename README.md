@@ -5,7 +5,7 @@
 
 ![image](https://github.com/iniwap/CCLianQiClient/blob/main/screenshots/1.jpg)
 
-环境:Creator 3.0.0-Preview.1     
+环境:Creator 3.0.0 
 之前用的是Creator 3.0.0-Preview.1 没有问题，最新的版本不知道为什么网页调试时帧率很低，很卡。
 ---
 说明：
