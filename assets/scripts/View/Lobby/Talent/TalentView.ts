@@ -5,7 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Node, Label, Sprite, Button, Prefab, UITransform, resources, SpriteFrame, instantiate, JsonAsset } from 'cc';
+import { _decorator, Node, Label, Sprite, Button, Prefab, UITransform, resources, SpriteFrame, instantiate, JsonAsset, CCFloat } from 'cc';
 import { CommonDefine } from '../../../Define/CommonDefine';
 import { ProtocolDefine } from '../../../Define/ProtocolDefine';
 import { LobbyEvent } from '../../../Event/LobbyEvent';
@@ -67,7 +67,7 @@ export class TalentView extends NetworkState {
 	public talentItemRoot! : Node;
 	@property(Prefab)
 	public talentPrefab! : Prefab;
-	@property(Number)
+	@property(CCFloat)
 	public talentInteral : number = 0;
 	private _talentItemList : Array<TalentItem> = [];
 
@@ -84,7 +84,7 @@ export class TalentView extends NetworkState {
 	public highTalentCostInfoRoot! : Node;
 	@property(Prefab)
 	public talentCostPrefab! : Prefab;
-	@property(Number)
+	@property(CCFloat)
 	public  talentCostInteral : number = 0;
 	private _talentCostItemList : Array<TalentCostItem> = [];
 	@property(Label)

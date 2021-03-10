@@ -5,7 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Node, Button, EditBox, Sprite, Label, Prefab, RichText, UITransform, instantiate, resources, SpriteFrame } from 'cc';
+import { _decorator, Node, Button, EditBox, Sprite, Label, Prefab, RichText, UITransform, instantiate, resources, SpriteFrame, CCFloat, CCInteger } from 'cc';
 import { eDialogBtnType, eDialogEventType, IDialog } from '../../../Common/Dialog';
 import { CommonDefine } from '../../../Define/CommonDefine';
 import { ProtocolDefine } from '../../../Define/ProtocolDefine';
@@ -54,7 +54,7 @@ export class PlazaRoomView extends NetworkState {
 
 	@property(Prefab)
 	public plazaPrefab! : Prefab;
-	@property(Number)
+	@property(CCFloat)
 	public plazaInteral : number = 0;
 
 	@property(Prefab)
@@ -87,7 +87,7 @@ export class PlazaRoomView extends NetworkState {
 	@property(Label)
 	public currentRoomModeText! : Label;
 
-	@property(Number)
+	@property(CCInteger)
 	public baseScoreList : Array<number> = [];
 
 	private _currentPlazaLevel : nLobby.ePlazaLevelType = nLobby.ePlazaLevelType.PLAZA_LEVEL_MIDDLE;

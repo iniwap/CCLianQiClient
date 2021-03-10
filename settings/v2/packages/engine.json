@@ -1,75 +1,110 @@
 {
-  "__version__": "1.0.3",
+  "__version__": "1.0.5",
   "modules": {
     "cache": {
-      "Audio": {
-        "value": true
+      "base": {
+        "_value": true
       },
-      "Core": {
-        "value": true
+      "graphcis": {
+        "_value": true
       },
-      "DragonBones": {
-        "value": true
+      "gfx-webgl": {
+        "_value": true
       },
-      "Graphcis API": {
-        "value": true
+      "gfx-webgl2": {
+        "_value": true
       },
-      "Intersection 2D": {
-        "value": true
+      "3d": {
+        "_value": true
       },
-      "Particle 2D": {
-        "value": true
+      "2d": {
+        "_value": true
       },
-      "Particle System": {
-        "value": true
+      "ui": {
+        "_value": true
       },
-      "Physics": {
-        "option": 0,
-        "value": true
+      "particle": {
+        "_value": true
       },
-      "Physics 2D": {
-        "option": 0,
-        "value": true
+      "physics": {
+        "_value": true,
+        "_option": "physics-ammo"
       },
-      "Spine": {
-        "value": true
+      "physics-2d": {
+        "_value": true,
+        "_option": "physics-2d-box2d"
       },
-      "Terrain": {
-        "value": true
+      "intersection-2d": {
+        "_value": true
       },
-      "TiledMap": {
-        "value": true
+      "primitive": {
+        "_value": true
       },
-      "Tween": {
-        "value": true
+      "profiler": {
+        "_value": true
       },
-      "UI": {
-        "value": true
+      "particle-2d": {
+        "_value": true
       },
-      "VideoPlayer": {
-        "value": true
+      "audio": {
+        "_value": true
       },
-      "WebGL 1.0": {
-        "value": true
+      "video": {
+        "_value": true
       },
-      "WebGL 2.0": {
-        "value": true
+      "webview": {
+        "_value": true
       },
-      "WebView": {
-        "value": true
+      "tween": {
+        "_value": true
+      },
+      "terrain": {
+        "_value": true
+      },
+      "tiled-map": {
+        "_value": true
+      },
+      "spine": {
+        "_value": true
+      },
+      "dragon-bones": {
+        "_value": true
+      },
+      "dragonbones": {
+        "_value": true
+      },
+      "gfx": {
+        "_value": true
+      },
+      "physics-ammo": {
+        "_value": true
+      },
+      "physics-cannon": {
+        "_value": true
+      },
+      "physics-builtin": {
+        "_value": true
+      },
+      "physics-2d-box2d": {
+        "_value": true
+      },
+      "physics-2d-builtin": {
+        "_value": true
       }
     },
     "includeModules": [
       "base",
       "gfx-webgl",
       "gfx-webgl2",
+      "3d",
+      "2d",
       "ui",
       "particle",
-      "physics-cannon",
-      "physics-framework",
+      "physics-ammo",
       "physics-2d-box2d",
-      "physics-2d-framework",
       "intersection-2d",
+      "primitive",
+      "profiler",
       "particle-2d",
       "audio",
       "video",
@@ -78,7 +113,7 @@
       "terrain",
       "tiled-map",
       "spine",
-      "dragonbones"
+      "dragon-bones"
     ],
     "noDeprecatedFeatures": {
       "value": false,

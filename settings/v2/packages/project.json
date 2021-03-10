@@ -6,5 +6,11 @@
       "height": 1080,
       "fitHeight": false
     }
-  }
+  },
+  "layer": [
+    {
+      "name": "canvas_19",
+      "value": 524288
+    }
+  ]
 }
