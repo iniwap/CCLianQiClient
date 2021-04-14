@@ -91,14 +91,10 @@ export class GlobalController extends Component {
     //#region 统一管理全局事件收发
     _handles : Utils.DictType =  {};
     //发射监听
-    public Emit(eventName : string, arg0 : any = undefined, arg1 : any = undefined) : void
-    {
-        for (var findEvenName in this._handles)
-        {
-            if (findEvenName == eventName)
-            {
-                for (var i = 0; i < this._handles[eventName].length; i++)
-                {
+    public Emit(eventName : string, arg0 : any = undefined, arg1 : any = undefined) : void{
+        for (var findEvenName in this._handles){
+            if (findEvenName == eventName){
+                for (var i = 0; i < this._handles[eventName].length; i++){
                     var handler = this._handles[eventName][i]
                     handler.callback.call(handler.target,arg0,arg1);
                 }
@@ -106,19 +102,16 @@ export class GlobalController extends Component {
         }
     }
     //添加事件监听
-    public On(eventName : string, callback : any, target : any)
-    {
+    public On(eventName : string, callback : any, target : any){
         this._handles[eventName] = this._handles[eventName] || [];
 
         if(this._handles[eventName].length != 0){
             //判断是否已经存在
-            for (var i = 0; i < this._handles[eventName].length; i++)
-            {
+            for (var i = 0; i < this._handles[eventName].length; i++){
                 var handler = this._handles[eventName][i];
                 if (target.name == handler.target.name 
                     && callback.name == callback.name 
-                    && target == handler.target)
-                {
+                    && target == handler.target){
                     return;// 存在不重复添加
                 }
             }
@@ -131,15 +124,12 @@ export class GlobalController extends Component {
     }
 
     //移除监听
-    public Off(eventName : string, callback : any, target : any)
-    {
-        for (var i = 0; i < this._handles[eventName].length; i++)
-        {
+    public Off(eventName : string, callback : any, target : any){
+        for (var i = 0; i < this._handles[eventName].length; i++){
             var handler = this._handles[eventName][i];
             if (target.name == handler.target.name 
                 && callback.name == callback.name 
-                && target == handler.target)
-            {
+                && target == handler.target){
                 this._handles[eventName].splice(i, 1);
             }
         }

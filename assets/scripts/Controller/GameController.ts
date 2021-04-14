@@ -75,7 +75,7 @@ export class GameController{
             this.OnAIPlay.bind(this),GameController);
         Utils.getGlobalController()?.Off(RoomEvent.EVENT[RoomEvent.EVENT.START_AI_GAME],
             this.onEventStartAIGame.bind(this),GameController);
-        //注册网络消息
+        //去注册网络消息
         ProtocolManager.getInstance().Off(ProtocolDefine.GameProtocol.P_GAME_CLOCK,this.OnPlayerClock.bind(this));//玩家步骤剩余时间
         ProtocolManager.getInstance().Off(ProtocolDefine.GameLianQiProtocol.P_GAME_LIANQI_START,this.OnLQStart.bind(this));//联棋游戏开始 -播放相关动画
         ProtocolManager.getInstance().Off(ProtocolDefine.GameLianQiProtocol.P_GAME_LIANQI_FLAG,this.OnLQFlag.bind(this));//标志,诸如重连，特殊棋型出现

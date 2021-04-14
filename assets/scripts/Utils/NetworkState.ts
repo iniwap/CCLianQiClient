@@ -15,12 +15,7 @@ const { ccclass, property } = _decorator;
 
 @ccclass('NetworkState')
 export class NetworkState extends Component {
-    /* class member could be defined like this */
-    // dummy = '';
-
-    /* use `property` decorator if your want the member to be serializable */
-    // @property
-    // serializableDummy = 0;
+    
     @property(Prefab)
     public DialogPrefab! : Prefab;
 
