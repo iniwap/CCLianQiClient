@@ -269,7 +269,7 @@ export class GameController{
                 //
                 this.OnRespPass({
                     flag : ProtocolDefine.nGame.nLianQi.eGameOpRespFlag.SUCCESS,
-                    seat : AILogic.getInstance().getAISeat()
+                    turn : AILogic.getInstance().getAISeat()
                 });
                 //是否达到最大回合限制
                 if(this.AICheckLmtRoundEndGame()) return;

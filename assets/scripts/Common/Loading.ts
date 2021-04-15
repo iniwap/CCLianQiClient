@@ -5,7 +5,7 @@
 // Learn life-cycle callbacks:
 //  - https://docs.cocos.com/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { _decorator, Component } from 'cc';
+import { _decorator, Component ,Animation} from 'cc';
 const { ccclass } = _decorator;
 
 @ccclass('Loading')
@@ -29,6 +29,8 @@ export class Loading extends Component {
         this.node.active = show;
         if(!show){
             //destory
+           // let ani : Animation = this.node.getChildByPath("BG/loading")!.getComponent(Animation) as Animation;
+            //ani.stop();
             this.node.destroy();
         }
     }
